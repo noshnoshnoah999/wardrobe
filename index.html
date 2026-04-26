@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wardrobe</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --surface2: #f4f4f5;
+      --border: #e4e4e7;
+      --text: #09090b;
+      --text-muted: #71717a;
+      --accent: #18181b;
+      --accent-fg: #ffffff;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --nav-h: 64px;
+      --sidebar-w: 220px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+    }
+    [data-theme="dark"] {
+      --bg: #09090b;
+      --surface: #18181b;
+      --surface2: #27272a;
+      --border: #3f3f46;
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --accent: #fafafa;
+      --accent-fg: #09090b;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.5; }
+
+    .app { display: flex; height: 100dvh; overflow: hidden; }
+
+    .sidebar { display: none; width: var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); flex-direction: column; padding: 24px 16px; gap: 4px; flex-shrink: 0; }
+    .sidebar-logo { font-weight: 700; font-size: 18px; padding: 8px 12px 20px; letter-spacing: -0.5px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-sm); cursor: pointer; color: var(--text-muted); font-size: 14px; font-weight: 500; transition: all 0.15s; border: none; background: none; width: 100%; text-align: left; font-family: inherit; }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active { background: var(--surface2); color: var(--text); }
+    .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 4px; }
+
+    .main { flex: 1; overflow-y: auto; overflow-x: hidden; padding-bottom: calc(var(--nav-h) + 16px); }
+    .page-header { position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--border); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .page-title { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-h); background: var(--surface); border-top: 1px solid var(--border); display: flex; z-index: 20; padding-bottom: env(safe-area-inset-bottom); }
+    .bottom-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; color: var(--text-muted); font-size: 11px; font-weight: 500; border: none; background: none; transition: color 0.15s; font-family: inherit; }
+    .bottom-nav-item.active { color: var(--text); }
+
+    .page { display: none; padding: 20px; }
+    .page.active { display: block; }
+
+    .today-date { font-size: 13px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+    .today-heading { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin-top: 2px; margin-bottom: 20px; }
+
+    .outfit-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); margin-bottom: 16px; }
+    .outfit-items { display: grid; gap: 1px; background: var(--border); }
+    .outfit-items.n1 { grid-template-columns: 1fr; }
+    .outfit-items.n2 { grid-template-columns: repeat(2, 1fr); }
+    .outfit-items.n3 { grid-template-columns: repeat(3, 1fr); }
+    .outfit-items.n4 { grid-template-columns: repeat(2, 1fr); }
+    .outfit-item { background: var(--surface2); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .outfit-item img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+    .outfit-item-label { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.65)); color: white; padding: 24px 10px 8px; font-size: 11px; font-weight: 600; }
+    .outfit-item-emoji { font-size: 40px; }
+    .outfit-caption { padding: 16px; border-top: 1px solid var(--border); }
+    .outfit-name { font-size: 16px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.2px; }
+    .outfit-caption-text { font-size: 14px; line-height: 1.6; color: var(--text-muted); }
+    .outfit-meta { margin-top: 10px; font-size: 13px; color: var(--text-muted); }
+    .color-palette { display: flex; gap: 6px; margin-top: 12px; }
+    .color-swatch { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--border); }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; border: none; font-family: inherit; }
+    .btn-primary { background: var(--accent); color: var(--accent-fg); }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--border); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-icon { width: 36px; height: 36px; padding: 0; border-radius: var(--radius-sm); }
+    .btn-full { width: 100%; }
+    .btn-danger { color: #ef4444; border-color: #ef4444; }
+
+    .filter-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 20px; scrollbar-width: none; }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .filter-chip { flex-shrink: 0; padding: 6px 14px; border-radius: 99px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); transition: all 0.15s; font-family: inherit; }
+    .filter-chip.active { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+
+    .wardrobe-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .item-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; box-shadow: var(--shadow); }
+    .item-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .item-card-img { aspect-ratio: 3/4; background: var(--surface2); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .item-card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .item-card-img .cat-emoji { font-size: 52px; }
+    .item-card-body { padding: 10px 12px 12px; }
+    .item-card-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-card-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .item-card-colors { display: flex; gap: 4px; margin-top: 8px; }
+    .color-dot { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--border); }
+
+    .empty { text-align: center; padding: 60px 20px; color: var(--text-muted); grid-column: 1/-1; }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .empty-desc { font-size: 14px; margin-bottom: 20px; }
+
+    .section-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 10px; }
+    .add-section { margin-bottom: 24px; }
+    .upload-zone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 36px 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--surface); position: relative; }
+    .upload-zone:hover, .upload-zone.drag-over { border-color: var(--accent); background: var(--surface2); }
+    .upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-zone-icon { font-size: 32px; margin-bottom: 10px; }
+    .upload-zone-text { font-size: 14px; color: var(--text-muted); }
+    .upload-zone-text strong { color: var(--text); }
+
+    .preview-wrap { position: relative; border-radius: var(--radius); overflow: hidden; aspect-ratio: 3/4; max-width: 180px; margin: 0 auto; }
+    .preview-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-remove { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%; background: rgba(0,0,0,0.7); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; }
+
+    .input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: inherit; background: var(--surface); color: var(--text); transition: border-color 0.15s; outline: none; }
+    .input:focus { border-color: var(--accent); }
+    .input::placeholder { color: var(--text-muted); }
+    .input-row { display: flex; gap: 8px; }
+    .input-row .input { flex: 1; }
+
+    .divider { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .divider span { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+    .analysis-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-top: 16px; }
+    .analysis-loading { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 14px; }
+    .analysis-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); }
+    .analysis-row:last-child { border-bottom: none; }
+    .analysis-key { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+    .analysis-val { font-size: 13px; font-weight: 600; }
+
+    .profile-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+    .profile-section-title { font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+    .your-palette { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .palette-swatch { width: 40px; height: 40px; border-radius: var(--radius-sm); border: 2px solid var(--border); position: relative; cursor: default; }
+    .palette-remove { position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-radius: 50%; background: var(--text); color: var(--bg); border: none; cursor: pointer; font-size: 9px; display: none; align-items: center; justify-content: center; }
+    .palette-swatch:hover .palette-remove { display: flex; }
+
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: flex-end; }
+    .modal { background: var(--surface); border-radius: var(--radius) var(--radius) 0 0; width: 100%; max-height: 90dvh; overflow-y: auto; padding: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+    .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 99px; margin: 0 auto 20px; }
+    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .tag { padding: 4px 10px; background: var(--surface2); border-radius: 99px; font-size: 12px; font-weight: 500; color: var(--text-muted); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+    .spinner-lg { width: 32px; height: 32px; border-width: 3px; margin: 0 auto; }
+
+    .toast-container { position: fixed; bottom: calc(var(--nav-h) + 12px); left: 50%; transform: translateX(-50%); z-index: 200; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
+    .toast { background: var(--text); color: var(--bg); padding: 10px 18px; border-radius: 99px; font-size: 13px; font-weight: 500; white-space: nowrap; animation: toast-in 0.2s ease; }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .gen-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 48px 20px; text-align: center; box-shadow: var(--shadow); }
+    .gen-title { font-weight: 600; margin: 16px 0 6px; font-size: 15px; }
+    .gen-sub { font-size: 13px; color: var(--text-muted); }
+
+    .detail-img { width: 100%; aspect-ratio: 3/4; background: var(--surface2); border-radius: var(--radius); overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+    .detail-img img { width: 100%; height: 100%; object-fit: cover; }
+    .detail-emoji { font-size: 80px; }
+
+    @media (min-width: 768px) {
+      .sidebar { display: flex; }
+      .bottom-nav { display: none; }
+      .main { padding-bottom: 0; }
+      .wardrobe-grid { grid-template-columns: repeat(3, 1fr); }
+      .modal-backdrop { align-items: center; padding: 20px; }
+      .modal { border-radius: var(--radius); max-width: 500px; margin: auto; }
+    }
+    @media (min-width: 1024px) {
+      .wardrobe-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <nav class="sidebar">
+    <div class="sidebar-logo">✦ wardrobe</div>
+    <button class="nav-item active" onclick="navigate('today')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Today's Look
+    </button>
+    <button class="nav-item" onclick="navigate('wardrobe')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>
+      Wardrobe
+    </button>
+    <button class="nav-item" onclick="navigate('add')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Add Item
+    </button>
+    <div class="sidebar-bottom">
+      <button class="nav-item" onclick="navigate('profile')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        My Profile
+      </button>
+      <button class="nav-item" onclick="toggleTheme()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <span id="theme-label">Dark mode</span>
+      </button>
+    </div>
+  </nav>
+
+  <main class="main" id="main">
+
+    <div class="page active" id="page-today">
+      <div class="page-header">
+        <div class="page-title">Today's Look</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-icon btn-secondary" onclick="toggleTheme()">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+          <button class="btn btn-secondary" onclick="regenerateOutfit()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.05-5.3"/></svg>
+            Regenerate
+          </button>
+        </div>
+      </div>
+      <div id="today-content" style="padding:20px;"></div>
+    </div>
+
+    <div class="page" id="page-wardrobe">
+      <div class="page-header">
+        <div class="page-title">Wardrobe</div>
+        <button class="btn btn-primary" onclick="navigate('add')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add
+        </button>
+      </div>
+      <div style="padding:20px;">
+        <div class="filter-bar" id="filter-bar"></div>
+        <div class="wardrobe-grid" id="wardrobe-grid"></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-add">
+      <div class="page-header">
+        <div class="page-title">Add Item</div>
+      </div>
+      <div style="padding:20px;">
+        <div class="add-section">
+          <div class="section-label">Photo or URL</div>
+          <div id="upload-area">
+            <div class="upload-zone" id="upload-zone"
+              ondragover="event.preventDefault();this.classList.add('drag-over')"
+              ondragleave="this.classList.remove('drag-over')"
+              ondrop="handleItemDrop(event)">
+              <input type="file" accept="image/*" onchange="handleItemFile(event)">
+              <div class="upload-zone-icon">📷</div>
+              <div class="upload-zone-text"><strong>Upload a photo</strong><br>or drag and drop</div>
+            </div>
+            <div class="divider"><span>OR</span></div>
+            <div class="input-row">
+              <input type="url" class="input" id="item-url" placeholder="Paste an image URL or product link…">
+              <button class="btn btn-secondary" onclick="analyseUrl()">Analyse</button>
+            </div>
+          </div>
+          <div id="preview-area" style="display:none;">
+            <div class="preview-wrap">
+              <img id="preview-img" src="" alt="">
+              <button class="preview-remove" onclick="clearAdd()">✕</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="analysis-area" style="display:none;">
+          <div class="add-section">
+            <div class="section-label">Claude Analysis</div>
+            <div class="analysis-card" id="analysis-card">
+              <div class="analysis-loading"><div class="spinner"></div><span>Analysing…</span></div>
+            </div>
+          </div>
+          <div class="add-section" id="item-fields" style="display:none;">
+            <div class="section-label">Details</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <input class="input" id="item-name" placeholder="Name">
+              <select class="input" id="item-category">
+                <option value="tops">Tops</option>
+                <option value="bottoms">Bottoms</option>
+                <option value="dresses">Dresses</option>
+                <option value="outerwear">Outerwear</option>
+                <option value="shoes">Shoes</option>
+                <option value="bags">Bags</option>
+                <option value="accessories">Accessories</option>
+              </select>
+              <input class="input" id="item-brand" placeholder="Brand (optional)">
+            </div>
+          </div>
+          <button class="btn btn-primary btn-full" id="save-btn" style="display:none;" onclick="saveItem()">
+            Save to Wardrobe
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-profile">
+      <div class="page-header">
+        <div class="page-title">My Profile</div>
+      </div>
+      <div style="padding:20px;">
+        <div class="profile-section">
+          <div class="profile-section-title">Discover Your Colours</div>
+          <p style="font-size:14px;color:var(--text-muted);margin-bottom:14px;">Upload a selfie and Claude will analyse your skin tone, undertone, and suggest colours that flatter you.</p>
+          <div id="selfie-upload-wrap">
+            <div class="upload-zone" style="padding:28px;"
+              ondragover="event.preventDefault()"
+              ondrop="handleSelfieFileDrop(event)">
+              <input type="file" accept="image/*" onchange="handleSelfieFile(event)">
+              <div class="upload-zone-icon">🤳</div>
+              <div class="upload-zone-text"><strong>Upload a selfie</strong></div>
+            </div>
+          </div>
+          <div id="selfie-result" style="display:none;"></div>
+        </div>
+
+        <div class="profile-section">
+          <div class="profile-section-title">Your Colour Palette</div>
+          <p style="font-size:14px;color:var(--text-muted);margin-bottom:12px;">Colours that suit you — used when generating outfits.</p>
+          <div class="your-palette" id="your-palette"></div>
+          <div class="input-row">
+            <input type="color" id="color-picker" class="input" style="width:48px;height:40px;padding:4px;cursor:pointer;flex-shrink:0;">
+            <button class="btn btn-secondary" style="flex:1;" onclick="addPaletteColor()">Add Colour</button>
+          </div>
+        </div>
+
+        <div class="profile-section">
+          <div class="profile-section-title">Wardrobe Stats</div>
+          <div id="stats-content"></div>
+        </div>
+
+        <div class="profile-section">
+          <div class="profile-section-title">Claude API Key</div>
+          <p style="font-size:14px;color:var(--text-muted);margin-bottom:12px;">Stored privately on this device only.</p>
+          <div class="input-row">
+            <input class="input" id="key-display" type="password" placeholder="sk-ant-api03-…" value="">
+            <button class="btn btn-secondary" onclick="updateKey()">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<nav class="bottom-nav">
+  <button class="bottom-nav-item active" id="bn-today" onclick="navigate('today')">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    Today
+  </button>
+  <button class="bottom-nav-item" id="bn-wardrobe" onclick="navigate('wardrobe')">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>
+    Wardrobe
+  </button>
+  <button class="bottom-nav-item" id="bn-add" onclick="navigate('add')">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    Add
+  </button>
+  <button class="bottom-nav-item" id="bn-profile" onclick="navigate('profile')">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    Profile
+  </button>
+</nav>
+
+<div class="modal-backdrop" id="item-modal" style="display:none;" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<!-- API key setup overlay -->
+<div id="key-setup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:300;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:var(--surface);border-radius:var(--radius);padding:28px;width:100%;max-width:420px;">
+    <div style="font-size:28px;margin-bottom:12px;">🔑</div>
+    <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Enter your Claude API key</div>
+    <div style="font-size:14px;color:var(--text-muted);margin-bottom:20px;line-height:1.6;">Your key is stored only on this device — never sent anywhere except directly to Anthropic. Get one at <strong>console.anthropic.com</strong>.</div>
+    <input class="input" id="key-input" type="password" placeholder="sk-ant-api03-…" style="margin-bottom:12px;">
+    <button class="btn btn-primary btn-full" onclick="saveKey()">Save & Continue</button>
+  </div>
+</div>
+
+<script>
+// ── Config ────────────────────────────────────────────────────────────────────
+const SB_URL = 'https://epaiazxcdcseijkhrncm.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVwYWlhenhjZGNzZWlqa2hybmNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMjQ0MzQsImV4cCI6MjA5MjYwMDQzNH0.h2t_kFLZ_YPvuJlzPPiyXVbOnW4Ub_52hdaYosMoOus';
+let CLAUDE_KEY = localStorage.getItem('wrd_claude_key') || '';
+const CLAUDE_MODEL = 'claude-opus-4-5';
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let items = [];
+let profile = { palette: [], paletteNames: [], flatteringColors: [], flatteringNames: [], selfie: null };
+let todayOutfit = null;
+let pendingItem = null;
+let activeFilter = 'all';
+
+// ── Persistence ───────────────────────────────────────────────────────────────
+function persist() {
+  localStorage.setItem('wrd_items', JSON.stringify(items));
+  localStorage.setItem('wrd_profile', JSON.stringify(profile));
+  if (todayOutfit) localStorage.setItem('wrd_outfit_' + dateKey(), JSON.stringify(todayOutfit));
+}
+
+function hydrate() {
+  try { items = JSON.parse(localStorage.getItem('wrd_items') || '[]'); } catch(e) { items = []; }
+  try { profile = { palette:[], paletteNames:[], flatteringColors:[], flatteringNames:[], selfie:null, ...JSON.parse(localStorage.getItem('wrd_profile') || '{}') }; } catch(e) {}
+  try { todayOutfit = JSON.parse(localStorage.getItem('wrd_outfit_' + dateKey()) || 'null'); } catch(e) {}
+}
+
+function dateKey() { return new Date().toISOString().slice(0,10); }
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item, .bottom-nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll(`[onclick="navigate('${page}')"]`).forEach(n => n.classList.add('active'));
+  document.getElementById('main').scrollTo(0, 0);
+  if (page === 'today') renderToday();
+  if (page === 'wardrobe') renderWardrobe();
+  if (page === 'profile') renderProfile();
+}
+
+// ── Theme ─────────────────────────────────────────────────────────────────────
+function toggleTheme() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+  localStorage.setItem('wrd_theme', dark ? 'light' : 'dark');
+  document.getElementById('theme-label').textContent = dark ? 'Dark mode' : 'Light mode';
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function toast(msg) {
+  const el = Object.assign(document.createElement('div'), { className: 'toast', textContent: msg });
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => el.remove(), 2800);
+}
+
+// ── Claude API ────────────────────────────────────────────────────────────────
+async function claude(messages, system) {
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': CLAUDE_KEY,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-calls': 'true',
+    },
+    body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 1024, system, messages }),
+  });
+  if (!r.ok) { const e = await r.json().catch(()=>{}); throw new Error(e?.error?.message || `HTTP ${r.status}`); }
+  return (await r.json()).content[0].text;
+}
+
+function parseJSON(text) {
+  return JSON.parse(text.trim().replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, ''));
+}
+
+function imgContent(data, isBase64, mime) {
+  return isBase64
+    ? { type: 'image', source: { type: 'base64', media_type: mime || 'image/jpeg', data } }
+    : { type: 'image', source: { type: 'url', url: data } };
+}
+
+async function analyseItemImage(data, isBase64, mime) {
+  const text = await claude([{ role: 'user', content: [
+    imgContent(data, isBase64, mime),
+    { type: 'text', text: `Analyse this clothing/accessory/shoe item. Return ONLY valid JSON:
+{
+  "name": "concise item name e.g. White Linen Shirt",
+  "category": "tops|bottoms|dresses|outerwear|shoes|bags|accessories",
+  "colors": ["up to 4 hex strings, dominant first"],
+  "colorNames": ["readable names matching hex array"],
+  "style": ["2-4 tags e.g. casual, minimalist, smart-casual"],
+  "fabric": "fabric or null",
+  "season": ["spring","summer","autumn","winter"]
+}` }
+  ]}], 'Fashion analyst. JSON only, no markdown.');
+  return parseJSON(text);
+}
+
+async function analyseSelfieImage(data, isBase64, mime) {
+  const text = await claude([{ role: 'user', content: [
+    imgContent(data, isBase64, mime),
+    { type: 'text', text: `Analyse this person's colouring. Return ONLY valid JSON:
+{
+  "skinTone": "e.g. warm medium",
+  "undertone": "warm|cool|neutral",
+  "colorSeason": "spring|summer|autumn|winter",
+  "seasonDesc": "1-2 sentences on why",
+  "flatteringColors": ["6-8 hex codes"],
+  "flatteringNames": ["readable names"],
+  "avoidColors": ["2-3 names to avoid"],
+  "styleNote": "1 encouraging sentence"
+}` }
+  ]}], 'Professional colour analyst. JSON only, no markdown.');
+  return parseJSON(text);
+}
+
+async function generateOutfitAI() {
+  if (items.length < 2) return null;
+  const palette = profile.flatteringColors.length ? profile.flatteringColors : profile.palette;
+  const paletteNote = palette.length ? `The wearer's flattering colours: ${(profile.flatteringNames.length ? profile.flatteringNames : palette).join(', ')}.` : '';
+  const wardrobe = items.map(i => `ID:${i.id} | ${i.name} | ${i.category} | colors:${(i.colorNames||i.colors||[]).join(',')} | style:${(i.style||[]).join(',')}`).join('\n');
+  const today = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
+  const text = await claude([{ role: 'user', content:
+    `Today is ${today}. ${paletteNote}\n\nWARDROBE:\n${wardrobe}\n\nPick 2-4 complementary items. Include at least a top or dress; if separates, include a bottom. Return ONLY valid JSON:
+{
+  "itemIds": ["ids"],
+  "outfitName": "short creative name",
+  "caption": "2-3 sentences on why these pieces work together and the colour harmony",
+  "occasion": "e.g. casual day out",
+  "colorStory": "1 sentence on the palette"
+}`
+  }], 'Personal stylist. JSON only, no markdown.');
+  return parseJSON(text);
+}
+
+// ── File utils ────────────────────────────────────────────────────────────────
+function fileToB64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => { const [,b64] = e.target.result.split(','); res({ b64, mime: file.type, dataUrl: e.target.result }); };
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+// ── Add item ──────────────────────────────────────────────────────────────────
+async function handleItemFile(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const { b64, mime, dataUrl } = await fileToB64(file);
+  showItemPreview(dataUrl);
+  runItemAnalysis(b64, true, mime, dataUrl);
+}
+
+function handleItemDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file?.type.startsWith('image/')) handleItemFile({ target: { files: [file] } });
+}
+
+async function analyseUrl() {
+  const url = document.getElementById('item-url').value.trim(); if (!url) return;
+  showItemPreview(url);
+  runItemAnalysis(url, false, null, url);
+}
+
+function showItemPreview(src) {
+  document.getElementById('upload-area').style.display = 'none';
+  document.getElementById('preview-area').style.display = 'block';
+  document.getElementById('preview-img').src = src;
+  document.getElementById('analysis-area').style.display = 'block';
+}
+
+function clearAdd() {
+  document.getElementById('upload-area').style.display = 'block';
+  document.getElementById('preview-area').style.display = 'none';
+  document.getElementById('analysis-area').style.display = 'none';
+  document.getElementById('item-fields').style.display = 'none';
+  document.getElementById('save-btn').style.display = 'none';
+  document.getElementById('item-url').value = '';
+  pendingItem = null;
+}
+
+async function runItemAnalysis(data, isBase64, mime, previewSrc) {
+  document.getElementById('item-fields').style.display = 'none';
+  document.getElementById('save-btn').style.display = 'none';
+  document.getElementById('analysis-card').innerHTML = `<div class="analysis-loading"><div class="spinner"></div><span>Analysing with Claude…</span></div>`;
+  try {
+    const r = await analyseItemImage(data, isBase64, mime);
+    pendingItem = { ...r, imageData: data, isBase64, mime, previewSrc };
+    const dots = (r.colors||[]).map((c,i) => `<span class="color-dot" style="background:${c}" title="${r.colorNames?.[i]||c}"></span>`).join('');
+    document.getElementById('analysis-card').innerHTML = `
+      <div class="analysis-row"><span class="analysis-key">Category</span><span class="analysis-val">${cap(r.category)}</span></div>
+      <div class="analysis-row"><span class="analysis-key">Colours</span><div style="display:flex;gap:4px">${dots}</div></div>
+      ${r.fabric ? `<div class="analysis-row"><span class="analysis-key">Fabric</span><span class="analysis-val">${r.fabric}</span></div>` : ''}
+      <div class="analysis-row"><span class="analysis-key">Style</span><span class="analysis-val">${(r.style||[]).join(', ')}</span></div>
+      <div class="analysis-row"><span class="analysis-key">Season</span><span class="analysis-val">${(r.season||[]).join(', ')}</span></div>`;
+    document.getElementById('item-name').value = r.name || '';
+    document.getElementById('item-category').value = r.category || 'tops';
+    document.getElementById('item-fields').style.display = 'block';
+    document.getElementById('save-btn').style.display = 'flex';
+  } catch(e) {
+    document.getElementById('analysis-card').innerHTML = `<div style="color:#ef4444;font-size:14px"><strong>Failed:</strong> ${e.message}</div>`;
+  }
+}
+
+function saveItem() {
+  if (!pendingItem) return;
+  const item = {
+    ...pendingItem,
+    id: Date.now().toString(),
+    name: document.getElementById('item-name').value || pendingItem.name,
+    category: document.getElementById('item-category').value,
+    brand: document.getElementById('item-brand').value,
+    addedAt: new Date().toISOString(),
+  };
+  items.push(item);
+  persist();
+  syncItem(item);
+  toast('Saved to wardrobe ✓');
+  clearAdd();
+  document.getElementById('item-brand').value = '';
+  navigate('wardrobe');
+}
+
+// ── Today ─────────────────────────────────────────────────────────────────────
+function renderToday() {
+  const el = document.getElementById('today-content');
+  const dateStr = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
+  const header = `<div class="today-date">${dateStr}</div><div class="today-heading">What to wear today</div>`;
+  if (items.length === 0) {
+    el.innerHTML = header + `<div class="empty"><div class="empty-icon">👗</div><div class="empty-title">Wardrobe is empty</div><div class="empty-desc">Add some items to get outfit suggestions</div><button class="btn btn-primary" onclick="navigate('add')">Add First Item</button></div>`;
+    return;
+  }
+  if (todayOutfit) { el.innerHTML = header; renderOutfitCard(el, todayOutfit); return; }
+  generateOutfit();
+}
+
+async function generateOutfit() {
+  const el = document.getElementById('today-content');
+  const dateStr = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
+  if (items.length === 0) { renderToday(); return; }
+  el.innerHTML = `<div class="today-date">${dateStr}</div><div class="today-heading">What to wear today</div>
+    <div class="gen-card"><div class="spinner spinner-lg"></div><div class="gen-title">Styling your look…</div><div class="gen-sub">Claude is picking pieces from your wardrobe</div></div>`;
+  try {
+    const outfit = await generateOutfitAI();
+    if (!outfit) { renderToday(); return; }
+    todayOutfit = outfit;
+    persist();
+    el.innerHTML = `<div class="today-date">${dateStr}</div><div class="today-heading">What to wear today</div>`;
+    renderOutfitCard(el, outfit);
+  } catch(e) {
+    el.innerHTML += `<div class="outfit-card" style="padding:20px"><div style="color:#ef4444;font-size:14px;margin-bottom:12px"><strong>Error:</strong> ${e.message}</div><button class="btn btn-secondary" onclick="generateOutfit()">Retry</button></div>`;
+  }
+}
+
+function regenerateOutfit() { todayOutfit = null; generateOutfit(); }
+
+function renderOutfitCard(container, outfit) {
+  const picked = (outfit.itemIds||[]).map(id => items.find(i=>i.id===id)).filter(Boolean);
+  const n = Math.min(picked.length, 4);
+  const itemsHtml = picked.slice(0, n).map(item => {
+    const src = item.previewSrc || item.imageData;
+    return `<div class="outfit-item">${src ? `<img src="${src}" alt="${item.name}" loading="lazy">` : `<div class="outfit-item-emoji">${catEmoji(item.category)}</div>`}<div class="outfit-item-label">${item.name}</div></div>`;
+  }).join('');
+  const allColors = picked.flatMap(i => i.colors||[]).slice(0,6);
+  const swatches = allColors.map(c => `<span class="color-swatch" style="background:${c}"></span>`).join('');
+  const card = document.createElement('div');
+  card.className = 'outfit-card';
+  card.innerHTML = `
+    <div class="outfit-items n${n}">${itemsHtml}</div>
+    <div class="outfit-caption">
+      <div class="outfit-name">${outfit.outfitName||"Today's Look"}</div>
+      <div class="outfit-caption-text">${outfit.caption||''}</div>
+      ${outfit.occasion ? `<div class="outfit-meta">Perfect for: ${outfit.occasion}</div>` : ''}
+      ${swatches ? `<div class="color-palette">${swatches}</div>` : ''}
+    </div>`;
+  container.appendChild(card);
+}
+
+// ── Wardrobe ──────────────────────────────────────────────────────────────────
+const CATEGORIES = ['all','tops','bottoms','dresses','outerwear','shoes','bags','accessories'];
+
+function renderWardrobe() {
+  document.getElementById('filter-bar').innerHTML = CATEGORIES.map(c =>
+    `<button class="filter-chip${c===activeFilter?' active':''}" onclick="setFilter('${c}')">${c==='all'?'All':cap(c)}</button>`
+  ).join('');
+  const grid = document.getElementById('wardrobe-grid');
+  const list = activeFilter === 'all' ? items : items.filter(i => i.category === activeFilter);
+  if (list.length === 0) {
+    grid.innerHTML = `<div class="empty"><div class="empty-icon">${catEmoji(activeFilter)}</div><div class="empty-title">No ${activeFilter==='all'?'items':activeFilter} yet</div><div class="empty-desc">Add items to build your wardrobe</div></div>`;
+    return;
+  }
+  grid.innerHTML = list.map(item => {
+    const src = item.previewSrc || item.imageData;
+    const dots = (item.colors||[]).map(c=>`<span class="color-dot" style="background:${c}"></span>`).join('');
+    return `<div class="item-card" onclick="openItem('${item.id}')">
+      <div class="item-card-img">${src?`<img src="${src}" alt="${item.name}" loading="lazy">`:`<div class="cat-emoji">${catEmoji(item.category)}</div>`}</div>
+      <div class="item-card-body">
+        <div class="item-card-name">${item.name}</div>
+        <div class="item-card-meta">${cap(item.category)}${item.brand?' · '+item.brand:''}</div>
+        <div class="item-card-colors">${dots}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setFilter(cat) { activeFilter = cat; renderWardrobe(); }
+
+// ── Item modal ────────────────────────────────────────────────────────────────
+function openItem(id) {
+  const item = items.find(i=>i.id===id); if (!item) return;
+  const src = item.previewSrc || item.imageData;
+  const swatches = (item.colors||[]).map((c,i)=>`<span class="color-swatch" style="background:${c};width:32px;height:32px;border-radius:8px" title="${item.colorNames?.[i]||c}"></span>`).join('');
+  const tags = [...(item.style||[]), ...(item.season||[])];
+  document.getElementById('modal-content').innerHTML = `
+    <div class="modal-title">${item.name}</div>
+    <div class="detail-img">${src?`<img src="${src}" alt="${item.name}">`:`<div class="detail-emoji">${catEmoji(item.category)}</div>`}</div>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px;">
+      <div><div class="section-label" style="margin-bottom:6px">Category</div><span class="tag">${cap(item.category)}</span>${item.brand?` <span class="tag">${item.brand}</span>`:''}</div>
+      ${swatches?`<div><div class="section-label" style="margin-bottom:8px">Colours</div><div style="display:flex;gap:8px;flex-wrap:wrap">${swatches}</div></div>`:''}
+      ${tags.length?`<div><div class="section-label" style="margin-bottom:6px">Style & Season</div><div class="tag-list">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>`:''}
+      ${item.fabric?`<div><div class="section-label" style="margin-bottom:6px">Fabric</div><span class="tag">${item.fabric}</span></div>`:''}
+    </div>
+    <button class="btn btn-secondary btn-full btn-danger" onclick="deleteItem('${id}')">Remove from Wardrobe</button>`;
+  document.getElementById('item-modal').style.display = 'flex';
+}
+
+function deleteItem(id) {
+  items = items.filter(i=>i.id!==id);
+  persist(); closeModal(); renderWardrobe();
+  deleteItemRemote(id);
+  toast('Item removed');
+}
+
+function closeModal() { document.getElementById('item-modal').style.display = 'none'; }
+
+// ── Profile ───────────────────────────────────────────────────────────────────
+function renderProfile() {
+  renderPalette(); renderStats();
+  if (profile.selfie) renderSelfieResult(profile.selfie);
+  const kd = document.getElementById('key-display');
+  if (kd) kd.value = CLAUDE_KEY;
+}
+
+function renderPalette() {
+  const el = document.getElementById('your-palette');
+  if (!profile.palette.length) { el.innerHTML = `<span style="font-size:13px;color:var(--text-muted)">No colours yet</span>`; return; }
+  el.innerHTML = profile.palette.map((c,i)=>`<div class="palette-swatch" style="background:${c}" title="${profile.paletteNames[i]||c}"><button class="palette-remove" onclick="removePaletteColor(${i})">✕</button></div>`).join('');
+}
+
+function addPaletteColor() {
+  const c = document.getElementById('color-picker').value;
+  profile.palette.push(c); profile.paletteNames.push(c);
+  persist(); syncProfile(); renderPalette();
+}
+
+function removePaletteColor(i) {
+  profile.palette.splice(i,1); profile.paletteNames.splice(i,1);
+  persist(); syncProfile(); renderPalette();
+}
+
+function renderStats() {
+  const counts = items.reduce((a,i)=>{ a[i.category]=(a[i.category]||0)+1; return a; }, {});
+  const total = items.length;
+  document.getElementById('stats-content').innerHTML = total === 0
+    ? `<div style="font-size:14px;color:var(--text-muted)">No items yet</div>`
+    : `<div style="display:flex;justify-content:space-between;font-size:14px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">Total</span><strong>${total}</strong></div>`
+      + Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([cat,n])=>`<div style="display:flex;justify-content:space-between;font-size:14px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">${cap(cat)}</span><strong>${n}</strong></div>`).join('');
+}
+
+async function handleSelfieFile(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const { b64, mime } = await fileToB64(file);
+  document.getElementById('selfie-upload-wrap').innerHTML = `<div class="analysis-loading" style="justify-content:center;padding:20px"><div class="spinner"></div><span>Analysing your colours…</span></div>`;
+  try {
+    const r = await analyseSelfieImage(b64, true, mime);
+    profile.selfie = r;
+    profile.flatteringColors = r.flatteringColors || [];
+    profile.flatteringNames = r.flatteringNames || [];
+    profile.palette = [...new Set([...profile.palette, ...r.flatteringColors])];
+    profile.paletteNames = [...profile.paletteNames, ...r.flatteringNames].slice(0, profile.palette.length);
+    persist(); syncProfile(); renderSelfieResult(r); renderPalette();
+    toast('Colour analysis complete ✓');
+  } catch(e) {
+    document.getElementById('selfie-upload-wrap').innerHTML = `<div style="color:#ef4444;font-size:14px;padding:12px">Analysis failed: ${e.message}</div><button class="btn btn-secondary" onclick="resetSelfie()">Try again</button>`;
+  }
+}
+
+function handleSelfieFileDrop(e) {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file?.type.startsWith('image/')) handleSelfieFile({ target: { files: [file] } });
+}
+
+function renderSelfieResult(r) {
+  const dots = (r.flatteringColors||[]).map((c,i)=>`<span class="color-swatch" style="background:${c};width:28px;height:28px" title="${r.flatteringNames?.[i]||c}"></span>`).join('');
+  document.getElementById('selfie-upload-wrap').style.display = 'none';
+  document.getElementById('selfie-result').style.display = 'block';
+  document.getElementById('selfie-result').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="display:flex;gap:16px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:100px"><div class="section-label" style="margin-bottom:4px">Skin Tone</div><div style="font-size:14px;font-weight:500">${r.skinTone}</div></div>
+        <div style="flex:1;min-width:100px"><div class="section-label" style="margin-bottom:4px">Undertone</div><div style="font-size:14px;font-weight:500">${cap(r.undertone)}</div></div>
+        <div style="flex:1;min-width:100px"><div class="section-label" style="margin-bottom:4px">Season</div><div style="font-size:14px;font-weight:500">${cap(r.colorSeason)}</div></div>
+      </div>
+      <div><div class="section-label" style="margin-bottom:8px">Your Flattering Colours</div><div style="display:flex;gap:6px;flex-wrap:wrap">${dots}</div></div>
+      <div style="font-size:14px;color:var(--text-muted);line-height:1.6">${r.styleNote}</div>
+      ${r.avoidColors?.length?`<div style="font-size:13px;color:var(--text-muted)">Colours to avoid: ${r.avoidColors.join(', ')}</div>`:''}
+      <div style="font-size:13px;color:var(--text-muted);font-style:italic">${r.seasonDesc||''}</div>
+      <button class="btn btn-secondary" onclick="resetSelfie()">Re-analyse</button>
+    </div>`;
+}
+
+function updateKey() {
+  const k = document.getElementById('key-display').value.trim();
+  if (!k.startsWith('sk-ant-')) { toast('Invalid key format'); return; }
+  CLAUDE_KEY = k;
+  localStorage.setItem('wrd_claude_key', k);
+  toast('API key updated ✓');
+}
+
+function resetSelfie() {
+  profile.selfie = null; persist();
+  document.getElementById('selfie-upload-wrap').style.display = 'block';
+  document.getElementById('selfie-upload-wrap').innerHTML = `
+    <div class="upload-zone" style="padding:28px;" ondragover="event.preventDefault()" ondrop="handleSelfieFileDrop(event)">
+      <input type="file" accept="image/*" onchange="handleSelfieFile(event)">
+      <div class="upload-zone-icon">🤳</div>
+      <div class="upload-zone-text"><strong>Upload a selfie</strong></div>
+    </div>`;
+  document.getElementById('selfie-result').style.display = 'none';
+}
+
+// ── Supabase sync ─────────────────────────────────────────────────────────────
+const SB_HEADERS = {
+  'Content-Type': 'application/json',
+  'apikey': SB_KEY,
+  'Authorization': `Bearer ${SB_KEY}`,
+};
+
+async function syncItem(item) {
+  if (!SB_URL || !SB_KEY) return;
+  try {
+    await fetch(`${SB_URL}/rest/v1/wardrobe_items`, {
+      method: 'POST',
+      headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify(item),
+    });
+  } catch(e) { /* silent */ }
+}
+
+async function deleteItemRemote(id) {
+  if (!SB_URL || !SB_KEY) return;
+  try {
+    await fetch(`${SB_URL}/rest/v1/wardrobe_items?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: SB_HEADERS,
+    });
+  } catch(e) { /* silent */ }
+}
+
+async function syncProfile() {
+  if (!SB_URL || !SB_KEY) return;
+  try {
+    await fetch(`${SB_URL}/rest/v1/wardrobe_profile`, {
+      method: 'POST',
+      headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify({ id: 'main', ...profile }),
+    });
+  } catch(e) { /* silent */ }
+}
+
+async function loadFromSupabase() {
+  if (!SB_URL || !SB_KEY) return;
+  try {
+    const [itemsRes, profileRes] = await Promise.all([
+      fetch(`${SB_URL}/rest/v1/wardrobe_items?select=*`, { headers: SB_HEADERS }),
+      fetch(`${SB_URL}/rest/v1/wardrobe_profile?id=eq.main&select=*`, { headers: SB_HEADERS }),
+    ]);
+    if (itemsRes.ok) {
+      const remote = await itemsRes.json();
+      if (remote.length > 0) {
+        // Merge: remote wins for any item that exists remotely
+        const localIds = new Set(items.map(i => i.id));
+        const remoteIds = new Set(remote.map(i => i.id));
+        // Add remote items not in local
+        remote.forEach(ri => { if (!localIds.has(ri.id)) items.push(ri); });
+        // Update local items that exist remotely
+        items = items.map(li => remoteIds.has(li.id) ? remote.find(r => r.id === li.id) : li);
+        persist();
+      }
+    }
+    if (profileRes.ok) {
+      const pArr = await profileRes.json();
+      if (pArr.length > 0) {
+        const { id, ...remoteProfile } = pArr[0];
+        profile = { ...profile, ...remoteProfile };
+        persist();
+      }
+    }
+  } catch(e) { /* silent */ }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function cap(s) { return s ? s[0].toUpperCase() + s.slice(1) : ''; }
+function catEmoji(c) { return {tops:'👕',bottoms:'👖',dresses:'👗',outerwear:'🧥',shoes:'👟',bags:'👜',accessories:'💍',all:'👗'}[c]||'👗'; }
+
+// ── API key setup ─────────────────────────────────────────────────────────────
+function showKeySetup() {
+  document.getElementById('key-setup').style.display = 'flex';
+}
+
+function saveKey() {
+  const k = document.getElementById('key-input').value.trim();
+  if (!k.startsWith('sk-ant-')) { toast('That doesn\'t look like a valid key'); return; }
+  CLAUDE_KEY = k;
+  localStorage.setItem('wrd_claude_key', k);
+  document.getElementById('key-setup').style.display = 'none';
+  toast('API key saved ✓');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+(async function init() {
+  const theme = localStorage.getItem('wrd_theme') || (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('theme-label').textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
+  if (!CLAUDE_KEY) showKeySetup();
+  hydrate();
+  renderToday();
+  await loadFromSupabase();
+  renderToday();
+})();
+</script>
+</body>
+</html>
