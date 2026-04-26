@@ -392,13 +392,17 @@
   </div>
 </div>
 
-<script type="module">
+<script>
 // ── SDK (loaded from CDN for browser CORS support) ────────────────────────────
-import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.39.0';
 let _anthropic = null;
-function getClient() {
+let _AnthropicClass = null;
+async function getClient() {
+  if (!_AnthropicClass) {
+    const mod = await import('https://esm.sh/@anthropic-ai/sdk@0.39.0');
+    _AnthropicClass = mod.default;
+  }
   if (!_anthropic || _anthropic.apiKey !== CLAUDE_KEY) {
-    _anthropic = new Anthropic({ apiKey: CLAUDE_KEY, dangerouslyAllowBrowser: true });
+    _anthropic = new _AnthropicClass({ apiKey: CLAUDE_KEY, dangerouslyAllowBrowser: true });
   }
   return _anthropic;
 }
@@ -492,7 +496,8 @@ function renderWeatherStrip() {
 
 // ── Claude API ────────────────────────────────────────────────────────────────
 async function claude(messages, system) {
-  const msg = await getClient().messages.create({
+  const client = await getClient();
+  const msg = await client.messages.create({
     model: CLAUDE_MODEL,
     max_tokens: 1024,
     system,
