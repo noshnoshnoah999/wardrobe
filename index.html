@@ -254,7 +254,7 @@
             </div>
             <div class="divider"><span>OR</span></div>
             <div class="input-row">
-              <input type="url" class="input" id="item-url" placeholder="Paste a direct image URL (right-click photo → Copy Image Address)">
+              <input type="url" class="input" id="item-url" placeholder="Paste a direct .jpg/.png image URL…">
               <button class="btn btn-secondary" onclick="analyseUrl()">Analyse</button>
             </div>
           </div>
@@ -642,20 +642,11 @@ async function analyseUrl() {
     }
   } catch(e) { /* CORS blocked or not an image */ }
 
-  // Check if the URL looks like a direct image file
-  const looksLikeImage = /\.(jpe?g|png|webp|gif)(\?.*)?$/i.test(url);
-  if (looksLikeImage) {
-    // It's a direct image URL — send to Claude as URL type
-    showItemPreview(url);
-    runItemAnalysis(url, false, null, url);
-    return;
-  }
-
-  // It's a product page URL — can't be used directly
+  // CORS blocked — can't fetch in browser, and Claude often can't download it either
   document.getElementById('analysis-area').style.display = 'none';
   document.getElementById('upload-area').style.display = 'block';
   document.getElementById('item-url').value = '';
-  toast('Paste a direct image URL, not a product page. Right-click the item photo → Copy Image Address, then paste that.');
+  toast("Can't access that image directly. Save the photo to your device and upload it instead.");
 }
 function showItemPreview(src) {
   document.getElementById('upload-area').style.display = 'none';
