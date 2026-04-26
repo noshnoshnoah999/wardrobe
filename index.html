@@ -718,6 +718,10 @@ function renderToday() {
     el.innerHTML = header + `<div class="empty"><div class="empty-icon">👗</div><div class="empty-title">Wardrobe is empty</div><div class="empty-desc">Add some items to get outfit suggestions</div><button class="btn btn-primary" onclick="navigate('add')">Add First Item</button></div>`;
     return;
   }
+  if (items.length < 2) {
+    el.innerHTML = header + `<div class="empty"><div class="empty-icon">➕</div><div class="empty-title">Add one more item</div><div class="empty-desc">You need at least 2 items for outfit suggestions</div><button class="btn btn-primary" onclick="navigate('add')">Add Item</button></div>`;
+    return;
+  }
   if (todayOutfit) { el.innerHTML = header; renderOutfitCard(el, todayOutfit); return; }
   generateOutfit();
 }
