@@ -554,7 +554,32 @@ async function findShoppingGapsAI() {
 function fileToB64(file) {
   return new Promise((res, rej) => {
     const r = new FileReader();
-    r.onload = e => { const [,b64] = e.target.result.split(','); res({ b64, mime:file.type, dataUrl:e.target.result }); };
+    r.onload = e => {
+      // Resize + convert to JPEG via Canvas (handles HEIC, large files, etc.)
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1120; // Claude recommends ~1120px for vision
+        let w = img.naturalWidth, h = img.naturalHeight;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        const b64 = dataUrl.split(',')[1];
+        res({ b64, mime:'image/jpeg', dataUrl });
+      };
+      img.onerror = () => {
+        // Fallback: just return raw data
+        const dataUrl = e.target.result;
+        const [header, b64] = dataUrl.split(',');
+        const mime = header.match(/:(.*?);/)?.[1] || 'image/jpeg';
+        res({ b64, mime, dataUrl });
+      };
+      img.src = e.target.result;
+    };
     r.onerror = rej; r.readAsDataURL(file);
   });
 }
@@ -608,7 +633,9 @@ async function runItemAnalysis(data, isBase64, mime, previewSrc) {
     document.getElementById('item-fields').style.display = 'block';
     document.getElementById('save-btn').style.display = 'flex';
   } catch(e) {
-    document.getElementById('analysis-card').innerHTML = `<div style="color:#ef4444;font-size:14px"><strong>Failed:</strong> ${e.message}</div>`;
+    const hint = e.message.includes('401') ? ' — check your API key in Profile' :
+                 e.message.includes('400') ? ' — image may be invalid or too large' : '';
+    document.getElementById('analysis-card').innerHTML = `<div style="color:#ef4444;font-size:14px"><strong>Analysis failed:</strong> ${e.message}${hint}</div><button class="btn btn-secondary" style="margin-top:12px;width:100%" onclick="clearAdd()">Try again</button>`;
   }
 }
 function saveItem() {
