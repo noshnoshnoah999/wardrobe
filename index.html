@@ -392,7 +392,17 @@
   </div>
 </div>
 
-<script>
+<script type="module">
+// ── SDK (loaded from CDN for browser CORS support) ────────────────────────────
+import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.39.0';
+let _anthropic = null;
+function getClient() {
+  if (!_anthropic || _anthropic.apiKey !== CLAUDE_KEY) {
+    _anthropic = new Anthropic({ apiKey: CLAUDE_KEY, dangerouslyAllowBrowser: true });
+  }
+  return _anthropic;
+}
+
 // ── Config ────────────────────────────────────────────────────────────────────
 const SB_URL = 'https://epaiazxcdcseijkhrncm.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVwYWllenhjZGNzZWlqa2hybmNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMjQ0MzQsImV4cCI6MjA5MjYwMDQzNH0.h2t_kFLZ_YPvuJlzPPiyXVbOnW4Ub_52hdaYosMoOus';
@@ -482,13 +492,13 @@ function renderWeatherStrip() {
 
 // ── Claude API ────────────────────────────────────────────────────────────────
 async function claude(messages, system) {
-  const r = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type':'application/json','x-api-key':CLAUDE_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-calls':'true' },
-    body: JSON.stringify({ model:CLAUDE_MODEL, max_tokens:1024, system, messages }),
+  const msg = await getClient().messages.create({
+    model: CLAUDE_MODEL,
+    max_tokens: 1024,
+    system,
+    messages,
   });
-  if (!r.ok) { const e = await r.json().catch(()=>{}); throw new Error(e?.error?.message || `HTTP ${r.status}`); }
-  return (await r.json()).content[0].text;
+  return msg.content[0].text;
 }
 
 function parseJSON(text) {
@@ -979,7 +989,7 @@ function resetSelfie() {
 function updateKey() {
   const k = document.getElementById('key-display').value.trim();
   if (!k.startsWith('sk-ant-')) { toast('Invalid key format'); return; }
-  CLAUDE_KEY = k; localStorage.setItem('wrd_claude_key', k);
+  CLAUDE_KEY = k; _anthropic = null; localStorage.setItem('wrd_claude_key', k);
   toast('API key updated ✓');
 }
 
@@ -1031,7 +1041,7 @@ function showKeySetup() { document.getElementById('key-setup').style.display = '
 function saveKey() {
   const k = document.getElementById('key-input').value.trim();
   if (!k.startsWith('sk-ant-')) { toast("Doesn't look like a valid key"); return; }
-  CLAUDE_KEY = k; localStorage.setItem('wrd_claude_key', k);
+  CLAUDE_KEY = k; _anthropic = null; localStorage.setItem('wrd_claude_key', k);
   document.getElementById('key-setup').style.display = 'none';
   toast('API key saved ✓');
 }
