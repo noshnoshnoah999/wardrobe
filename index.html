@@ -254,7 +254,7 @@
             </div>
             <div class="divider"><span>OR</span></div>
             <div class="input-row">
-              <input type="url" class="input" id="item-url" placeholder="Paste an image URL or product link…">
+              <input type="url" class="input" id="item-url" placeholder="Paste a direct image URL (right-click photo → Copy Image Address)">
               <button class="btn btn-secondary" onclick="analyseUrl()">Analyse</button>
             </div>
           </div>
@@ -622,7 +622,40 @@ function handleItemDrop(e) {
 }
 async function analyseUrl() {
   const url = document.getElementById('item-url').value.trim(); if (!url) return;
-  showItemPreview(url); runItemAnalysis(url, false, null, url);
+  // Show analysis area with loading state immediately
+  document.getElementById('upload-area').style.display = 'none';
+  document.getElementById('preview-area').style.display = 'none';
+  document.getElementById('analysis-area').style.display = 'block';
+  document.getElementById('analysis-card').innerHTML = `<div class="analysis-loading"><div class="spinner"></div><span>Fetching image…</span></div>`;
+
+  // Try to fetch the URL as an image blob (works if the server allows CORS)
+  try {
+    const resp = await fetch(url, { mode: 'cors' });
+    const blob = await resp.blob();
+    if (blob.type.startsWith('image/')) {
+      const file = new File([blob], 'item', { type: blob.type });
+      const { b64, mime, dataUrl } = await fileToB64(file);
+      document.getElementById('preview-area').style.display = 'block';
+      document.getElementById('preview-img').src = dataUrl;
+      runItemAnalysis(b64, true, mime, dataUrl);
+      return;
+    }
+  } catch(e) { /* CORS blocked or not an image */ }
+
+  // Check if the URL looks like a direct image file
+  const looksLikeImage = /\.(jpe?g|png|webp|gif)(\?.*)?$/i.test(url);
+  if (looksLikeImage) {
+    // It's a direct image URL — send to Claude as URL type
+    showItemPreview(url);
+    runItemAnalysis(url, false, null, url);
+    return;
+  }
+
+  // It's a product page URL — can't be used directly
+  document.getElementById('analysis-area').style.display = 'none';
+  document.getElementById('upload-area').style.display = 'block';
+  document.getElementById('item-url').value = '';
+  toast('Paste a direct image URL, not a product page. Right-click the item photo → Copy Image Address, then paste that.');
 }
 function showItemPreview(src) {
   document.getElementById('upload-area').style.display = 'none';
