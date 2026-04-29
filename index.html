@@ -140,6 +140,9 @@
     .input::placeholder { color: var(--text-light); }
     .input-row { display: flex; gap: 8px; }
     .input-row .input { flex: 1; }
+    .focus-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .focus-chip { background: var(--surface); border: 1.5px solid var(--border); border-radius: 20px; padding: 8px 14px; font-size: 14px; cursor: pointer; transition: all 0.15s; color: var(--text); font-family: inherit; }
+    .focus-chip:active, .focus-chip:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
     .divider { display: flex; align-items: center; gap: 14px; margin: 14px 0; }
     .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
     .divider span { font-size: 12px; color: var(--text-muted); font-weight: 500; }
@@ -287,6 +290,18 @@
           </div>
           <div id="preview-area" style="display:none">
             <div class="preview-wrap"><img id="preview-img" src="" alt=""><button class="preview-remove" onclick="clearAdd()">✕</button></div>
+          </div>
+          <div id="focus-area" style="display:none">
+            <div class="section-label" style="margin-top:16px">Which item are you adding?</div>
+            <div class="focus-chips" id="focus-chips">
+              <button class="focus-chip" onclick="confirmFocus('top')">👕 Top</button>
+              <button class="focus-chip" onclick="confirmFocus('trousers')">👖 Trousers</button>
+              <button class="focus-chip" onclick="confirmFocus('shoes')">👟 Shoes</button>
+              <button class="focus-chip" onclick="confirmFocus('jacket or coat')">🧥 Jacket</button>
+              <button class="focus-chip" onclick="confirmFocus('dress or skirt')">👗 Dress/Skirt</button>
+              <button class="focus-chip" onclick="confirmFocus('bag')">👜 Bag</button>
+              <button class="focus-chip" onclick="confirmFocus('accessory')">💍 Accessory</button>
+            </div>
           </div>
         </div>
         <div id="analysis-area" style="display:none">
@@ -555,8 +570,9 @@ function imgContent(data, isBase64, mime) {
     : { type:'image', source:{ type:'url', url:data } };
 }
 
-async function analyseItemImage(data, isBase64, mime) {
-  const text = await claude([{ role:'user', content:[imgContent(data,isBase64,mime),{ type:'text', text:`Analyse this clothing/accessory/shoe. Return ONLY valid JSON:
+async function analyseItemImage(data, isBase64, mime, hint) {
+  const focusNote = hint ? ` Focus specifically on the ${hint} — ignore other items in the image.` : '';
+  const text = await claude([{ role:'user', content:[imgContent(data,isBase64,mime),{ type:'text', text:`Analyse this clothing/accessory/shoe.${focusNote} Return ONLY valid JSON:
 {"name":"concise name","category":"tops|bottoms|dresses|outerwear|shoes|bags|accessories","colors":["hex strings"],"colorNames":["names"],"style":["2-4 tags"],"fabric":"fabric or null","season":["spring","summer","autumn","winter"]}` }]}], 'Fashion analyst. JSON only.');
   return parseJSON(text);
 }
@@ -649,10 +665,24 @@ function fileToB64(file) {
 }
 
 // ── Add item ──────────────────────────────────────────────────────────────────
+let _pendingAnalysis = null;
 async function handleItemFile(e) {
   const file = e.target.files[0]; if (!file) return;
   const { b64, mime, dataUrl } = await fileToB64(file);
-  showItemPreview(dataUrl); runItemAnalysis(b64, true, mime, dataUrl);
+  showItemPreview(dataUrl);
+  showFocusPicker(b64, mime, dataUrl);
+}
+function showFocusPicker(b64, mime, dataUrl) {
+  _pendingAnalysis = { b64, mime, dataUrl };
+  document.getElementById('focus-area').style.display = 'block';
+  document.getElementById('analysis-area').style.display = 'none';
+}
+function confirmFocus(hint) {
+  if (!_pendingAnalysis) return;
+  document.getElementById('focus-area').style.display = 'none';
+  const { b64, mime, dataUrl } = _pendingAnalysis;
+  _pendingAnalysis = null;
+  runItemAnalysis(b64, true, mime, dataUrl, hint);
 }
 function handleItemDrop(e) {
   e.preventDefault(); document.getElementById('upload-zone').classList.remove('drag-over');
@@ -676,7 +706,8 @@ async function analyseUrl() {
       const { b64, mime, dataUrl } = await fileToB64(file);
       document.getElementById('preview-area').style.display = 'block';
       document.getElementById('preview-img').src = dataUrl;
-      runItemAnalysis(b64, true, mime, dataUrl);
+      document.getElementById('analysis-area').style.display = 'none';
+      showFocusPicker(b64, mime, dataUrl);
       return;
     }
   } catch(e) { /* CORS blocked or not an image */ }
@@ -696,18 +727,21 @@ function showItemPreview(src) {
 function clearAdd() {
   document.getElementById('upload-area').style.display = 'block';
   document.getElementById('preview-area').style.display = 'none';
+  document.getElementById('focus-area').style.display = 'none';
   document.getElementById('analysis-area').style.display = 'none';
   document.getElementById('item-fields').style.display = 'none';
   document.getElementById('save-btn').style.display = 'none';
   document.getElementById('item-url').value = '';
+  _pendingAnalysis = null;
   pendingItem = null;
 }
-async function runItemAnalysis(data, isBase64, mime, previewSrc) {
+async function runItemAnalysis(data, isBase64, mime, previewSrc, hint) {
   document.getElementById('item-fields').style.display = 'none';
   document.getElementById('save-btn').style.display = 'none';
+  document.getElementById('analysis-area').style.display = 'block';
   document.getElementById('analysis-card').innerHTML = `<div class="analysis-loading"><div class="spinner"></div><span>Analysing with Claude…</span></div>`;
   try {
-    const r = await analyseItemImage(data, isBase64, mime);
+    const r = await analyseItemImage(data, isBase64, mime, hint);
     pendingItem = { ...r, imageData:data, isBase64, mime, previewSrc };
     const dots = (r.colors||[]).map((c,i) => `<span class="color-dot" style="background:${c}" title="${r.colorNames?.[i]||c}"></span>`).join('');
     document.getElementById('analysis-card').innerHTML = `
