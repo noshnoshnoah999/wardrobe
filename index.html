@@ -745,7 +745,7 @@ async function generateOutfit() {
     const outfit = await generateOutfitAI(excludedIds);
     if (!outfit) { renderToday(); return; }
     todayOutfit = outfit;
-    persist();
+    persist(); syncTodayOutfit();
     el.innerHTML = `<div class="today-date">${dateStr}</div><div class="today-heading">What to wear today</div>${weatherHtml}<div class="occasion-bar">${OCCASIONS.map(o=>`<button class="occasion-chip${o===activeOccasion?' active':''}" onclick="setOccasion('${o}')">${o}</button>`).join('')}</div>`;
     renderOutfitCard(el, outfit);
   } catch(e) {
@@ -1110,6 +1110,24 @@ async function loadFromSupabase() {
       if (pArr.length > 0) { const {id,...rp} = pArr[0]; profile = {...profile,...rp}; persist(); }
     }
   } catch(e) { console.warn('loadFromSupabase error', e); }
+}
+
+async function syncTodayOutfit() {
+  if (!todayOutfit || !SB_URL || !SB_KEY) return;
+  try {
+    await fetch(`${SB_URL}/rest/v1/wardrobe_today`, {
+      method: 'POST',
+      headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify({
+        id: 'main', date: dateKey(),
+        outfitName: todayOutfit.outfitName,
+        itemIds: todayOutfit.itemIds,
+        caption: todayOutfit.caption,
+        occasion: activeOccasion,
+        weather: weather ? `${weather.desc}, ${weather.temp}°C` : null
+      })
+    });
+  } catch(e) {}
 }
 
 async function manualSync() {
