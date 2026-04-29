@@ -317,6 +317,12 @@
           <div id="gaps-result" style="margin-top:14px"></div>
         </div>
         <div class="profile-section">
+          <div class="profile-section-title">Sync</div>
+          <p style="font-size:14px;color:var(--text-muted);margin-bottom:12px">Sync your wardrobe across devices via Supabase.</p>
+          <button class="btn btn-secondary btn-full" onclick="manualSync()">↻ Sync Now</button>
+          <div id="sync-status" style="margin-top:10px;font-size:13px;color:var(--text-muted)"></div>
+        </div>
+        <div class="profile-section">
           <div class="profile-section-title">Wardrobe Stats</div>
           <div id="stats-content"></div>
         </div>
@@ -1039,9 +1045,21 @@ function updateKey() {
 // ── Supabase sync ─────────────────────────────────────────────────────────────
 const SB_HEADERS = { 'Content-Type':'application/json','apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}` };
 
+// Strip fields Supabase doesn't know about yet (previewSrc can be huge; handled separately)
+function sbItem(item) {
+  const { previewSrc, ...rest } = item;
+  return rest;
+}
+
 async function syncItem(item) {
   if (!SB_URL||!SB_KEY) return;
-  try { await fetch(`${SB_URL}/rest/v1/wardrobe_items`,{ method:'POST', headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates'}, body:JSON.stringify(item) }); } catch(e) {}
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/wardrobe_items`, {
+      method:'POST', headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates'},
+      body: JSON.stringify(sbItem(item))
+    });
+    if (!r.ok) console.warn('syncItem failed', r.status, await r.text().catch(()=>''));
+  } catch(e) { console.warn('syncItem error', e); }
 }
 async function deleteItemRemote(id) {
   if (!SB_URL||!SB_KEY) return;
@@ -1049,7 +1067,13 @@ async function deleteItemRemote(id) {
 }
 async function syncProfile() {
   if (!SB_URL||!SB_KEY) return;
-  try { await fetch(`${SB_URL}/rest/v1/wardrobe_profile`,{ method:'POST', headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates'}, body:JSON.stringify({id:'main',...profile}) }); } catch(e) {}
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/wardrobe_profile`, {
+      method:'POST', headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates'},
+      body: JSON.stringify({id:'main',...profile})
+    });
+    if (!r.ok) console.warn('syncProfile failed', r.status, await r.text().catch(()=>''));
+  } catch(e) { console.warn('syncProfile error', e); }
 }
 async function loadFromSupabase() {
   if (!SB_URL||!SB_KEY) return;
@@ -1061,10 +1085,15 @@ async function loadFromSupabase() {
     if (ir.ok) {
       const remote = await ir.json();
       if (remote.length > 0) {
-        const localIds = new Set(items.map(i=>i.id));
         const remoteIds = new Set(remote.map(i=>i.id));
-        remote.forEach(ri => { if (!localIds.has(ri.id)) items.push(ri); });
-        items = items.map(li => remoteIds.has(li.id) ? remote.find(r=>r.id===li.id) : li);
+        // Merge: remote wins for existing items, keep local-only items
+        const localOnly = items.filter(i => !remoteIds.has(i.id));
+        // Restore previewSrc from local copy (not stored in Supabase)
+        const merged = remote.map(ri => {
+          const local = items.find(i => i.id === ri.id);
+          return { ...ri, previewSrc: local?.previewSrc || ri.imageData };
+        });
+        items = [...merged, ...localOnly];
         persist();
       }
     }
@@ -1072,7 +1101,20 @@ async function loadFromSupabase() {
       const pArr = await pr.json();
       if (pArr.length > 0) { const {id,...rp} = pArr[0]; profile = {...profile,...rp}; persist(); }
     }
-  } catch(e) {}
+  } catch(e) { console.warn('loadFromSupabase error', e); }
+}
+
+async function manualSync() {
+  const el = document.getElementById('sync-status');
+  el.textContent = 'Syncing…';
+  // Push all local items up
+  await Promise.all(items.map(syncItem));
+  await syncProfile();
+  // Pull from remote
+  await loadFromSupabase();
+  renderWardrobe(); renderProfile();
+  el.textContent = `Last synced: ${new Date().toLocaleTimeString()} · ${items.length} items`;
+  toast('Sync complete ✓');
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
