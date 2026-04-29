@@ -1097,7 +1097,9 @@ async function loadFromSupabase() {
         // Restore previewSrc from local copy (not stored in Supabase)
         const merged = remote.map(ri => {
           const local = items.find(i => i.id === ri.id);
-          return { ...ri, previewSrc: local?.previewSrc || ri.imageData };
+          const preview = local?.previewSrc
+            || (ri.imageData ? `data:${ri.mime||'image/jpeg'};base64,${ri.imageData}` : null);
+          return { ...ri, previewSrc: preview };
         });
         items = [...merged, ...localOnly];
         persist();
