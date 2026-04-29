@@ -691,8 +691,8 @@ async function generateOutfitAI(exclude=[]) {
 
   const today = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
   const text = await claude([{ role:'user', content:
-    `Today is ${today}. ${paletteNote} ${weatherNote} ${occasionNote}\n\nWARDROBE (sorted least-worn first — prioritise items at the top):\n${wardrobe}${avoidCombos}\n\nRules:\n1. STRONGLY prefer items marked "NEVER WORN" or "rarely worn" — rotate the wardrobe\n2. Build around real colour harmony: neutrals + one accent, tonal dressing, or classic contrast pairings\n3. Must include a top or dress; if separates always include a bottom\n4. Pick 2-4 items total\n5. Each "Try Another" must feel genuinely different — vary both the items AND the colour story\n\nReturn ONLY valid JSON:\n{"itemIds":["ids"],"outfitName":"creative name","caption":"2-3 sentences explaining the colour harmony and why these pieces work together","occasion":"e.g. casual day out","colorStory":"1 sentence"}`
-  }], 'Expert personal stylist. Prioritise wardrobe rotation and real colour harmony. JSON only.');
+    `Today is ${today}. ${paletteNote} ${weatherNote} ${occasionNote}\n\nWARDROBE (sorted least-worn first — prioritise items at the top):\n${wardrobe}${avoidCombos}\n\nRules:\n1. STRONGLY prefer items marked "NEVER WORN" or "rarely worn" — rotate the wardrobe\n2. Build colour stories using the principles of "A Dictionary of Colour Combinations" (Seigensha, ISBN 9784861522475) — the Japanese colour reference with 348 curated combinations. Favour tonal harmonies, nature-inspired pairings, muted/desaturated combinations, and the seasonal palettes from that book. Think in terms of named Japanese colour stories: e.g. pairing shironeri (off-white) with haizome (ash blue), or kohaku (amber) with rikyucha (grey-brown).\n3. Must include a top or dress; if separates always include a bottom\n4. Pick 2-4 items total\n5. Each "Try Another" must feel genuinely different — vary both the items AND the colour story\n\nReturn ONLY valid JSON:\n{"itemIds":["ids"],"outfitName":"creative name","caption":"2-3 sentences explaining the colour harmony and why these pieces work together — reference the colour story in the style of Seigensha","occasion":"e.g. casual day out","colorStory":"1 sentence naming the colour mood e.g. 'ash and clay' or 'moss and cream'"}`
+  }], 'Expert personal stylist with deep knowledge of the Seigensha Dictionary of Colour Combinations. Apply its Japanese colour harmony principles — tonal, nature-inspired, muted pairings. JSON only.');
   const result = parseJSON(text);
   // Remember this combo so next generation avoids it
   if (result?.itemIds) {
@@ -1215,7 +1215,7 @@ async function sendChat() {
 
   try {
     const messages = chatHistory.map(({ role, content }) => ({ role, content }));
-    const reply = await claude(messages, `You are a personal stylist assistant. You know the user's full wardrobe and colour profile. Be concise, specific, and practical. Always reference actual items from their wardrobe by name.\n\n${wardrobeContext()}`);
+    const reply = await claude(messages, `You are a personal stylist assistant with deep knowledge of "A Dictionary of Colour Combinations" by Seigensha (ISBN 9784861522475) — the Japanese colour reference containing 348 curated combinations. Apply its principles: tonal harmonies, nature-inspired pairings, muted and desaturated combinations, seasonal colour stories, and traditional Japanese colour relationships. When giving colour advice, think in terms of the named colour moods from that book (e.g. ash and stone, moss and cream, indigo and sand). Be concise, specific, and practical. Always reference actual items from the user's wardrobe by name.\n\n${wardrobeContext()}`);
     thinking.remove();
     chatHistory.push({ role: 'assistant', content: reply });
     renderChatMessages();
