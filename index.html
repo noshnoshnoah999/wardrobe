@@ -479,6 +479,11 @@ function toast(msg) {
 
 // ── Weather ───────────────────────────────────────────────────────────────────
 async function fetchWeather() {
+  // Use cached weather if less than 1 hour old — avoids repeated location prompts
+  const cached = JSON.parse(localStorage.getItem('wrd_weather') || 'null');
+  if (cached && (Date.now() - (cached.ts||0)) < 3600000) {
+    weather = cached; renderWeatherStrip(); return;
+  }
   if (!navigator.geolocation) return;
   navigator.geolocation.getCurrentPosition(async pos => {
     try {
@@ -487,7 +492,8 @@ async function fetchWeather() {
       const d = await r.json();
       const code = d.current.weather_code;
       const temp = Math.round(d.current.temperature_2m);
-      weather = { temp, desc: WEATHER_CODES[code] || '🌡️ Unknown', code };
+      weather = { temp, desc: WEATHER_CODES[code] || '🌡️ Unknown', code, ts: Date.now() };
+      localStorage.setItem('wrd_weather', JSON.stringify(weather));
       renderWeatherStrip();
     } catch(e) { /* silent */ }
   }, () => {});
@@ -1106,15 +1112,26 @@ async function loadFromSupabase() {
 
 async function manualSync() {
   const el = document.getElementById('sync-status');
-  el.textContent = 'Syncing…';
-  // Push all local items up
-  await Promise.all(items.map(syncItem));
+  el.textContent = '⏳ Pushing local items…';
+  let pushed = 0, failed = 0;
+  for (const item of items) {
+    try {
+      const r = await fetch(`${SB_URL}/rest/v1/wardrobe_items`, {
+        method:'POST', headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates'},
+        body: JSON.stringify(sbItem(item))
+      });
+      if (r.ok) pushed++; else { failed++; console.warn('sync item failed', r.status, await r.text().catch(()=>'')); }
+    } catch(e) { failed++; }
+  }
   await syncProfile();
-  // Pull from remote
+  el.textContent = '⏳ Pulling from cloud…';
   await loadFromSupabase();
   renderWardrobe(); renderProfile();
-  el.textContent = `Last synced: ${new Date().toLocaleTimeString()} · ${items.length} items`;
-  toast('Sync complete ✓');
+  const msg = failed > 0
+    ? `⚠️ ${pushed} synced, ${failed} failed — check console`
+    : `✓ ${items.length} items synced · ${new Date().toLocaleTimeString()}`;
+  el.textContent = msg;
+  toast(failed > 0 ? `${failed} items failed to sync` : 'Sync complete ✓');
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
