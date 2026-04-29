@@ -1114,21 +1114,22 @@ async function manualSync() {
   const el = document.getElementById('sync-status');
   el.textContent = '⏳ Pushing local items…';
   let pushed = 0, failed = 0;
+  let lastError = '';
   for (const item of items) {
     try {
       const r = await fetch(`${SB_URL}/rest/v1/wardrobe_items`, {
         method:'POST', headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates'},
         body: JSON.stringify(sbItem(item))
       });
-      if (r.ok) pushed++; else { failed++; console.warn('sync item failed', r.status, await r.text().catch(()=>'')); }
-    } catch(e) { failed++; }
+      if (r.ok) pushed++; else { failed++; lastError = `${r.status}: ${await r.text().catch(()=>'')}`; }
+    } catch(e) { failed++; lastError = e.message; }
   }
   await syncProfile();
   el.textContent = '⏳ Pulling from cloud…';
   await loadFromSupabase();
   renderWardrobe(); renderProfile();
   const msg = failed > 0
-    ? `⚠️ ${pushed} synced, ${failed} failed — check console`
+    ? `⚠️ ${pushed} synced, ${failed} failed: ${lastError}`
     : `✓ ${items.length} items synced · ${new Date().toLocaleTimeString()}`;
   el.textContent = msg;
   toast(failed > 0 ? `${failed} items failed to sync` : 'Sync complete ✓');
