@@ -214,6 +214,7 @@
     .chat-img-btn { width: 38px; height: 38px; border-radius: 50%; background: var(--surface2); border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; color: var(--text-muted); transition: all 0.15s; align-self: flex-end; }
     .chat-img-btn:hover { border-color: var(--accent); color: var(--accent); }
     .chat-img-btn.has-img { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+    .chat-input-row.drag-over { border-color: var(--accent); background: var(--accent-light); border-radius: var(--radius-sm); }
     .chat-bubble.ai img { max-width: 100%; border-radius: 10px; margin-bottom: 8px; display: block; }
     .chat-suggestion-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
     .chat-suggestion { background: var(--surface); border: 1.5px solid var(--border); border-radius: 16px; padding: 7px 13px; font-size: 13px; cursor: pointer; color: var(--text-muted); font-family: var(--font); transition: all 0.15s; }
@@ -427,12 +428,12 @@
                 <button onclick="clearChatImg()" style="position:absolute;top:-6px;right:-6px;background:var(--text);color:var(--bg);border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>
               </div>
             </div>
-            <div class="chat-input-row">
+            <div class="chat-input-row" id="chat-input-row" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleChatDrop(event)">
               <label class="chat-img-btn" title="Add photo">
                 <input type="file" accept="image/*" id="chat-img-input" style="display:none" onchange="handleChatImg(event)">
                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
               </label>
-              <textarea class="chat-input" id="chat-input" rows="1" placeholder="Ask anything about your wardrobe…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"></textarea>
+              <textarea class="chat-input" id="chat-input" rows="1" placeholder="Ask anything or drop a photo…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}" onpaste="handleChatPaste(event)"></textarea>
               <button class="chat-send" id="chat-send-btn" onclick="sendChat()">
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
               </button>
@@ -1131,6 +1132,16 @@ function clearChatImg() {
   document.getElementById('chat-img-preview').style.display = 'none';
   document.getElementById('chat-img-thumb').src = '';
   document.querySelector('.chat-img-btn').classList.remove('has-img');
+}
+function handleChatDrop(e) {
+  e.preventDefault();
+  document.getElementById('chat-input-row').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file?.type.startsWith('image/')) handleChatImg({ target: { files: [file], value: '' } });
+}
+function handleChatPaste(e) {
+  const file = [...(e.clipboardData?.files||[])].find(f => f.type.startsWith('image/'));
+  if (file) { e.preventDefault(); handleChatImg({ target: { files: [file], value: '' } }); }
 }
 
 function wardrobeContext() {
