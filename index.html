@@ -530,11 +530,14 @@ async function fetchWeather() {
   navigator.geolocation.getCurrentPosition(async pos => {
     try {
       const { latitude: lat, longitude: lon } = pos.coords;
-      const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&temperature_unit=celsius`);
+      const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code&temperature_unit=celsius&wind_speed_unit=mph`);
       const d = await r.json();
       const code = d.current.weather_code;
       const temp = Math.round(d.current.temperature_2m);
-      weather = { temp, desc: WEATHER_CODES[code] || '🌡️ Unknown', code, ts: Date.now() };
+      const feelsLike = Math.round(d.current.apparent_temperature);
+      const humidity = Math.round(d.current.relative_humidity_2m);
+      const wind = Math.round(d.current.wind_speed_10m);
+      weather = { temp, feelsLike, humidity, wind, desc: WEATHER_CODES[code] || '🌡️ Unknown', code, ts: Date.now() };
       localStorage.setItem('wrd_weather', JSON.stringify(weather));
       renderWeatherStrip();
     } catch(e) { /* silent */ }
@@ -544,7 +547,8 @@ async function fetchWeather() {
 function renderWeatherStrip() {
   const el = document.getElementById('weather-strip');
   if (!el || !weather) return;
-  el.innerHTML = `<span class="weather-emoji">${weather.desc.split(' ')[0]}</span><span>${weather.desc.split(' ').slice(1).join(' ')} · ${weather.temp}°C</span>`;
+  const feelsStr = weather.feelsLike != null && weather.feelsLike !== weather.temp ? ` · feels ${weather.feelsLike}°C` : '';
+  el.innerHTML = `<span class="weather-emoji">${weather.desc.split(' ')[0]}</span><span>${weather.desc.split(' ').slice(1).join(' ')} · ${weather.temp}°C${feelsStr}</span>`;
   el.style.display = 'flex';
 }
 
@@ -589,7 +593,13 @@ async function generateOutfitAI(exclude=[]) {
   if (items.length < 2) return null;
   const palette = profile.flatteringColors.length ? profile.flatteringColors : profile.palette;
   const paletteNote = palette.length ? `Wearer's best colours: ${(profile.flatteringNames.length?profile.flatteringNames:palette).join(', ')}.` : '';
-  const weatherNote = weather ? `Weather: ${weather.desc}, ${weather.temp}°C — pick appropriate fabrics/layers.` : '';
+  const weatherNote = weather ? (() => {
+    const parts = [`${weather.desc}, ${weather.temp}°C actual`];
+    if (weather.feelsLike != null) parts.push(`feels like ${weather.feelsLike}°C`);
+    if (weather.humidity != null) parts.push(`${weather.humidity}% humidity`);
+    if (weather.wind != null && weather.wind > 5) parts.push(`${weather.wind}mph wind`);
+    return `Weather: ${parts.join(', ')}. Base clothing choices on the feels-like temperature, not the actual — high humidity or wind can make it feel much warmer or colder than the thermometer.`;
+  })() : '';
   const occasionNote = activeOccasion !== 'Any' ? `Occasion: ${activeOccasion}.` : '';
 
   // Sort by least worn first so Claude sees less-used items at the top
@@ -800,7 +810,7 @@ function renderToday() {
   const header = `
     <div class="today-date">${dateStr}</div>
     <div class="today-heading">What to wear today</div>
-    <div class="weather-strip" id="weather-strip" style="display:${weather?'flex':'none'}">${weather?`<span class="weather-emoji">${weather.desc.split(' ')[0]}</span><span>${weather.desc.split(' ').slice(1).join(' ')} · ${weather.temp}°C</span>`:''}</div>
+    <div class="weather-strip" id="weather-strip" style="display:${weather?'flex':'none'}">${weather?`<span class="weather-emoji">${weather.desc.split(' ')[0]}</span><span>${weather.desc.split(' ').slice(1).join(' ')} · ${weather.temp}°C${weather.feelsLike!=null&&weather.feelsLike!==weather.temp?` · feels ${weather.feelsLike}°C`:''}</span>`:''}</div>
     <div class="occasion-bar" id="occasion-bar">${OCCASIONS.map(o=>`<button class="occasion-chip${o===activeOccasion?' active':''}" onclick="setOccasion('${o}')">${o}</button>`).join('')}</div>`;
   if (items.length === 0) {
     el.innerHTML = header + `<div class="empty"><div class="empty-icon">👗</div><div class="empty-title">Wardrobe is empty</div><div class="empty-desc">Add some items to get outfit suggestions</div><button class="btn btn-primary" onclick="navigate('add')">Add First Item</button></div>`;
@@ -824,7 +834,7 @@ async function generateOutfit() {
   const el = document.getElementById('today-content');
   const dateStr = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
   if (items.length === 0) { renderToday(); return; }
-  const weatherHtml = weather ? `<div class="weather-strip" id="weather-strip" style="display:flex"><span class="weather-emoji">${weather.desc.split(' ')[0]}</span><span>${weather.desc.split(' ').slice(1).join(' ')} · ${weather.temp}°C</span></div>` : `<div id="weather-strip" style="display:none"></div>`;
+  const weatherHtml = weather ? `<div class="weather-strip" id="weather-strip" style="display:flex"><span class="weather-emoji">${weather.desc.split(' ')[0]}</span><span>${weather.desc.split(' ').slice(1).join(' ')} · ${weather.temp}°C${weather.feelsLike!=null&&weather.feelsLike!==weather.temp?` · feels ${weather.feelsLike}°C`:''}</span></div>` : `<div id="weather-strip" style="display:none"></div>`;
   el.innerHTML = `<div class="today-date">${dateStr}</div><div class="today-heading">What to wear today</div>${weatherHtml}<div class="occasion-bar">${OCCASIONS.map(o=>`<button class="occasion-chip${o===activeOccasion?' active':''}" onclick="setOccasion('${o}')">${o}</button>`).join('')}</div><div class="gen-card"><div class="spinner spinner-lg"></div><div class="gen-title">Styling your look…</div><div class="gen-sub">Claude is picking pieces from your wardrobe</div></div>`;
   try {
     const outfit = await generateOutfitAI(excludedIds);
