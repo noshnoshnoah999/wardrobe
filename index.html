@@ -583,23 +583,47 @@ async function analyseSelfieImage(data, isBase64, mime) {
   return parseJSON(text);
 }
 
+let recentGeneratedOutfits = []; // track last 5 generated outfit combos in this session
+
 async function generateOutfitAI(exclude=[]) {
   if (items.length < 2) return null;
   const palette = profile.flatteringColors.length ? profile.flatteringColors : profile.palette;
-  const paletteNote = palette.length ? `Wearer's flattering colours: ${(profile.flatteringNames.length?profile.flatteringNames:palette).join(', ')}.` : '';
-  const weatherNote = weather ? `Weather today: ${weather.desc}, ${weather.temp}°C. Pick appropriate layers/fabrics.` : '';
+  const paletteNote = palette.length ? `Wearer's best colours: ${(profile.flatteringNames.length?profile.flatteringNames:palette).join(', ')}.` : '';
+  const weatherNote = weather ? `Weather: ${weather.desc}, ${weather.temp}°C — pick appropriate fabrics/layers.` : '';
   const occasionNote = activeOccasion !== 'Any' ? `Occasion: ${activeOccasion}.` : '';
-  const recentWorn = Object.values(history).slice(-7).flatMap(h => h.itemIds||[]);
-  const wardrobe = items
+
+  // Sort by least worn first so Claude sees less-used items at the top
+  const sorted = [...items]
     .filter(i => !exclude.includes(i.id))
-    .map(i => `ID:${i.id} | ${i.name} | ${i.category} | colors:${(i.colorNames||i.colors||[]).join(',')} | style:${(i.style||[]).join(',')} | worn ${i.timesWorn||0}x${recentWorn.includes(i.id)?' (worn recently)':''}`)
-    .join('\n');
+    .sort((a,b) => (a.timesWorn||0) - (b.timesWorn||0));
+
+  const recentWornIds = Object.values(history).slice(-5).flatMap(h => h.itemIds||[]);
+
+  const wardrobe = sorted.map(i => {
+    const worn = i.timesWorn||0;
+    const flags = [];
+    if (worn === 0) flags.push('NEVER WORN — prioritise this');
+    else if (worn <= 2) flags.push('rarely worn — try to include');
+    if (recentWornIds.includes(i.id)) flags.push('worn recently');
+    const flagStr = flags.length ? ` [${flags.join(', ')}]` : '';
+    return `ID:${i.id} | ${i.name} | ${i.category} | colors:${(i.colorNames||i.colors||[]).join(', ')} | style:${(i.style||[]).join(', ')} | worn ${worn}x${flagStr}`;
+  }).join('\n');
+
+  // Tell Claude which combos it already showed this session
+  const avoidCombos = recentGeneratedOutfits.length
+    ? `\n\nDO NOT repeat these item combinations you already suggested:\n${recentGeneratedOutfits.map((ids,i)=>`${i+1}. ${ids.join(', ')}`).join('\n')}`
+    : '';
+
   const today = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
   const text = await claude([{ role:'user', content:
-    `Today is ${today}. ${paletteNote} ${weatherNote} ${occasionNote}\n\nWARDROBE:\n${wardrobe}\n\nPick 2-4 complementary items. Avoid recently worn combos. Include top or dress; if separates include a bottom. Return ONLY valid JSON:
-{"itemIds":["ids"],"outfitName":"creative name","caption":"2-3 sentences on colour harmony and why pieces work","occasion":"e.g. casual day out","colorStory":"1 sentence"}`
-  }], 'Personal stylist. JSON only.');
-  return parseJSON(text);
+    `Today is ${today}. ${paletteNote} ${weatherNote} ${occasionNote}\n\nWARDROBE (sorted least-worn first — prioritise items at the top):\n${wardrobe}${avoidCombos}\n\nRules:\n1. STRONGLY prefer items marked "NEVER WORN" or "rarely worn" — rotate the wardrobe\n2. Build around real colour harmony: neutrals + one accent, tonal dressing, or classic contrast pairings\n3. Must include a top or dress; if separates always include a bottom\n4. Pick 2-4 items total\n5. Each "Try Another" must feel genuinely different — vary both the items AND the colour story\n\nReturn ONLY valid JSON:\n{"itemIds":["ids"],"outfitName":"creative name","caption":"2-3 sentences explaining the colour harmony and why these pieces work together","occasion":"e.g. casual day out","colorStory":"1 sentence"}`
+  }], 'Expert personal stylist. Prioritise wardrobe rotation and real colour harmony. JSON only.');
+  const result = parseJSON(text);
+  // Remember this combo so next generation avoids it
+  if (result?.itemIds) {
+    recentGeneratedOutfits = [...recentGeneratedOutfits.slice(-4), result.itemIds];
+  }
+  return result;
 }
 
 async function generatePackingListAI(dest, days, occasion) {
@@ -814,7 +838,7 @@ async function generateOutfit() {
   }
 }
 
-function regenerateOutfit() { todayOutfit = null; excludedIds = []; generateOutfit(); }
+function regenerateOutfit() { todayOutfit = null; excludedIds = []; recentGeneratedOutfits = []; generateOutfit(); }
 
 function notFeelingIt() {
   if (todayOutfit) excludedIds = [...new Set([...excludedIds, ...(todayOutfit.itemIds||[])])];
