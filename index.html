@@ -573,7 +573,7 @@ function imgContent(data, isBase64, mime) {
 async function analyseItemImage(data, isBase64, mime, hint) {
   const focusNote = hint ? ` Focus specifically on the ${hint} — ignore other items in the image.` : '';
   const text = await claude([{ role:'user', content:[imgContent(data,isBase64,mime),{ type:'text', text:`Analyse this clothing/accessory/shoe.${focusNote} Return ONLY valid JSON:
-{"name":"concise name","category":"tops|bottoms|dresses|outerwear|shoes|bags|accessories","colors":["hex strings"],"colorNames":["names"],"style":["2-4 tags"],"fabric":"fabric or null","season":["spring","summer","autumn","winter"]}` }]}], 'Fashion analyst. JSON only.');
+{"name":"concise name","category":"tops|bottoms|dresses|outerwear|shoes|bags|accessories","colors":["hex strings"],"colorNames":["precise color names e.g. beige, sand, ivory, sage, navy, burgundy, cream — never use fabric names like khaki or denim as color names"],"style":["2-4 tags"],"fabric":"fabric or null","season":["spring","summer","autumn","winter"]}` }]}], 'Fashion analyst. JSON only. Use precise descriptive color names, never fabric names as colors.');
   return parseJSON(text);
 }
 
