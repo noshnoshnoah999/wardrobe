@@ -656,7 +656,13 @@ async function analyseSelfieImage(data, isBase64, mime) {
   return parseJSON(text);
 }
 
-let recentGeneratedOutfits = []; // track last 5 generated outfit combos in this session
+// Persist recent generated outfits across reloads so Claude never repeats them
+function loadRecentOutfits() {
+  try { return JSON.parse(localStorage.getItem('wrd_recent_outfits') || '[]'); } catch(e) { return []; }
+}
+function saveRecentOutfits(arr) {
+  localStorage.setItem('wrd_recent_outfits', JSON.stringify(arr.slice(-10)));
+}
 
 async function generateOutfitAI(exclude=[]) {
   if (items.length < 2) return null;
@@ -667,40 +673,45 @@ async function generateOutfitAI(exclude=[]) {
     if (weather.feelsLike != null) parts.push(`feels like ${weather.feelsLike}°C`);
     if (weather.humidity != null) parts.push(`${weather.humidity}% humidity`);
     if (weather.wind != null && weather.wind > 5) parts.push(`${weather.wind}mph wind`);
-    return `Weather: ${parts.join(', ')}. Base clothing choices on the feels-like temperature, not the actual — high humidity or wind can make it feel much warmer or colder than the thermometer.`;
+    return `Weather: ${parts.join(', ')}. Base clothing choices on the feels-like temperature, not the actual.`;
   })() : '';
   const occasionNote = activeOccasion !== 'Any' ? `Occasion: ${activeOccasion}.` : '';
 
-  // Sort by least worn first so Claude sees less-used items at the top
-  const sorted = [...items]
-    .filter(i => !exclude.includes(i.id))
-    .sort((a,b) => (a.timesWorn||0) - (b.timesWorn||0));
+  const recentOutfits = loadRecentOutfits();
 
+  // Hard-exclude items that appeared in the last 2 generated outfits
+  // (fall back to full wardrobe if that leaves too few items)
+  const recentlyShownIds = [...new Set(recentOutfits.slice(-2).flat())];
+  const hardExclude = [...new Set([...exclude, ...recentlyShownIds])];
+  const available = items.filter(i => !hardExclude.includes(i.id));
+  const pool = available.length >= 3 ? available : items.filter(i => !exclude.includes(i.id));
+
+  // Sort by least worn first
+  const sorted = [...pool].sort((a,b) => (a.timesWorn||0) - (b.timesWorn||0));
   const recentWornIds = Object.values(history).slice(-5).flatMap(h => h.itemIds||[]);
 
   const wardrobe = sorted.map(i => {
     const worn = i.timesWorn||0;
     const flags = [];
-    if (worn === 0) flags.push('NEVER WORN — prioritise this');
+    if (worn === 0) flags.push('NEVER WORN — prioritise');
     else if (worn <= 2) flags.push('rarely worn — try to include');
     if (recentWornIds.includes(i.id)) flags.push('worn recently');
     const flagStr = flags.length ? ` [${flags.join(', ')}]` : '';
     return `ID:${i.id} | ${i.name} | ${i.category} | colors:${(i.colorNames||i.colors||[]).join(', ')} | style:${(i.style||[]).join(', ')} | worn ${worn}x${flagStr}`;
   }).join('\n');
 
-  // Tell Claude which combos it already showed this session
-  const avoidCombos = recentGeneratedOutfits.length
-    ? `\n\nDO NOT repeat these item combinations you already suggested:\n${recentGeneratedOutfits.map((ids,i)=>`${i+1}. ${ids.join(', ')}`).join('\n')}`
+  // Also tell Claude the last 10 outfits shown so it avoids repeating combos
+  const avoidCombos = recentOutfits.length
+    ? `\n\nPrevious outfits already shown — do NOT repeat these combinations:\n${recentOutfits.map((ids,i)=>`${i+1}. ${ids.join(', ')}`).join('\n')}`
     : '';
 
   const today = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
   const text = await claude([{ role:'user', content:
-    `Today is ${today}. ${paletteNote} ${weatherNote} ${occasionNote}\n\nWARDROBE (sorted least-worn first — prioritise items at the top):\n${wardrobe}${avoidCombos}\n\nRules:\n1. STRONGLY prefer items marked "NEVER WORN" or "rarely worn" — rotate the wardrobe\n2. Build colour stories using the principles of "A Dictionary of Colour Combinations" (Seigensha, ISBN 9784861522475) — the Japanese colour reference with 348 curated combinations. Favour tonal harmonies, nature-inspired pairings, muted/desaturated combinations, and the seasonal palettes from that book. Think in terms of named Japanese colour stories: e.g. pairing shironeri (off-white) with haizome (ash blue), or kohaku (amber) with rikyucha (grey-brown).\n3. Must include a top or dress; if separates always include a bottom; always include shoes if available; include bags, accessories and outerwear where they add to the look\n4. Pick 3-8 items — build a complete head-to-toe outfit, not just 2 basics\n5. Each "Try Another" must feel genuinely different — vary both the items AND the colour story\n\nReturn ONLY valid JSON:\n{"itemIds":["ids"],"outfitName":"creative name","caption":"2-3 sentences explaining the colour harmony and why these pieces work together — reference the colour story in the style of Seigensha","occasion":"e.g. casual day out","colorStory":"1 sentence naming the colour mood e.g. 'ash and clay' or 'moss and cream'"}`
-  }], 'Expert personal stylist with deep knowledge of the Seigensha Dictionary of Colour Combinations. Apply its Japanese colour harmony principles — tonal, nature-inspired, muted pairings. JSON only.');
+    `Today is ${today}. ${paletteNote} ${weatherNote} ${occasionNote}\n\nWARDROBE (sorted least-worn first):\n${wardrobe}${avoidCombos}\n\nRules:\n1. STRONGLY prefer items marked "NEVER WORN" or "rarely worn"\n2. Build colour stories using the Seigensha Dictionary of Colour Combinations principles — tonal harmonies, nature-inspired pairings, muted/desaturated combinations\n3. Must include a top or dress; if separates always include a bottom; always include shoes if available; include bags, accessories and outerwear where they add to the look\n4. Pick 3-8 items — build a complete head-to-toe outfit\n5. This must be DIFFERENT from all previous outfits listed above\n\nReturn ONLY valid JSON:\n{"itemIds":["ids"],"outfitName":"creative name","caption":"2-3 sentences on colour harmony in Seigensha style","occasion":"e.g. casual day out","colorStory":"1 sentence colour mood e.g. 'ash and clay'"}`
+  }], 'Expert personal stylist. Apply Seigensha Japanese colour harmony. JSON only.');
   const result = parseJSON(text);
-  // Remember this combo so next generation avoids it
   if (result?.itemIds) {
-    recentGeneratedOutfits = [...recentGeneratedOutfits.slice(-4), result.itemIds];
+    saveRecentOutfits([...recentOutfits, result.itemIds]);
   }
   return result;
 }
@@ -917,7 +928,7 @@ async function generateOutfit() {
   }
 }
 
-function regenerateOutfit() { todayOutfit = null; excludedIds = []; recentGeneratedOutfits = []; generateOutfit(); }
+function regenerateOutfit() { todayOutfit = null; excludedIds = []; saveRecentOutfits([]); generateOutfit(); }
 
 function notFeelingIt() {
   if (todayOutfit) excludedIds = [...new Set([...excludedIds, ...(todayOutfit.itemIds||[])])];
