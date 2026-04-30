@@ -740,7 +740,7 @@ async function findShoppingGapsAI() {
   const palette = profile.flatteringNames.length ? `Flattering colours: ${profile.flatteringNames.join(', ')}.` : '';
   const text = await claude([{ role:'user', content:
     `You are a personal stylist analysing a wardrobe for gaps. ${palette}\n\nCurrent wardrobe:\n${wardrobe}\n\nGive highly specific, actionable recommendations. Not "a white shirt" — say "a white oversized cotton t-shirt" or "slim-fit dark navy chinos". Think about:\n- Specific basic essentials missing (e.g. plain white tee, grey marl crewneck, black slim trousers)\n- Versatile layering pieces\n- Items that would unlock many more outfit combinations with what they already own\n- Colour gaps — shades that would tie existing pieces together\n- Seasonal gaps\n- Shoes, bags, accessories they're lacking\n\nReturn ONLY valid JSON with AT LEAST 10 specific recommendations:\n{"gaps":[{"item":"very specific item name","reason":"why it's missing and what it unlocks","priority":"essential|recommended|nice-to-have","category":"tops|bottoms|shoes|outerwear|bags|accessories"}],"unlockNote":"1 sentence on the single purchase that would create the most new outfit combinations","mostVersatile":"most versatile existing piece they own"}`
-  }], 'Expert personal stylist. Give very specific, actionable shopping recommendations. JSON only.', 3000);
+  }], 'Expert personal stylist. Give very specific, actionable shopping recommendations. JSON only. Keep reason fields under 15 words each.', 4096);
   return parseJSON(text);
 }
 
