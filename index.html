@@ -763,9 +763,14 @@ function fileToB64(file) {
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, w, h);
         ctx.drawImage(img, 0, 0, w, h);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-        // Read actual MIME from the data URL in case browser changed it
-        const actualMime = dataUrl.split(';')[0].split(':')[1] || 'image/jpeg';
+        // Compress until under 4MB (Claude limit is 5MB, leave headroom)
+        let quality = 0.82;
+        let dataUrl = canvas.toDataURL('image/jpeg', quality);
+        while (dataUrl.length * 0.75 > 4 * 1024 * 1024 && quality > 0.2) {
+          quality -= 0.1;
+          dataUrl = canvas.toDataURL('image/jpeg', quality);
+        }
+        const actualMime = 'image/jpeg';
         const b64 = dataUrl.split(',')[1];
         res({ b64, mime: actualMime, dataUrl });
       };
