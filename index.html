@@ -1151,7 +1151,26 @@ async function findShoppingGaps() {
 }
 
 // ── Ask / Chat ────────────────────────────────────────────────────────────────
-let chatHistory = [];
+const CHAT_TTL = 24 * 60 * 60 * 1000; // 1 day
+
+function loadChatHistory() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('wrd_chat') || 'null');
+    if (!saved || Date.now() - saved.ts > CHAT_TTL) return [];
+    return saved.messages || [];
+  } catch(e) { return []; }
+}
+function saveChatHistory() {
+  // Strip image data before saving to keep localStorage small
+  const slim = chatHistory.map(m => ({
+    role: m.role,
+    content: typeof m.content === 'string' ? m.content : m.content.find(c=>c.type==='text')?.text || '',
+    imgDataUrls: [] // don't persist images
+  }));
+  localStorage.setItem('wrd_chat', JSON.stringify({ ts: Date.now(), messages: slim }));
+}
+
+let chatHistory = loadChatHistory();
 let chatPendingImgs = []; // array of { b64, mime, dataUrl }
 
 function renderChatImgPreviews() {
@@ -1268,11 +1287,11 @@ async function sendChat() {
     const reply = await claude(messages, `You are a personal stylist assistant with deep knowledge of "A Dictionary of Colour Combinations" by Seigensha (ISBN 9784861522475) — the Japanese colour reference containing 348 curated combinations. Apply its principles: tonal harmonies, nature-inspired pairings, muted and desaturated combinations, seasonal colour stories, and traditional Japanese colour relationships. When giving colour advice, think in terms of the named colour moods from that book (e.g. ash and stone, moss and cream, indigo and sand). Be concise, specific, and practical. Always reference actual items from the user's wardrobe by name.\n\n${wardrobeContext()}`);
     thinking.remove();
     chatHistory.push({ role: 'assistant', content: reply });
-    renderChatMessages();
+    renderChatMessages(); saveChatHistory();
   } catch(e) {
     thinking.remove();
     chatHistory.push({ role: 'assistant', content: `Sorry, something went wrong: ${e.message}` });
-    renderChatMessages();
+    renderChatMessages(); saveChatHistory();
   }
   btn.disabled = false;
   input.focus();
