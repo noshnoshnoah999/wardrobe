@@ -224,6 +224,40 @@
     .chat-suggestion { background: var(--surface); border: 1.5px solid var(--border); border-radius: 16px; padding: 7px 13px; font-size: 13px; cursor: pointer; color: var(--text-muted); font-family: var(--font); transition: all 0.15s; }
     .chat-suggestion:hover, .chat-suggestion:active { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
 
+    /* ── Build page ──────────────────────────────────────────────────────────── */
+    .build-layout { display: flex; flex-direction: column; gap: 16px; }
+    .build-anchors { display: flex; gap: 10px; flex-wrap: wrap; min-height: 48px; padding: 10px; background: var(--surface2); border-radius: var(--radius-sm); border: 2px dashed var(--border); }
+    .build-anchors.has-items { border-style: solid; border-color: var(--accent); background: var(--accent-light); }
+    .build-anchor-chip { display: flex; align-items: center; gap: 8px; background: var(--surface); border-radius: 99px; padding: 5px 10px 5px 6px; font-size: 13px; font-weight: 500; box-shadow: var(--shadow); }
+    .build-anchor-chip img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+    .build-anchor-chip .emoji { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 16px; background: var(--surface2); border-radius: 50%; }
+    .build-anchor-chip button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 0; line-height: 1; }
+    .build-picker-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; max-height: 280px; overflow-y: auto; }
+    .build-picker-item { aspect-ratio: 1; border-radius: var(--radius-sm); overflow: hidden; position: relative; cursor: pointer; border: 2.5px solid transparent; transition: all 0.15s; background: var(--surface2); display: flex; align-items: center; justify-content: center; }
+    .build-picker-item.selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-light); }
+    .build-picker-item.disabled { opacity: 0.35; pointer-events: none; }
+    .build-picker-item img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+    .build-picker-item .build-picker-label { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent,rgba(0,0,0,.55)); color:#fff; font-size: 10px; padding: 14px 6px 5px; }
+    .build-picker-item .build-check { position: absolute; top: 5px; right: 5px; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #fff; display: none; align-items: center; justify-content: center; font-size: 12px; }
+    .build-picker-item.selected .build-check { display: flex; }
+    .build-result { background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+    .build-split { display: flex; flex-direction: column; gap: 16px; }
+    .build-chat { display: flex; flex-direction: column; background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+    .build-chat-header { padding: 14px 16px 10px; font-weight: 600; font-size: 14px; border-bottom: 1px solid var(--border); }
+    .build-chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 12px; max-height: 300px; min-height: 80px; }
+    .build-chat-input-row { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); }
+    .build-chat-input { flex: 1; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 18px; padding: 9px 14px; font-size: 14px; color: var(--text); font-family: var(--font); outline: none; resize: none; }
+    .build-chat-input:focus { border-color: var(--accent); }
+    .build-chip-row { display: flex; flex-wrap: wrap; gap: 7px; padding: 0 12px 10px; }
+    .build-chip { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 14px; padding: 6px 12px; font-size: 12px; cursor: pointer; color: var(--text-muted); font-family: var(--font); }
+    .build-chip:active { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+    @media (min-width: 768px) {
+      .build-split { flex-direction: row; }
+      .build-split > * { flex: 1; }
+      .build-chat-messages { max-height: 500px; }
+      .build-picker-grid { grid-template-columns: repeat(4,1fr); max-height: 320px; }
+    }
+
     /* ── Responsive ───────────────────────────────────────────────────────────── */
     @media (min-width: 768px) {
       .sidebar { display: flex; }
@@ -256,6 +290,9 @@
     </button>
     <button class="nav-item" onclick="navigate('ask')">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ask
+    </button>
+    <button class="nav-item" onclick="navigate('build')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><circle cx="17.5" cy="17.5" r="3.5"/></svg>Build
     </button>
     <div class="sidebar-bottom">
       <button class="nav-item" onclick="navigate('profile')">
@@ -413,6 +450,46 @@
       </div>
     </div>
 
+    <!-- Build page -->
+    <div class="page" id="page-build">
+      <div class="page-header"><div class="page-title">Build Outfit</div></div>
+      <div style="padding:0 16px 20px">
+        <div class="build-layout">
+          <div>
+            <div class="section-label" style="margin-bottom:8px">Pick 1–2 anchor pieces</div>
+            <div class="build-anchors" id="build-anchors">
+              <span style="font-size:13px;color:var(--text-muted);align-self:center">Tap items below to anchor your outfit</span>
+            </div>
+          </div>
+          <div>
+            <div class="section-label" style="margin-bottom:8px">Your wardrobe</div>
+            <div class="build-picker-grid" id="build-picker-grid"></div>
+          </div>
+          <button class="btn btn-primary" id="build-gen-btn" onclick="generateBuildOutfit()" style="display:none">✦ Generate outfit</button>
+          <div class="build-split" id="build-result-wrap" style="display:none">
+            <div id="build-outfit-result" class="build-result"></div>
+            <div class="build-chat" id="build-chat">
+              <div class="build-chat-header">💬 Adjust the outfit</div>
+              <div class="build-chat-messages" id="build-chat-messages"></div>
+              <div class="build-chip-row">
+                <button class="build-chip" onclick="buildChatSuggest(this)">Make it more casual</button>
+                <button class="build-chip" onclick="buildChatSuggest(this)">Swap the shoes</button>
+                <button class="build-chip" onclick="buildChatSuggest(this)">Add a jacket</button>
+                <button class="build-chip" onclick="buildChatSuggest(this)">Make it smarter</button>
+                <button class="build-chip" onclick="buildChatSuggest(this)">Try different colours</button>
+              </div>
+              <div class="build-chat-input-row">
+                <textarea class="build-chat-input" id="build-chat-input" rows="1" placeholder="Swap something, change the vibe…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendBuildChat()}"></textarea>
+                <button class="chat-send" id="build-send-btn" onclick="sendBuildChat()">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Ask page -->
     <div class="page" id="page-ask">
       <div class="page-header"><div class="page-title">Ask</div></div>
@@ -461,8 +538,8 @@
   <button class="bottom-nav-item" id="bn-wardrobe" onclick="navigate('wardrobe')">
     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>Wardrobe
   </button>
-  <button class="bottom-nav-item" id="bn-profile" onclick="navigate('profile')">
-    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile
+  <button class="bottom-nav-item" id="bn-build" onclick="navigate('build')">
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><circle cx="17.5" cy="17.5" r="3.5"/></svg>Build
   </button>
 </nav>
 
@@ -568,6 +645,7 @@ function navigate(page) {
   if (page === 'wardrobe') renderWardrobe();
   if (page === 'profile') renderProfile();
   if (page === 'ask') { renderChatMessages(); setTimeout(()=>document.getElementById('chat-input')?.focus(),300); }
+  if (page === 'build') renderBuildPage();
 }
 
 // ── Theme ─────────────────────────────────────────────────────────────────────
@@ -1166,6 +1244,168 @@ async function findShoppingGaps() {
   } catch(e) {
     el.innerHTML = `<div style="color:#ef4444;font-size:14px">Failed: ${e.message}</div>`;
   }
+}
+
+// ── Build Outfit ──────────────────────────────────────────────────────────────
+let buildAnchors = [];   // selected anchor item IDs
+let buildOutfit = null;  // current generated outfit {itemIds, outfitName, caption, ...}
+let buildChatHistory = [];
+
+function renderBuildPage() {
+  renderBuildPicker();
+  renderBuildAnchors();
+  document.getElementById('build-result-wrap').style.display = 'none';
+  document.getElementById('build-gen-btn').style.display = buildAnchors.length ? 'block' : 'none';
+}
+
+function renderBuildPicker() {
+  const grid = document.getElementById('build-picker-grid');
+  if (!grid) return;
+  grid.innerHTML = items.map(item => {
+    const sel = buildAnchors.includes(item.id);
+    const dis = !sel && buildAnchors.length >= 2;
+    const src = item.previewSrc || item.imageData;
+    return `<div class="build-picker-item${sel?' selected':''}${dis?' disabled':''}" onclick="toggleBuildAnchor('${item.id}')">
+      ${src ? `<img src="${src}" alt="${item.name}">` : `<span style="font-size:28px">${catEmoji(item.category)}</span>`}
+      <div class="build-picker-label">${item.name}</div>
+      <div class="build-check">✓</div>
+    </div>`;
+  }).join('');
+}
+
+function renderBuildAnchors() {
+  const el = document.getElementById('build-anchors');
+  if (!el) return;
+  if (!buildAnchors.length) {
+    el.className = 'build-anchors';
+    el.innerHTML = `<span style="font-size:13px;color:var(--text-muted);align-self:center">Tap items below to anchor your outfit</span>`;
+    return;
+  }
+  el.className = 'build-anchors has-items';
+  el.innerHTML = buildAnchors.map(id => {
+    const item = items.find(i => i.id === id);
+    if (!item) return '';
+    const src = item.previewSrc || item.imageData;
+    return `<div class="build-anchor-chip">
+      ${src ? `<img src="${src}" alt="">` : `<div class="emoji">${catEmoji(item.category)}</div>`}
+      <span>${item.name}</span>
+      <button onclick="toggleBuildAnchor('${id}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function toggleBuildAnchor(id) {
+  if (buildAnchors.includes(id)) {
+    buildAnchors = buildAnchors.filter(i => i !== id);
+  } else if (buildAnchors.length < 2) {
+    buildAnchors = [...buildAnchors, id];
+  }
+  renderBuildPicker();
+  renderBuildAnchors();
+  document.getElementById('build-gen-btn').style.display = buildAnchors.length ? 'block' : 'none';
+}
+
+async function generateBuildOutfit() {
+  const btn = document.getElementById('build-gen-btn');
+  btn.disabled = true; btn.textContent = 'Styling…';
+  buildChatHistory = [];
+  document.getElementById('build-chat-messages').innerHTML = '';
+  document.getElementById('build-result-wrap').style.display = 'none';
+
+  try {
+    const anchor = buildAnchors.map(id => items.find(i => i.id === id)).filter(Boolean);
+    buildOutfit = await buildOutfitAI(anchor, null);
+    renderBuildOutfit();
+    document.getElementById('build-result-wrap').style.display = 'flex';
+    document.getElementById('build-result-wrap').style.flexDirection = 'column';
+  } catch(e) { toast('Failed: ' + e.message); }
+  btn.disabled = false; btn.textContent = '✦ Generate outfit';
+}
+
+async function buildOutfitAI(anchors, adjustment) {
+  const anchorIds = anchors.map(i => i.id);
+  const anchorDesc = anchors.map(i => `${i.name} (${i.category}, ${(i.colorNames||i.colors||[]).join('/')})`).join(', ');
+  const wardrobe = items.map(i =>
+    `ID:${i.id} | ${i.name} | ${i.category} | colors:${(i.colorNames||i.colors||[]).join(',')} | style:${(i.style||[]).join(',')}`
+  ).join('\n');
+  const palette = profile.flatteringNames.length ? `Wearer's best colours: ${profile.flatteringNames.join(', ')}.` : '';
+  const weatherNote = weather ? `Weather: feels like ${weather.feelsLike??weather.temp}°C, ${weather.desc}.` : '';
+
+  const currentOutfitNote = buildOutfit
+    ? `\nCurrent outfit: ${(buildOutfit.itemIds||[]).map(id=>items.find(i=>i.id===id)?.name).filter(Boolean).join(', ')}`
+    : '';
+
+  const messages = [
+    ...buildChatHistory,
+    { role: 'user', content: adjustment
+        ? `${adjustment}${currentOutfitNote}\n\nAnchor pieces (MUST keep): ${anchorDesc}\n\nWARDROBE:\n${wardrobe}\n\nReturn ONLY valid JSON:\n{"itemIds":["ids"],"outfitName":"name","caption":"2 sentences on colour harmony","colorStory":"mood in 5 words"}`
+        : `Build an outfit around: ${anchorDesc}. ${palette} ${weatherNote}\n\nWARDROBE:\n${wardrobe}\n\nRules: anchor pieces MUST be included. Build a complete head-to-toe look using Seigensha colour principles. Pick 3-8 items.\n\nReturn ONLY valid JSON:\n{"itemIds":["ids"],"outfitName":"name","caption":"2 sentences on colour harmony","colorStory":"mood in 5 words"}`
+    }
+  ];
+
+  const result = parseJSON(await claude(messages, `Expert stylist. Build outfits around anchor pieces. Apply Seigensha colour harmony. Anchor items must always be included. JSON only.`, 1500));
+  // Ensure anchors are always in
+  anchorIds.forEach(id => { if (!result.itemIds.includes(id)) result.itemIds.unshift(id); });
+  return result;
+}
+
+function renderBuildOutfit() {
+  const el = document.getElementById('build-outfit-result');
+  if (!buildOutfit || !el) return;
+  const picked = (buildOutfit.itemIds||[]).map(id => items.find(i=>i.id===id)).filter(Boolean);
+  const n = Math.min(picked.length, 8);
+  const itemsHtml = picked.slice(0,n).map(item => {
+    const src = item.previewSrc || item.imageData;
+    const isAnchor = buildAnchors.includes(item.id);
+    return `<div class="outfit-item"${isAnchor?' style="outline:2.5px solid var(--accent);outline-offset:-2px"':''}>
+      ${src?`<img src="${src}" alt="${item.name}" loading="lazy">`:`<div class="outfit-item-emoji">${catEmoji(item.category)}</div>`}
+      <div class="outfit-item-label">${item.name}${isAnchor?' ✦':''}</div>
+    </div>`;
+  }).join('');
+  el.innerHTML = `
+    <div class="outfit-items n${n}">${itemsHtml}</div>
+    <div class="outfit-caption">
+      <div class="outfit-name">${buildOutfit.outfitName||'Your Look'}</div>
+      <div class="outfit-caption-text">${buildOutfit.caption||''}</div>
+      ${buildOutfit.colorStory?`<div class="outfit-meta" style="margin-top:6px;font-style:italic">${buildOutfit.colorStory}</div>`:''}
+    </div>`;
+}
+
+function buildChatSuggest(btn) {
+  document.getElementById('build-chat-input').value = btn.textContent;
+  sendBuildChat();
+}
+
+async function sendBuildChat() {
+  const input = document.getElementById('build-chat-input');
+  const btn = document.getElementById('build-send-btn');
+  const text = input.value.trim();
+  if (!text || btn.disabled) return;
+  input.value = ''; input.style.height = 'auto';
+  btn.disabled = true;
+
+  const msgs = document.getElementById('build-chat-messages');
+  msgs.innerHTML += `<div class="chat-bubble user" style="align-self:flex-end">${text.replace(/</g,'&lt;')}</div>`;
+  const thinking = document.createElement('div');
+  thinking.className = 'chat-bubble ai';
+  thinking.innerHTML = '<div class="chat-thinking"><div class="chat-dot"></div><div class="chat-dot"></div><div class="chat-dot"></div></div>';
+  msgs.appendChild(thinking);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  try {
+    buildChatHistory.push({ role: 'user', content: text });
+    const anchors = buildAnchors.map(id => items.find(i => i.id === id)).filter(Boolean);
+    buildOutfit = await buildOutfitAI(anchors, text);
+    buildChatHistory.push({ role: 'assistant', content: `Updated: ${buildOutfit.outfitName} — ${buildOutfit.caption}` });
+    thinking.remove();
+    msgs.innerHTML += chatBubbleHTML('ai', buildOutfit.caption || 'Done!', []);
+    msgs.scrollTop = msgs.scrollHeight;
+    renderBuildOutfit();
+  } catch(e) {
+    thinking.remove();
+    msgs.innerHTML += `<div class="chat-bubble ai">Sorry: ${e.message}</div>`;
+  }
+  btn.disabled = false;
 }
 
 // ── Ask / Chat ────────────────────────────────────────────────────────────────
