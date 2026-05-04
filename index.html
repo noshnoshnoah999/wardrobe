@@ -966,12 +966,31 @@ async function runItemAnalysis(data, isBase64, mime, previewSrc, hint) {
   }
 }
 function saveItem() {
-  if (!pendingItem) return;
-  const item = { ...pendingItem, id:Date.now().toString(), name:document.getElementById('item-name').value||pendingItem.name, category:document.getElementById('item-category').value, brand:document.getElementById('item-brand').value, addedAt:new Date().toISOString(), timesWorn:0 };
-  items.push(item); persist(); syncItem(item);
-  toast('Saved to wardrobe ✓'); clearAdd();
-  document.getElementById('item-brand').value = '';
-  navigate('wardrobe');
+  try {
+    if (!pendingItem) { toast('Nothing to save — please analyse an image first'); return; }
+    const nameEl = document.getElementById('item-name');
+    const catEl = document.getElementById('item-category');
+    const brandEl = document.getElementById('item-brand');
+    const item = {
+      ...pendingItem,
+      id: Date.now().toString(),
+      name: (nameEl ? nameEl.value : '') || pendingItem.name || 'Unnamed item',
+      category: catEl ? catEl.value : (pendingItem.category || 'tops'),
+      brand: brandEl ? brandEl.value : '',
+      addedAt: new Date().toISOString(),
+      timesWorn: 0
+    };
+    items.push(item);
+    try { persist(); } catch(e) { console.warn('persist failed:', e); }
+    syncItem(item);
+    const savedItem = item; // capture before clearAdd
+    clearAdd();
+    toast('Saved to wardrobe ✓');
+    navigate('wardrobe');
+  } catch(e) {
+    console.error('saveItem error:', e);
+    toast('Save failed: ' + e.message);
+  }
 }
 
 // ── Today ─────────────────────────────────────────────────────────────────────
@@ -1790,6 +1809,9 @@ function saveKey() {
     this.style.height = 'auto';
     this.style.height = Math.min(this.scrollHeight, 100) + 'px';
   });
+  // Ensure save button always has a click listener (belt-and-suspenders for onclick)
+  const saveBtn = document.getElementById('save-btn');
+  if (saveBtn) saveBtn.removeAttribute('onclick'), saveBtn.addEventListener('click', saveItem);
 })();
 </script>
 </body>
