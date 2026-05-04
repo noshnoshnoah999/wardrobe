@@ -997,8 +997,21 @@ function renderOutfitCard(container, outfit) {
         </button>
         <button class="btn btn-secondary" style="flex:1" onclick="notFeelingIt()">↻ Not feeling it</button>
       </div>
+      <button class="btn btn-secondary" style="width:100%;margin-top:8px" onclick="askAboutOutfit()">💬 Ask about this outfit</button>
     </div>`;
   container.appendChild(card);
+}
+
+function askAboutOutfit() {
+  if (!todayOutfit) return;
+  const picked = (todayOutfit.itemIds||[]).map(id => items.find(i=>i.id===id)).filter(Boolean);
+  const itemList = picked.map(i => `${i.name} (${i.category}, ${(i.colorNames||[]).join('/')})`).join(', ');
+  const context = `Today's outfit: ${todayOutfit.outfitName||'Today\'s Look'} — ${itemList}.`;
+  navigate('ask');
+  setTimeout(() => {
+    const input = document.getElementById('chat-input');
+    if (input) { input.value = context + ' '; input.focus(); input.style.height = 'auto'; input.style.height = input.scrollHeight + 'px'; }
+  }, 100);
 }
 
 // ── History ───────────────────────────────────────────────────────────────────
