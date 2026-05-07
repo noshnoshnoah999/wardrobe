@@ -1,0 +1,24 @@
+{
+  "name": "Wardrobe",
+  "short_name": "Wardrobe",
+  "description": "Your personal wardrobe & outfit planner",
+  "start_url": "/wardrobe/",
+  "display": "standalone",
+  "background_color": "#f5f0e8",
+  "theme_color": "#f5f0e8",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/wardrobe/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/wardrobe/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
