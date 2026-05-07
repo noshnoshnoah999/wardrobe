@@ -209,7 +209,7 @@
     .detail-emoji { font-size: 80px; }
 
     /* ── Chat ────────────────────────────────────────────────────────────────── */
-    .chat-wrap { display: flex; flex-direction: column; height: calc(100vh - var(--nav-h) - 60px); }
+    .chat-wrap { display: flex; flex-direction: column; height: calc(100dvh - var(--nav-h) - 60px); }
     .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 4px 0 16px; }
     .chat-bubble { max-width: 82%; padding: 12px 15px; border-radius: 18px; font-size: 14px; line-height: 1.6; }
     .chat-bubble.user { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; }
@@ -541,17 +541,17 @@
   <button class="bottom-nav-item active" id="bn-today" onclick="navigate('today')">
     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Today
   </button>
-  <button class="bottom-nav-item" id="bn-ask" onclick="navigate('ask')">
-    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ask
+  <button class="bottom-nav-item" id="bn-wardrobe" onclick="navigate('wardrobe')">
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>Wardrobe
   </button>
   <button class="bottom-nav-item" id="bn-add" onclick="navigate('add')">
     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add
   </button>
-  <button class="bottom-nav-item" id="bn-wardrobe" onclick="navigate('wardrobe')">
-    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>Wardrobe
-  </button>
   <button class="bottom-nav-item" id="bn-build" onclick="navigate('build')">
     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><circle cx="17.5" cy="17.5" r="3.5"/></svg>Build
+  </button>
+  <button class="bottom-nav-item" id="bn-profile" onclick="navigate('profile')">
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile
   </button>
 </nav>
 
@@ -638,7 +638,7 @@ function persist() {
 
 function hydrate() {
   try { items = JSON.parse(localStorage.getItem('wrd_items') || '[]'); } catch(e) { items = []; }
-  try { profile = { palette:[], paletteNames:[], flatteringColors:[], flatteringNames:[], selfie:null, ...JSON.parse(localStorage.getItem('wrd_profile') || '{}') }; } catch(e) {}
+  try { profile = { palette:[], paletteNames:[], flatteringColors:[], flatteringNames:[], selfie:null, colorSeason:null, skinTone:null, undertone:null, seasonDesc:null, styleNote:null, avoidColors:[], ...JSON.parse(localStorage.getItem('wrd_profile') || '{}') }; } catch(e) {}
   try { history = JSON.parse(localStorage.getItem('wrd_history') || '{}'); } catch(e) {}
   try { todayOutfit = JSON.parse(localStorage.getItem('wrd_outfit_' + dateKey()) || 'null'); } catch(e) {}
 }
@@ -1285,13 +1285,23 @@ let buildChatHistory = [];
 function renderBuildPage() {
   renderBuildPicker();
   renderBuildAnchors();
-  document.getElementById('build-result-wrap').style.display = 'none';
+  if (buildOutfit) {
+    renderBuildOutfit();
+    document.getElementById('build-result-wrap').style.display = 'flex';
+    document.getElementById('build-result-wrap').style.flexDirection = 'column';
+  } else {
+    document.getElementById('build-result-wrap').style.display = 'none';
+  }
   document.getElementById('build-gen-btn').style.display = buildAnchors.length ? 'block' : 'none';
 }
 
 function renderBuildPicker() {
   const grid = document.getElementById('build-picker-grid');
   if (!grid) return;
+  if (items.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px 16px;color:var(--text-muted);font-size:14px">No items in your wardrobe yet.<br><button class="btn btn-primary" style="margin-top:12px" onclick="navigate('add')">Add your first item</button></div>`;
+    return;
+  }
   grid.innerHTML = items.map(item => {
     const sel = buildAnchors.includes(item.id);
     const dis = !sel && buildAnchors.length >= 2;
@@ -1508,8 +1518,9 @@ function wardrobeContext() {
     `- ${i.name} (${i.category}, ${(i.colorNames||i.colors||[]).join('/')}${i.brand ? ', '+i.brand : ''}, worn ${i.timesWorn||0}x)`
   ).join('\n');
   const palette = profile.flatteringNames.length ? profile.flatteringNames.join(', ') : null;
-  const season = profile.colorSeason ? `${profile.colorSeason} season` : null;
-  const profileNote = [palette && `Flattering colours: ${palette}`, season].filter(Boolean).join('. ');
+  const season = (profile.colorSeason || profile.selfie?.colorSeason) ? `${profile.colorSeason||profile.selfie?.colorSeason} season` : null;
+  const avoidNote = (profile.avoidColors||profile.selfie?.avoidColors||[]).length ? `Colours to avoid: ${(profile.avoidColors||profile.selfie?.avoidColors).join(', ')}.` : null;
+  const profileNote = [palette && `Flattering colours: ${palette}`, season, avoidNote].filter(Boolean).join('. ');
   const weatherNote = weather ? `Current weather: ${weather.desc}, feels like ${weather.feelsLike??weather.temp}°C.` : '';
   return `The user's wardrobe:\n${wardrobeSummary||'(no items yet)'}\n\n${profileNote}${profileNote?'\n':''}${weatherNote}`.trim();
 }
@@ -1525,7 +1536,7 @@ function chatBubbleHTML(role, text, imgDataUrls) {
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
     .replace(/^[-•]\s+(.+)$/gm,'<li>$1</li>')
-    .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+    .replace(/(<li>[^]*?<\/li>(\n|$))+/g, match => `<ul>${match}</ul>`)
     .replace(/\n{2,}/g,'</p><p>')
     .replace(/\n/g,'<br>');
   return `<div class="chat-bubble ai"><p>${html}</p></div>`;
@@ -1634,9 +1645,22 @@ async function handleSelfieFile(e) {
   document.getElementById('selfie-upload-wrap').innerHTML = `<div class="analysis-loading" style="justify-content:center;padding:20px"><div class="spinner"></div><span>Analysing your colours…</span></div>`;
   try {
     const r = await analyseSelfieImage(b64, true, mime);
-    profile.selfie = r; profile.flatteringColors = r.flatteringColors||[]; profile.flatteringNames = r.flatteringNames||[];
-    profile.palette = [...new Set([...profile.palette,...r.flatteringColors])];
-    profile.paletteNames = [...profile.paletteNames,...r.flatteringNames].slice(0,profile.palette.length);
+    // Store all selfie fields directly on profile
+    profile.selfie = r;
+    profile.flatteringColors = r.flatteringColors||[];
+    profile.flatteringNames = r.flatteringNames||[];
+    profile.colorSeason = r.colorSeason||null;
+    profile.skinTone = r.skinTone||null;
+    profile.undertone = r.undertone||null;
+    profile.seasonDesc = r.seasonDesc||null;
+    profile.styleNote = r.styleNote||null;
+    profile.avoidColors = r.avoidColors||[];
+    // Add new flattering colours to palette, preserving name/colour pairing
+    const existingSet = new Set(profile.palette);
+    const newColors = (r.flatteringColors||[]).filter(c => !existingSet.has(c));
+    const newNames = newColors.map((_,i) => r.flatteringNames?.[i + (r.flatteringColors?.length - newColors.length)] || r.flatteringNames?.[i] || '');
+    profile.palette = [...profile.palette, ...newColors];
+    profile.paletteNames = [...profile.paletteNames, ...newNames];
     persist(); syncProfile(); renderSelfieResult(r); renderPalette();
     toast('Colour analysis complete ✓');
   } catch(e) {
@@ -1820,9 +1844,11 @@ function saveKey() {
     this.style.height = 'auto';
     this.style.height = Math.min(this.scrollHeight, 100) + 'px';
   });
-  // Ensure save button always has a click listener (belt-and-suspenders for onclick)
-  const saveBtn = document.getElementById('save-btn');
-  if (saveBtn) saveBtn.removeAttribute('onclick'), saveBtn.addEventListener('click', saveItem);
+  // Auto-resize build chat textarea
+  document.getElementById('build-chat-input')?.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
 })();
 </script>
 </body>
