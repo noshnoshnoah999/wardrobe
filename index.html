@@ -630,10 +630,22 @@ let excludedIds = [];
 
 // ── Persistence ───────────────────────────────────────────────────────────────
 function persist() {
-  localStorage.setItem('wrd_items', JSON.stringify(items));
-  localStorage.setItem('wrd_profile', JSON.stringify(profile));
-  localStorage.setItem('wrd_history', JSON.stringify(history));
-  if (todayOutfit) localStorage.setItem('wrd_outfit_' + dateKey(), JSON.stringify(todayOutfit));
+  // Strip imageData from localStorage — previewSrc (same data as a data URL) is kept for display.
+  // This halves storage use: imageData + previewSrc together can easily exceed the 5 MB quota.
+  const slim = items.map(({ imageData, ...rest }) => rest);
+  try {
+    localStorage.setItem('wrd_items', JSON.stringify(slim));
+  } catch(e) {
+    // If still over quota, try removing oldest items' previewSrc too
+    try {
+      const slimmer = slim.map(({ previewSrc, ...rest }) => rest);
+      localStorage.setItem('wrd_items', JSON.stringify(slimmer));
+      console.warn('persist: stripped previewSrc to fit quota');
+    } catch(e2) { console.error('persist: localStorage quota exceeded even after stripping images', e2); }
+  }
+  try { localStorage.setItem('wrd_profile', JSON.stringify(profile)); } catch(e) {}
+  try { localStorage.setItem('wrd_history', JSON.stringify(history)); } catch(e) {}
+  if (todayOutfit) { try { localStorage.setItem('wrd_outfit_' + dateKey(), JSON.stringify(todayOutfit)); } catch(e) {} }
 }
 
 function hydrate() {
@@ -1710,9 +1722,21 @@ function updateKey() {
 // ── Supabase sync ─────────────────────────────────────────────────────────────
 const SB_HEADERS = { 'Content-Type':'application/json','apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}` };
 
-// Strip fields Supabase doesn't know about yet (previewSrc can be huge; handled separately)
+// Prepare item for Supabase: strip previewSrc (display-only), reconstruct imageData if missing.
 function sbItem(item) {
   const { previewSrc, ...rest } = item;
+  // After a page reload, imageData is stripped from localStorage to save quota.
+  // Reconstruct it from previewSrc so Supabase always gets the image.
+  if (!rest.imageData && previewSrc?.startsWith('data:')) {
+    const commaIdx = previewSrc.indexOf(',');
+    if (commaIdx !== -1) {
+      rest.imageData = previewSrc.slice(commaIdx + 1);
+      if (!rest.mime) {
+        const mimeMatch = previewSrc.match(/^data:([^;]+);/);
+        rest.mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+      }
+    }
+  }
   return rest;
 }
 
