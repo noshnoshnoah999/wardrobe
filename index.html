@@ -78,38 +78,47 @@
     [data-theme="dark"] .btn-danger { color: #f87171; border-color: #4a2020; background: #2d1515; }
 
     /* ── Today ────────────────────────────────────────────────────────────────── */
-    .today-date { font-size: 12px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.8px; }
-    .today-heading { font-size: 28px; font-weight: 700; letter-spacing: -0.6px; margin-top: 3px; margin-bottom: 18px; }
-    .weather-strip { display: flex; align-items: center; gap: 10px; background: var(--surface); border-radius: var(--radius-sm); padding: 11px 16px; margin-bottom: 16px; font-size: 14px; font-weight: 500; box-shadow: var(--shadow); }
-    .weather-emoji { font-size: 20px; }
-    .occasion-bar { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 2px; margin-bottom: 18px; scrollbar-width: none; }
+    .today-header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+    .today-date { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+    .today-heading { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+    .weather-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; background: var(--surface); border-radius: 99px; font-size: 13px; font-weight: 500; box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 14px; }
+    .occasion-bar { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; margin-bottom: 16px; scrollbar-width: none; }
     .occasion-bar::-webkit-scrollbar { display: none; }
-    .occasion-chip { flex-shrink: 0; padding: 7px 16px; border-radius: 99px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-muted); transition: all 0.18s; font-family: var(--font); }
+    .occasion-chip { flex-shrink: 0; padding: 6px 14px; border-radius: 99px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-muted); transition: all 0.18s; font-family: var(--font); }
     .occasion-chip.active { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
 
     /* ── Outfit card ──────────────────────────────────────────────────────────── */
-    .outfit-card { background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); margin-bottom: 16px; }
-    .outfit-items { display: grid; gap: 2px; background: var(--bg); }
-    .outfit-items.n1 { grid-template-columns: 1fr; }
-    .outfit-items.n2 { grid-template-columns: repeat(2,1fr); }
-    .outfit-items.n3 { grid-template-columns: repeat(3,1fr); }
-    .outfit-items.n4 { grid-template-columns: repeat(2,1fr); }
-    .outfit-items.n5 { grid-template-columns: repeat(3,1fr); }
-    .outfit-items.n6 { grid-template-columns: repeat(3,1fr); }
-    .outfit-items.n7 { grid-template-columns: repeat(4,1fr); }
-    .outfit-items.n8 { grid-template-columns: repeat(4,1fr); }
-    .outfit-item { background: var(--surface2); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .outfit-card { background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-md); margin-bottom: 16px; }
+    .outfit-imgs { background: var(--surface2); }
+
+    /* layout variants */
+    .outfit-hero { aspect-ratio: 3/4; max-height: 420px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--surface2); }
+    .outfit-hero img { width: 100%; height: 100%; object-fit: cover; }
+
+    .outfit-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+    .outfit-grid-2 .outfit-item { aspect-ratio: 3/4; }
+
+    .outfit-grid-split { display: grid; grid-template-columns: 3fr 2fr; gap: 2px; }
+    .outfit-main-item { aspect-ratio: 3/4; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--surface2); }
+    .outfit-main-item img { width: 100%; height: 100%; object-fit: cover; }
+    .outfit-side-stack { display: flex; flex-direction: column; gap: 2px; }
+    .outfit-side-item { flex: 1; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--surface2); min-height: 80px; }
+    .outfit-side-item img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+
+    .outfit-item { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--surface2); }
     .outfit-item img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
-    .outfit-item-label { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,.6)); color: white; padding: 28px 12px 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.1px; }
+    .outfit-item-label { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,.65)); color: white; padding: 24px 10px 8px; font-size: 10px; font-weight: 600; letter-spacing: 0.2px; text-transform: uppercase; }
     .outfit-item-emoji { font-size: 42px; }
-    .outfit-caption { padding: 18px 18px 16px; }
-    .outfit-name { font-size: 17px; font-weight: 700; margin-bottom: 7px; letter-spacing: -0.3px; }
-    .outfit-caption-text { font-size: 14px; line-height: 1.65; color: var(--text-muted); }
-    .outfit-meta { margin-top: 10px; font-size: 13px; color: var(--text-muted); }
+
+    .outfit-caption { padding: 20px 20px 18px; }
+    .outfit-name { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 6px; }
+    .outfit-caption-text { font-size: 14px; line-height: 1.6; color: var(--text-muted); }
+    .outfit-for { font-size: 12px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.6px; margin-top: 10px; }
+    .worn-pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; background: var(--green-bg); color: var(--green-text); border-radius: 99px; font-size: 12px; font-weight: 600; margin-top: 12px; }
     .outfit-actions { display: flex; gap: 8px; margin-top: 14px; }
-    .color-palette { display: flex; gap: 6px; margin-top: 12px; }
-    .color-swatch { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--surface); box-shadow: 0 0 0 1px var(--border); }
-    .worn-badge { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; background: var(--green-bg); color: var(--green-text); border-radius: 99px; font-size: 13px; font-weight: 600; margin-top: 12px; }
+    .btn-act { flex: 1; }
+    .btn-ghost { display: block; width: 100%; margin-top: 10px; padding: 9px; background: none; border: none; cursor: pointer; font-size: 13px; color: var(--text-muted); font-family: var(--font); text-align: center; border-radius: var(--radius-sm); transition: background 0.15s; }
+    .btn-ghost:hover { background: var(--surface2); color: var(--text); }
 
     /* ── Filter bar ───────────────────────────────────────────────────────────── */
     .filter-bar { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 2px; margin-bottom: 20px; scrollbar-width: none; }
@@ -357,45 +366,43 @@
     <div class="page" id="page-add">
       <div class="page-header"><div class="page-title">Add Item</div></div>
       <div style="padding:20px">
-        <div class="add-section">
-          <div class="section-label">Photo or URL</div>
-          <div id="upload-area">
-            <div class="upload-zone" id="upload-zone" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleItemDrop(event)">
-              <input type="file" accept="image/*" onchange="handleItemFile(event)">
-              <div class="upload-zone-icon">📷</div>
-              <div class="upload-zone-text"><strong>Upload a photo</strong><br>or drag and drop</div>
-            </div>
-            <div class="divider"><span>OR</span></div>
-            <div class="input-row">
-              <input type="url" class="input" id="item-url" placeholder="Paste a direct .jpg/.png image URL…" onkeydown="if(event.key==='Enter')analyseUrl()" onpaste="setTimeout(analyseUrl,100)">
-              <button class="btn btn-secondary" onclick="analyseUrl()">Analyse</button>
-            </div>
+        <div id="upload-area">
+          <div class="upload-zone" id="upload-zone" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleItemDrop(event)">
+            <input type="file" accept="image/*" onchange="handleItemFile(event)">
+            <div class="upload-zone-icon">📷</div>
+            <div class="upload-zone-text"><strong>Upload a photo</strong><br><span style="color:var(--text-light)">or drag and drop</span></div>
           </div>
-          <div id="preview-area" style="display:none">
-            <div class="preview-wrap"><img id="preview-img" src="" alt=""><button class="preview-remove" onclick="clearAdd()">✕</button></div>
-          </div>
-          <div id="focus-area" style="display:none">
-            <div class="section-label" style="margin-top:16px">Which item are you adding?</div>
-            <div class="focus-chips" id="focus-chips">
-              <button class="focus-chip" onclick="confirmFocus('top')">👕 Top</button>
-              <button class="focus-chip" onclick="confirmFocus('trousers')">👖 Trousers</button>
-              <button class="focus-chip" onclick="confirmFocus('shoes')">👟 Shoes</button>
-              <button class="focus-chip" onclick="confirmFocus('jacket or coat')">🧥 Jacket</button>
-              <button class="focus-chip" onclick="confirmFocus('dress or skirt')">👗 Dress/Skirt</button>
-              <button class="focus-chip" onclick="confirmFocus('bag')">👜 Bag</button>
-              <button class="focus-chip" onclick="confirmFocus('accessory')">💍 Accessory</button>
-            </div>
+          <div class="divider"><span>OR</span></div>
+          <div class="input-row">
+            <input type="url" class="input" id="item-url" placeholder="Paste an image URL…" onkeydown="if(event.key==='Enter')analyseUrl()" onpaste="setTimeout(analyseUrl,100)">
+            <button class="btn btn-secondary" onclick="analyseUrl()">Go</button>
           </div>
         </div>
-        <div id="analysis-area" style="display:none">
-          <div class="add-section">
-            <div class="section-label">Claude Analysis</div>
-            <div class="analysis-card" id="analysis-card"><div class="analysis-loading"><div class="spinner"></div><span>Analysing…</span></div></div>
+
+        <div id="preview-area" style="display:none">
+          <div class="preview-wrap"><img id="preview-img" src="" alt=""><button class="preview-remove" onclick="clearAdd()">✕</button></div>
+        </div>
+
+        <!-- Optional focus picker — shown only after preview -->
+        <div id="focus-area" style="display:none">
+          <div class="section-label" style="margin-top:18px;margin-bottom:8px">Which item in the photo?</div>
+          <div class="focus-chips" id="focus-chips">
+            <button class="focus-chip" onclick="confirmFocus(null)">🖼️ Let Claude decide</button>
+            <button class="focus-chip" onclick="confirmFocus('top')">👕 Top</button>
+            <button class="focus-chip" onclick="confirmFocus('trousers')">👖 Trousers</button>
+            <button class="focus-chip" onclick="confirmFocus('shoes')">👟 Shoes</button>
+            <button class="focus-chip" onclick="confirmFocus('jacket or coat')">🧥 Jacket</button>
+            <button class="focus-chip" onclick="confirmFocus('dress or skirt')">👗 Dress/Skirt</button>
+            <button class="focus-chip" onclick="confirmFocus('bag')">👜 Bag</button>
+            <button class="focus-chip" onclick="confirmFocus('accessory')">💍 Accessory</button>
           </div>
-          <div class="add-section" id="item-fields" style="display:none">
-            <div class="section-label">Details</div>
+        </div>
+
+        <div id="analysis-area" style="display:none">
+          <div class="analysis-card" id="analysis-card" style="margin-top:16px"><div class="analysis-loading"><div class="spinner"></div><span>Analysing with Claude…</span></div></div>
+          <div id="item-fields" style="display:none;margin-top:14px">
             <div style="display:flex;flex-direction:column;gap:10px">
-              <input class="input" id="item-name" placeholder="Name">
+              <input class="input" id="item-name" placeholder="Item name">
               <select class="input" id="item-category">
                 <option value="tops">Tops</option><option value="bottoms">Bottoms</option>
                 <option value="dresses">Dresses</option><option value="outerwear">Outerwear</option>
@@ -405,7 +412,7 @@
               <input class="input" id="item-brand" placeholder="Brand (optional)">
             </div>
           </div>
-          <button class="btn btn-primary btn-full" id="save-btn" style="display:none" onclick="saveItem()">Save to Wardrobe</button>
+          <button class="btn btn-primary btn-full" id="save-btn" style="display:none;margin-top:14px" onclick="saveItem()">Save to Wardrobe</button>
         </div>
       </div>
     </div>
@@ -715,9 +722,8 @@ async function fetchWeather() {
 function renderWeatherStrip() {
   const el = document.getElementById('weather-strip');
   if (!el || !weather) return;
-  const feelsStr = weather.feelsLike != null && weather.feelsLike !== weather.temp ? ` · feels ${weather.feelsLike}°C` : '';
-  el.innerHTML = `<span class="weather-emoji">${weather.desc.split(' ')[0]}</span><span>${weather.desc.split(' ').slice(1).join(' ')} · ${weather.temp}°C${feelsStr}</span>`;
-  el.style.display = 'flex';
+  el.innerHTML = `${weather.desc.split(' ')[0]} <span>${weather.desc.split(' ').slice(1).join(' ')} · feels ${weather.feelsLike??weather.temp}°C</span>`;
+  el.style.display = 'inline-flex';
 }
 
 // ── Claude API ────────────────────────────────────────────────────────────────
@@ -765,61 +771,55 @@ function saveRecentOutfits(arr) {
 
 async function generateOutfitAI(exclude=[]) {
   if (items.length < 2) return null;
-  const palette = profile.flatteringColors.length ? profile.flatteringColors : profile.palette;
-  const paletteNote = palette.length ? `Wearer's best colours: ${(profile.flatteringNames.length?profile.flatteringNames:palette).join(', ')}.` : '';
-  const weatherNote = weather ? (() => {
-    const parts = [`${weather.desc}, ${weather.temp}°C actual`];
-    if (weather.feelsLike != null) parts.push(`feels like ${weather.feelsLike}°C`);
-    if (weather.humidity != null) parts.push(`${weather.humidity}% humidity`);
-    if (weather.wind != null && weather.wind > 5) parts.push(`${weather.wind}mph wind`);
-    return `Weather: ${parts.join(', ')}. Base clothing choices on the feels-like temperature, not the actual.`;
-  })() : '';
+
+  const flatteringNames = profile.flatteringNames.length ? profile.flatteringNames : profile.paletteNames;
+  const paletteNote = flatteringNames.length ? `The wearer looks best in: ${flatteringNames.join(', ')}.` : '';
+  const weatherNote = weather
+    ? `Weather: ${weather.desc}, feels like ${weather.feelsLike ?? weather.temp}°C — dress appropriately.`
+    : '';
   const occasionNote = activeOccasion !== 'Any' ? `Occasion: ${activeOccasion}.` : '';
 
   const recentOutfits = loadRecentOutfits();
+  // Exclude items used in last 2 outfits (fall back if pool too small)
+  const recentIds = [...new Set(recentOutfits.slice(-2).flat())];
+  const hardExclude = [...new Set([...exclude, ...recentIds])];
+  const pool = (() => {
+    const avail = items.filter(i => !hardExclude.includes(i.id));
+    return avail.length >= 3 ? avail : items.filter(i => !exclude.includes(i.id));
+  })();
 
-  // Hard-exclude items that appeared in the last 2 generated outfits
-  // (fall back to full wardrobe if that leaves too few items)
-  const recentlyShownIds = [...new Set(recentOutfits.slice(-2).flat())];
-  const hardExclude = [...new Set([...exclude, ...recentlyShownIds])];
-  const available = items.filter(i => !hardExclude.includes(i.id));
-  const pool = available.length >= 3 ? available : items.filter(i => !exclude.includes(i.id));
-
-  // Sort by least worn first
+  // Sort: least worn first, so Claude naturally rotates the wardrobe
   const sorted = [...pool].sort((a,b) => (a.timesWorn||0) - (b.timesWorn||0));
-  const recentWornIds = Object.values(history).slice(-5).flatMap(h => h.itemIds||[]);
 
-  const wardrobe = sorted.map(i => {
-    const worn = i.timesWorn||0;
-    const flags = [];
-    if (worn === 0) flags.push('NEVER WORN — prioritise');
-    else if (worn <= 2) flags.push('rarely worn — try to include');
-    if (recentWornIds.includes(i.id)) flags.push('worn recently');
-    const flagStr = flags.length ? ` [${flags.join(', ')}]` : '';
-    return `ID:${i.id} | ${i.name} | ${i.category} | colors:${(i.colorNames||i.colors||[]).join(', ')} | style:${(i.style||[]).join(', ')} | worn ${worn}x${flagStr}`;
-  }).join('\n');
+  const wardrobe = sorted.map(i =>
+    `ID:${i.id} | ${i.name} | ${i.category} | ${(i.colorNames||i.colors||[]).join(', ')}${i.style?.length ? ' | '+i.style.join(', ') : ''} | worn ${i.timesWorn||0}×`
+  ).join('\n');
 
-  // Also tell Claude the last 10 outfits shown so it avoids repeating combos
-  const avoidCombos = recentOutfits.length
-    ? `\n\nPrevious outfits already shown — do NOT repeat these combinations:\n${recentOutfits.map((ids,i)=>`${i+1}. ${ids.join(', ')}`).join('\n')}`
-    : '';
-
-  // Flag items never featured in any generated outfit
-  const allShownIds = new Set(loadRecentOutfits().flat());
-  const neverFeatured = pool.filter(i => !allShownIds.has(i.id)).map(i => i.name);
-
-  const neverFeaturedNote = neverFeatured.length
-    ? `\n\nItems NEVER featured in any outfit yet — you MUST include at least one of these: ${neverFeatured.join(', ')}`
+  const avoidNote = recentOutfits.length
+    ? `\nAvoid repeating these item combinations:\n${recentOutfits.slice(-5).map((ids,i)=>`${i+1}. ${ids.join(', ')}`).join('\n')}`
     : '';
 
   const today = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
   const text = await claude([{ role:'user', content:
-    `Today is ${today}. ${paletteNote} ${weatherNote} ${occasionNote}\n\nWARDROBE (sorted least-worn first):\n${wardrobe}${avoidCombos}${neverFeaturedNote}\n\nRules:\n1. You MUST include at least one item marked "NEVER WORN" or from the never-featured list above — no exceptions\n2. Use the FULL wardrobe — don't default to the same safe pieces every time\n3. Build colour stories using Seigensha Dictionary of Colour Combinations — tonal harmonies, nature-inspired, muted pairings\n4. Must include a top or dress; if separates always include a bottom; always include shoes if available; include bags and accessories\n5. Pick 3-8 items — complete head-to-toe outfit\n6. This must be DIFFERENT from all previous outfits listed above\n\nReturn ONLY valid JSON:\n{"itemIds":["ids"],"outfitName":"creative name","caption":"2-3 sentences on colour harmony in Seigensha style","occasion":"e.g. casual day out","colorStory":"1 sentence colour mood","shoppingNote":"if the wardrobe is missing something that would make this outfit much better, name the exact item — otherwise null"}`
-  }], 'Expert personal stylist. Apply Seigensha Japanese colour harmony. Use the full wardrobe. JSON only.');
+    `Today is ${today}. ${paletteNote} ${weatherNote} ${occasionNote}
+
+WARDROBE (sorted least-worn first — prefer items near the top):
+${wardrobe}
+${avoidNote}
+
+Pick 3–5 pieces for a genuinely stylish, wearable outfit:
+• Colour: build around one neutral base (black, white, grey, beige, navy) with 1–2 complementary tones, or go tonal/monochrome
+• Proportion: balance fitted and relaxed (oversized top → slim trousers, etc.)
+• Always include a top or dress; add shoes if available; only add a bag/accessory if it clearly elevates the look
+• Prefer items worn fewer times, but ONLY when they fit naturally — never force an item that clashes
+• Must differ from the previous combinations listed above
+
+Return ONLY valid JSON:
+{"itemIds":["ids"],"outfitName":"short punchy name (3–5 words)","caption":"one sentence — the specific reason this combination works","occasion":"e.g. casual day, work, evening out"}`
+  }], 'Expert personal stylist with an eye for real, wearable style. Prioritise coherence and taste over novelty. JSON only.');
+
   const result = parseJSON(text);
-  if (result?.itemIds) {
-    saveRecentOutfits([...recentOutfits, result.itemIds]);
-  }
+  if (result?.itemIds) saveRecentOutfits([...recentOutfits, result.itemIds]);
   return result;
 }
 
@@ -910,7 +910,7 @@ function confirmFocus(hint) {
   document.getElementById('focus-area').style.display = 'none';
   const { b64, mime, dataUrl } = _pendingAnalysis;
   _pendingAnalysis = null;
-  runItemAnalysis(b64, true, mime, dataUrl, hint);
+  runItemAnalysis(b64, true, mime, dataUrl, hint || null);
 }
 function handleItemDrop(e) {
   e.preventDefault(); document.getElementById('upload-zone').classList.remove('drag-over');
@@ -959,7 +959,8 @@ function clearAdd() {
   document.getElementById('analysis-area').style.display = 'none';
   document.getElementById('item-fields').style.display = 'none';
   document.getElementById('save-btn').style.display = 'none';
-  document.getElementById('item-url').value = '';
+  const urlEl = document.getElementById('item-url');
+  if (urlEl) urlEl.value = '';
   _pendingAnalysis = null;
   pendingItem = null;
 }
@@ -1017,23 +1018,26 @@ function saveItem() {
 }
 
 // ── Today ─────────────────────────────────────────────────────────────────────
+function todayHeader() {
+  const dateStr = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  const weatherHtml = weather
+    ? `<div class="weather-pill" id="weather-strip">${weather.desc.split(' ')[0]} <span>${weather.desc.split(' ').slice(1).join(' ')} · feels ${weather.feelsLike??weather.temp}°C</span></div>`
+    : `<div id="weather-strip" style="display:none"></div>`;
+  const occasionHtml = `<div class="occasion-bar">${OCCASIONS.map(o=>`<button class="occasion-chip${o===activeOccasion?' active':''}" onclick="setOccasion('${o}')">${o}</button>`).join('')}</div>`;
+  return `<div class="today-date">${dateStr}</div><div class="today-heading">Today's outfit</div>${weatherHtml}${occasionHtml}`;
+}
+
 function renderToday() {
   const el = document.getElementById('today-content');
-  const dateStr = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
-  const header = `
-    <div class="today-date">${dateStr}</div>
-    <div class="today-heading">What to wear today</div>
-    <div class="weather-strip" id="weather-strip" style="display:${weather?'flex':'none'}">${weather?`<span class="weather-emoji">${weather.desc.split(' ')[0]}</span><span>${weather.desc.split(' ').slice(1).join(' ')} · ${weather.temp}°C${weather.feelsLike!=null&&weather.feelsLike!==weather.temp?` · feels ${weather.feelsLike}°C`:''}</span>`:''}</div>
-    <div class="occasion-bar" id="occasion-bar">${OCCASIONS.map(o=>`<button class="occasion-chip${o===activeOccasion?' active':''}" onclick="setOccasion('${o}')">${o}</button>`).join('')}</div>`;
   if (items.length === 0) {
-    el.innerHTML = header + `<div class="empty"><div class="empty-icon">👗</div><div class="empty-title">Wardrobe is empty</div><div class="empty-desc">Add some items to get outfit suggestions</div><button class="btn btn-primary" onclick="navigate('add')">Add First Item</button></div>`;
+    el.innerHTML = todayHeader() + `<div class="empty"><div class="empty-icon">👗</div><div class="empty-title">Your wardrobe is empty</div><div class="empty-desc">Add some items to start getting outfit ideas</div><button class="btn btn-primary" onclick="navigate('add')">Add first item</button></div>`;
     return;
   }
   if (items.length < 2) {
-    el.innerHTML = header + `<div class="empty"><div class="empty-icon">➕</div><div class="empty-title">Add one more item</div><div class="empty-desc">You need at least 2 items for outfit suggestions</div><button class="btn btn-primary" onclick="navigate('add')">Add Item</button></div>`;
+    el.innerHTML = todayHeader() + `<div class="empty"><div class="empty-icon">➕</div><div class="empty-title">Add one more item</div><div class="empty-desc">You need at least 2 items for outfit suggestions</div><button class="btn btn-primary" onclick="navigate('add')">Add item</button></div>`;
     return;
   }
-  if (todayOutfit) { el.innerHTML = header; renderOutfitCard(el, todayOutfit); return; }
+  if (todayOutfit) { el.innerHTML = todayHeader(); renderOutfitCard(el, todayOutfit); return; }
   generateOutfit();
 }
 
@@ -1045,16 +1049,14 @@ function setOccasion(o) {
 
 async function generateOutfit() {
   const el = document.getElementById('today-content');
-  const dateStr = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
   if (items.length === 0) { renderToday(); return; }
-  const weatherHtml = weather ? `<div class="weather-strip" id="weather-strip" style="display:flex"><span class="weather-emoji">${weather.desc.split(' ')[0]}</span><span>${weather.desc.split(' ').slice(1).join(' ')} · ${weather.temp}°C${weather.feelsLike!=null&&weather.feelsLike!==weather.temp?` · feels ${weather.feelsLike}°C`:''}</span></div>` : `<div id="weather-strip" style="display:none"></div>`;
-  el.innerHTML = `<div class="today-date">${dateStr}</div><div class="today-heading">What to wear today</div>${weatherHtml}<div class="occasion-bar">${OCCASIONS.map(o=>`<button class="occasion-chip${o===activeOccasion?' active':''}" onclick="setOccasion('${o}')">${o}</button>`).join('')}</div><div class="gen-card"><div class="spinner spinner-lg"></div><div class="gen-title">Styling your look…</div><div class="gen-sub">Claude is picking pieces from your wardrobe</div></div>`;
+  el.innerHTML = todayHeader() + `<div class="gen-card"><div class="spinner spinner-lg"></div><div class="gen-title">Putting together your look…</div><div class="gen-sub">Claude is going through your wardrobe</div></div>`;
   try {
     const outfit = await generateOutfitAI(excludedIds);
     if (!outfit) { renderToday(); return; }
     todayOutfit = outfit;
     persist(); syncTodayOutfit();
-    el.innerHTML = `<div class="today-date">${dateStr}</div><div class="today-heading">What to wear today</div>${weatherHtml}<div class="occasion-bar">${OCCASIONS.map(o=>`<button class="occasion-chip${o===activeOccasion?' active':''}" onclick="setOccasion('${o}')">${o}</button>`).join('')}</div>`;
+    el.innerHTML = todayHeader();
     renderOutfitCard(el, outfit);
   } catch(e) {
     el.innerHTML += `<div class="outfit-card" style="padding:20px"><div style="color:#ef4444;font-size:14px;margin-bottom:12px"><strong>Error:</strong> ${e.message}</div><button class="btn btn-secondary" onclick="generateOutfit()">Retry</button></div>`;
@@ -1092,33 +1094,49 @@ function markAsWorn() {
 
 function renderOutfitCard(container, outfit) {
   const picked = (outfit.itemIds||[]).map(id => items.find(i=>i.id===id)).filter(Boolean);
-  const n = Math.min(picked.length, 8);
-  const todayKey2 = dateKey();
-  const alreadyWorn = history[todayKey2]?.worn;
-  const itemsHtml = picked.slice(0,n).map(item => {
-    const src = item.previewSrc || item.imageData;
-    return `<div class="outfit-item">${src?`<img src="${src}" alt="${item.name}" loading="lazy">`:`<div class="outfit-item-emoji">${catEmoji(item.category)}</div>`}<div class="outfit-item-label">${item.name}</div></div>`;
-  }).join('');
-  const allColors = picked.flatMap(i=>i.colors||[]).slice(0,6);
-  const swatches = allColors.map(c=>`<span class="color-swatch" style="background:${c}"></span>`).join('');
+  const show = picked.slice(0, 5); // cap at 5 items displayed
+  const n = show.length;
+  const alreadyWorn = history[dateKey()]?.worn;
+
+  // Layout: 1 item = full width; 2 = side by side; 3+ = one big + rest stacked
+  let itemsHtml;
+  if (n === 1) {
+    const src = show[0].previewSrc || show[0].imageData;
+    itemsHtml = `<div class="outfit-hero">${src?`<img src="${src}" alt="${show[0].name}" loading="lazy">`:`<div class="outfit-item-emoji">${catEmoji(show[0].category)}</div>`}<div class="outfit-item-label">${show[0].name}</div></div>`;
+  } else if (n === 2) {
+    itemsHtml = show.map(item => {
+      const src = item.previewSrc || item.imageData;
+      return `<div class="outfit-item">${src?`<img src="${src}" alt="${item.name}" loading="lazy">`:`<div class="outfit-item-emoji">${catEmoji(item.category)}</div>`}<div class="outfit-item-label">${item.name}</div></div>`;
+    }).join('');
+    itemsHtml = `<div class="outfit-grid-2">${itemsHtml}</div>`;
+  } else {
+    // First item big on left, rest stacked on right
+    const [main, ...rest] = show;
+    const mainSrc = main.previewSrc || main.imageData;
+    const mainHtml = `<div class="outfit-main-item">${mainSrc?`<img src="${mainSrc}" alt="${main.name}" loading="lazy">`:`<div class="outfit-item-emoji">${catEmoji(main.category)}</div>`}<div class="outfit-item-label">${main.name}</div></div>`;
+    const sideHtml = rest.map(item => {
+      const src = item.previewSrc || item.imageData;
+      return `<div class="outfit-side-item">${src?`<img src="${src}" alt="${item.name}" loading="lazy">`:`<div class="outfit-item-emoji" style="font-size:28px">${catEmoji(item.category)}</div>`}<div class="outfit-item-label">${item.name}</div></div>`;
+    }).join('');
+    itemsHtml = `<div class="outfit-grid-split">${mainHtml}<div class="outfit-side-stack">${sideHtml}</div></div>`;
+  }
+
   const card = document.createElement('div');
   card.className = 'outfit-card';
   card.innerHTML = `
-    <div class="outfit-items n${n}">${itemsHtml}</div>
+    <div class="outfit-imgs">${itemsHtml}</div>
     <div class="outfit-caption">
       <div class="outfit-name">${outfit.outfitName||"Today's Look"}</div>
-      <div class="outfit-caption-text">${outfit.caption||''}</div>
-      ${outfit.occasion?`<div class="outfit-meta">Perfect for: ${outfit.occasion}</div>`:''}
-      ${outfit.shoppingNote?`<div style="margin-top:10px;padding:9px 12px;background:var(--accent-light);border-radius:var(--radius-xs);font-size:12px;color:var(--accent)">🛍️ Would be even better with: ${outfit.shoppingNote}</div>`:''}
-      ${swatches?`<div class="color-palette">${swatches}</div>`:''}
-      ${alreadyWorn?`<div class="worn-badge">✓ Worn today</div>`:''}
+      ${outfit.caption?`<div class="outfit-caption-text">${outfit.caption}</div>`:''}
+      ${outfit.occasion?`<div class="outfit-for">For ${outfit.occasion}</div>`:''}
+      ${alreadyWorn?`<div class="worn-pill">✓ Worn today</div>`:''}
       <div class="outfit-actions">
-        <button class="btn btn-success" style="flex:1" data-mark onclick="markAsWorn()" ${alreadyWorn?'disabled':''}>
+        <button class="btn btn-success btn-act" data-mark onclick="markAsWorn()" ${alreadyWorn?'disabled':''}>
           ${alreadyWorn?'✓ Worn':'✓ Wore this'}
         </button>
-        <button class="btn btn-secondary" style="flex:1" onclick="notFeelingIt()">↻ Not feeling it</button>
+        <button class="btn btn-secondary btn-act" onclick="notFeelingIt()">↻ New outfit</button>
       </div>
-      <button class="btn btn-secondary" style="width:100%;margin-top:8px" onclick="askAboutOutfit()">💬 Ask about this outfit</button>
+      <button class="btn-ghost" onclick="askAboutOutfit()">💬 Ask about this look</button>
     </div>`;
   container.appendChild(card);
 }
