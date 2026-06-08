@@ -1,1896 +1,986 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Wardrobe</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<title>Wardrobe</title>
 
-  <!-- PWA -->
-  <link rel="manifest" href="/wardrobe/manifest.json">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Wardrobe">
-  <meta name="theme-color" content="#f5f0e8">
-  <link rel="apple-touch-icon" href="/wardrobe/icon-180.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="/wardrobe/icon-192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/wardrobe/icon-512.png">
-  <style>
-    /* ── Tokens ───────────────────────────────────────────────────────────────── */
-    :root {
-      --bg: #f7f5f1; --surface: #ffffff; --surface2: #f0ece5; --border: #e8e2d8;
-      --text: #1a1714; --text-muted: #8c8278; --text-light: #b5aca3;
-      --accent: #3d6b52; --accent-light: #edf4ef; --accent-fg: #ffffff;
-      --green: #2d6a4f; --green-bg: #eaf4ee; --green-text: #1e5c3a;
-      --radius: 18px; --radius-sm: 12px; --radius-xs: 8px; --nav-h: 68px;
-      --sidebar-w: 230px;
-      --shadow: 0 2px 8px rgba(26,23,20,0.06);
-      --shadow-md: 0 8px 28px rgba(26,23,20,0.10);
-      --font: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
-    }
-    [data-theme="dark"] {
-      --bg: #141210; --surface: #1e1b18; --surface2: #272320; --border: #3a342d;
-      --text: #f0ebe3; --text-muted: #9e9187; --text-light: #6b6259;
-      --accent: #5c8f72; --accent-light: #1a2e22; --accent-fg: #ffffff;
-      --green: #4ade80; --green-bg: #14291e; --green-text: #4ade80;
-      --shadow: 0 2px 8px rgba(0,0,0,0.25);
-      --shadow-md: 0 8px 28px rgba(0,0,0,0.35);
-    }
+<!-- PWA -->
+<link rel="manifest" href="/wardrobe/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Wardrobe">
+<meta name="theme-color" content="#f6f4ef">
+<link rel="apple-touch-icon" href="/wardrobe/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/wardrobe/icon-192.png">
 
-    /* ── Reset ────────────────────────────────────────────────────────────────── */
-    *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; font-family: var(--font); background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
-    .app { display: flex; height: 100dvh; overflow: hidden; }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
 
-    /* ── Sidebar ──────────────────────────────────────────────────────────────── */
-    .sidebar { display: none; width: var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); flex-direction: column; padding: 28px 16px; gap: 2px; flex-shrink: 0; }
-    .sidebar-logo { font-weight: 700; font-size: 17px; padding: 8px 14px 24px; letter-spacing: -0.3px; color: var(--text); }
-    .nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: var(--radius-sm); cursor: pointer; color: var(--text-muted); font-size: 14px; font-weight: 500; transition: all 0.18s; border: none; background: none; width: 100%; text-align: left; font-family: var(--font); }
-    .nav-item:hover { background: var(--surface2); color: var(--text); }
-    .nav-item.active { background: var(--accent-light); color: var(--accent); }
-    .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 2px; }
+<style>
+/* ───────────────────────── Tokens ───────────────────────── */
+:root{
+  --bg:#f6f4ef; --surface:#ffffff; --surface2:#efebe3; --line:#e5e0d6;
+  --ink:#1c1a16; --soft:#6f685d; --faint:#a8a194;
+  --accent:#1c1a16; --accent-on:#ffffff; --gold:#9a7b4f; --gold-bg:#f3ecdf;
+  --good:#3f7d52; --good-bg:#e9f1ea; --danger:#b4452f;
+  --r:20px; --r-sm:14px; --r-xs:9px; --nav:64px;
+  --shadow:0 1px 2px rgba(28,26,22,.04), 0 6px 20px rgba(28,26,22,.06);
+  --shadow-lg:0 12px 40px rgba(28,26,22,.14);
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --serif:'Fraunces',Georgia,serif;
+}
+[data-theme="dark"]{
+  --bg:#15130f; --surface:#1e1b16; --surface2:#2a2620; --line:#34302a;
+  --ink:#f1ece2; --soft:#a59c8e; --faint:#6d655a;
+  --accent:#f1ece2; --accent-on:#1c1a16; --gold:#c8a774; --gold-bg:#2a2418;
+  --good:#5fae74; --good-bg:#16271a;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.35);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.5);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+.app{max-width:760px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column}
+::-webkit-scrollbar{width:0;height:0}
 
-    /* ── Main ─────────────────────────────────────────────────────────────────── */
-    .main { flex: 1; overflow-y: auto; overflow-x: hidden; padding-bottom: calc(var(--nav-h) + 16px); }
-    .page-header { position: sticky; top: 0; z-index: 10; background: var(--bg); padding: 18px 20px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .page-title { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
-    .page { display: none; padding: 8px 16px 20px; }
-    .page.active { display: block; }
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;line-height:1.1}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit}
+img{display:block}
 
-    /* ── Bottom nav ───────────────────────────────────────────────────────────── */
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-h); background: var(--surface); border-top: 1px solid var(--border); display: flex; z-index: 20; padding-bottom: env(safe-area-inset-bottom); }
-    .bottom-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: var(--text-light); font-size: 10px; font-weight: 500; border: none; background: none; transition: color 0.18s; font-family: var(--font); padding-bottom: 2px; }
-    .bottom-nav-item.active { color: var(--accent); }
-    .bottom-nav-item.active svg { stroke: var(--accent); }
+/* ───────────────────────── Layout ───────────────────────── */
+.main{flex:1;overflow-y:auto;padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom) + 12px)}
+.page{display:none;padding:0 18px 30px}
+.page.on{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.top{display:flex;align-items:center;justify-content:space-between;padding:18px 0 14px;position:sticky;top:0;background:linear-gradient(var(--bg) 78%,transparent);z-index:5}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.title{font-size:30px;margin-top:1px}
+.icon-btn{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--soft);box-shadow:var(--shadow);transition:.15s}
+.icon-btn:active{transform:scale(.92)}
 
-    /* ── Buttons ──────────────────────────────────────────────────────────────── */
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 11px 20px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.18s; border: none; font-family: var(--font); letter-spacing: -0.1px; }
-    .btn-primary { background: var(--accent); color: var(--accent-fg); }
-    .btn-primary:hover { opacity: .88; }
-    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-    .btn-secondary:hover { background: var(--border); }
-    .btn-success { background: var(--green); color: #fff; }
-    .btn-success:hover { opacity: .88; }
-    .btn:disabled { opacity: .45; cursor: not-allowed; }
-    .btn-icon { width: 38px; height: 38px; padding: 0; border-radius: var(--radius-sm); }
-    .btn-full { width: 100%; }
-    .btn-danger { color: #c0392b; border-color: #e8b4b0; background: #fdf2f1; }
-    [data-theme="dark"] .btn-danger { color: #f87171; border-color: #4a2020; background: #2d1515; }
+/* ───────────────────────── Buttons ───────────────────────── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 22px;border-radius:99px;font-size:14px;font-weight:600;transition:.15s;letter-spacing:-.01em}
+.btn:active{transform:scale(.97)}
+.btn.dark{background:var(--accent);color:var(--accent-on)}
+.btn.soft{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.btn.good{background:var(--good);color:#fff}
+.btn.full{width:100%}
+.btn:disabled{opacity:.45;pointer-events:none}
+.ghost{display:block;width:100%;text-align:center;padding:11px;font-size:13px;font-weight:500;color:var(--soft);border-radius:var(--r-sm);transition:.15s}
+.ghost:active{background:var(--surface2)}
 
-    /* ── Today ────────────────────────────────────────────────────────────────── */
-    .today-header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
-    .today-date { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
-    .today-heading { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
-    .weather-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; background: var(--surface); border-radius: 99px; font-size: 13px; font-weight: 500; box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 14px; }
-    .occasion-bar { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; margin-bottom: 16px; scrollbar-width: none; }
-    .occasion-bar::-webkit-scrollbar { display: none; }
-    .occasion-chip { flex-shrink: 0; padding: 6px 14px; border-radius: 99px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-muted); transition: all 0.18s; font-family: var(--font); }
-    .occasion-chip.active { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+/* ───────────────────────── Chips ───────────────────────── */
+.chips{display:flex;gap:7px;overflow-x:auto;padding:2px 0 4px;scroll-snap-type:x proximity}
+.chip{flex-shrink:0;padding:8px 15px;border-radius:99px;font-size:13px;font-weight:600;border:1.5px solid var(--line);background:var(--surface);color:var(--soft);transition:.15s;scroll-snap-align:start}
+.chip.on{background:var(--accent);color:var(--accent-on);border-color:var(--accent)}
 
-    /* ── Outfit card ──────────────────────────────────────────────────────────── */
-    .outfit-card { background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-md); margin-bottom: 16px; }
-    .outfit-imgs { background: var(--surface2); }
+/* ───────────────────────── Weather ───────────────────────── */
+.weather{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--soft);background:var(--surface);border:1px solid var(--line);padding:6px 13px;border-radius:99px;margin-bottom:14px;box-shadow:var(--shadow)}
 
-    /* layout variants */
-    .outfit-hero { aspect-ratio: 3/4; max-height: 420px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--surface2); }
-    .outfit-hero img { width: 100%; height: 100%; object-fit: cover; }
+/* ───────────────────────── Outfit card ───────────────────────── */
+.outfit{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px;border:1px solid var(--line)}
+.outfit-head{padding:20px 20px 16px}
+.outfit-name{font-size:25px;margin-bottom:7px}
+.outfit-why{font-size:14px;color:var(--soft);line-height:1.55}
+.outfit-tags{display:flex;gap:7px;margin-top:13px;flex-wrap:wrap}
+.tag{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:5px 11px;border-radius:99px;background:var(--surface2);color:var(--soft)}
+.tag.gold{background:var(--gold-bg);color:var(--gold)}
+.grid{display:grid;gap:3px;background:var(--line)}
+.grid.g2{grid-template-columns:1fr 1fr}
+.grid.g3{grid-template-columns:1fr 1fr 1fr}
+.grid.g4{grid-template-columns:1fr 1fr}
+.grid.g5{grid-template-columns:1fr 1fr 1fr}
+.cell{position:relative;aspect-ratio:3/4;background:var(--surface2);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.cell img{width:100%;height:100%;object-fit:cover}
+.cell .emoji{font-size:38px}
+.cell .lbl{position:absolute;left:0;right:0;bottom:0;padding:22px 9px 8px;background:linear-gradient(transparent,rgba(0,0,0,.62));color:#fff;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;line-height:1.25}
+.outfit-foot{padding:15px 18px 18px;display:flex;flex-direction:column;gap:9px}
+.outfit-foot .row{display:flex;gap:9px}
+.outfit-foot .row .btn{flex:1}
+.worn-pill{display:inline-flex;align-items:center;gap:5px;align-self:flex-start;padding:5px 12px;border-radius:99px;background:var(--good-bg);color:var(--good);font-size:12px;font-weight:600}
 
-    .outfit-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
-    .outfit-grid-2 .outfit-item { aspect-ratio: 3/4; }
+/* skeleton */
+.skel{background:var(--surface);border-radius:var(--r);overflow:hidden;border:1px solid var(--line)}
+.skel .bar{height:14px;border-radius:6px;background:linear-gradient(90deg,var(--surface2) 25%,var(--line) 50%,var(--surface2) 75%);background-size:200% 100%;animation:sh 1.3s infinite;margin:14px 20px}
+.skel .grid .cell{animation:sh 1.3s infinite;background:linear-gradient(90deg,var(--surface2) 25%,var(--line) 50%,var(--surface2) 75%);background-size:200% 100%}
+@keyframes sh{to{background-position:-200% 0}}
 
-    .outfit-grid-split { display: grid; grid-template-columns: 3fr 2fr; gap: 2px; }
-    .outfit-main-item { aspect-ratio: 3/4; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--surface2); }
-    .outfit-main-item img { width: 100%; height: 100%; object-fit: cover; }
-    .outfit-side-stack { display: flex; flex-direction: column; gap: 2px; }
-    .outfit-side-item { flex: 1; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--surface2); min-height: 80px; }
-    .outfit-side-item img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+/* ───────────────────────── Closet ───────────────────────── */
+.search{width:100%;padding:12px 16px;border-radius:99px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font-size:14px;outline:none;margin-bottom:12px}
+.search:focus{border-color:var(--accent)}
+.closet-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+@media(min-width:560px){.closet-grid{grid-template-columns:1fr 1fr 1fr}}
+.card{background:var(--surface);border-radius:var(--r-sm);overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);transition:.15s}
+.card:active{transform:scale(.97)}
+.card-img{aspect-ratio:3/4;background:var(--surface2);position:relative;display:flex;align-items:center;justify-content:center}
+.card-img img{width:100%;height:100%;object-fit:cover}
+.card-img .emoji{font-size:44px}
+.worn-badge{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);color:#fff;font-size:10px;font-weight:600;padding:3px 8px;border-radius:99px}
+.card-body{padding:9px 11px 11px}
+.card-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-meta{font-size:11px;color:var(--faint);margin-top:1px}
+.dots{display:flex;gap:4px;margin-top:7px}
+.dot{width:11px;height:11px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
 
-    .outfit-item { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--surface2); }
-    .outfit-item img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
-    .outfit-item-label { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,.65)); color: white; padding: 24px 10px 8px; font-size: 10px; font-weight: 600; letter-spacing: 0.2px; text-transform: uppercase; }
-    .outfit-item-emoji { font-size: 42px; }
+/* ───────────────────────── Empty ───────────────────────── */
+.empty{text-align:center;padding:64px 20px;color:var(--soft)}
+.empty .ic{font-size:46px;margin-bottom:14px}
+.empty h3{font-size:21px;color:var(--ink);margin-bottom:7px}
+.empty p{font-size:14px;margin-bottom:20px;max-width:240px;margin-inline:auto}
 
-    .outfit-caption { padding: 20px 20px 18px; }
-    .outfit-name { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 6px; }
-    .outfit-caption-text { font-size: 14px; line-height: 1.6; color: var(--text-muted); }
-    .outfit-for { font-size: 12px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.6px; margin-top: 10px; }
-    .worn-pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; background: var(--green-bg); color: var(--green-text); border-radius: 99px; font-size: 12px; font-weight: 600; margin-top: 12px; }
-    .outfit-actions { display: flex; gap: 8px; margin-top: 14px; }
-    .btn-act { flex: 1; }
-    .btn-ghost { display: block; width: 100%; margin-top: 10px; padding: 9px; background: none; border: none; cursor: pointer; font-size: 13px; color: var(--text-muted); font-family: var(--font); text-align: center; border-radius: var(--radius-sm); transition: background 0.15s; }
-    .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+/* ───────────────────────── Add flow ───────────────────────── */
+.drop{border:2px dashed var(--line);border-radius:var(--r);padding:44px 20px;text-align:center;position:relative;background:var(--surface);transition:.15s}
+.drop.over{border-color:var(--accent);background:var(--surface2)}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop .ic{font-size:34px;margin-bottom:10px}
+.drop strong{display:block;font-size:15px;margin-bottom:3px}
+.drop span{font-size:13px;color:var(--faint)}
+.or{display:flex;align-items:center;gap:13px;margin:16px 0;color:var(--faint);font-size:12px;font-weight:600;letter-spacing:.1em}
+.or::before,.or::after{content:'';flex:1;height:1px;background:var(--line)}
+.field{width:100%;padding:13px 15px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font-size:14px;outline:none;margin-bottom:10px}
+.field:focus{border-color:var(--accent)}
+.preview{position:relative;border-radius:var(--r);overflow:hidden;aspect-ratio:3/4;max-width:200px;margin:0 auto 16px;box-shadow:var(--shadow-lg)}
+.preview img{width:100%;height:100%;object-fit:cover}
+.preview .x{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px}
+.analysis{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.arow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+.arow:last-child{border:none}
+.arow .k{color:var(--faint);font-weight:500;text-transform:uppercase;font-size:11px;letter-spacing:.05em}
+.arow .v{font-weight:600}
+.loading{display:flex;align-items:center;gap:11px;color:var(--soft);font-size:14px;padding:6px 0}
+.spin{width:17px;height:17px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:rot .7s linear infinite}
+.spin.lg{width:30px;height:30px;border-width:3px}
+@keyframes rot{to{transform:rotate(360deg)}}
 
-    /* ── Filter bar ───────────────────────────────────────────────────────────── */
-    .filter-bar { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 2px; margin-bottom: 20px; scrollbar-width: none; }
-    .filter-bar::-webkit-scrollbar { display: none; }
-    .filter-chip { flex-shrink: 0; padding: 7px 16px; border-radius: 99px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-muted); transition: all 0.18s; font-family: var(--font); }
-    .filter-chip.active { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+/* ───────────────────────── Chat ───────────────────────── */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100dvh - var(--nav) - env(safe-area-inset-bottom) - 70px)}
+.msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:11px;padding:6px 0 14px}
+.bubble{max-width:84%;padding:12px 15px;border-radius:18px;font-size:14px;line-height:1.55}
+.bubble.me{align-self:flex-end;background:var(--accent);color:var(--accent-on);border-bottom-right-radius:5px}
+.bubble.ai{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:5px;box-shadow:var(--shadow)}
+.bubble.ai strong{font-weight:600}
+.bubble.ai p{margin-bottom:7px}.bubble.ai p:last-child{margin:0}
+.bubble.ai ul{margin:6px 0;padding-left:17px}.bubble.ai li{margin-bottom:3px}
+.think{display:flex;gap:4px;padding:5px 2px}
+.think i{width:7px;height:7px;border-radius:50%;background:var(--faint);animation:bob 1.2s infinite}
+.think i:nth-child(2){animation-delay:.2s}.think i:nth-child(3){animation-delay:.4s}
+@keyframes bob{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+.suggest{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:11px}
+.suggest button{padding:8px 13px;border-radius:99px;border:1.5px solid var(--line);background:var(--surface);font-size:13px;color:var(--soft);font-weight:500}
+.suggest button:active{border-color:var(--accent);color:var(--accent)}
+.composer{display:flex;gap:8px;align-items:flex-end;padding-top:10px;border-top:1px solid var(--line)}
+.composer textarea{flex:1;background:var(--surface);border:1.5px solid var(--line);border-radius:22px;padding:11px 16px;font-size:14px;color:var(--ink);outline:none;resize:none;max-height:110px;line-height:1.4}
+.composer textarea:focus{border-color:var(--accent)}
+.send{width:42px;height:42px;border-radius:50%;background:var(--accent);color:var(--accent-on);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.send:disabled{opacity:.4}
+.attach{width:42px;height:42px;border-radius:50%;background:var(--surface);border:1.5px solid var(--line);color:var(--soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
+.attach.has{border-color:var(--accent);color:var(--accent)}
+.attach input{position:absolute;inset:0;opacity:0}
+.thumbs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px}
+.thumbs .t{position:relative;width:62px;height:62px;border-radius:10px;overflow:hidden}
+.thumbs .t img{width:100%;height:100%;object-fit:cover}
+.thumbs .t button{position:absolute;top:-5px;right:-5px;width:19px;height:19px;border-radius:50%;background:var(--ink);color:var(--bg);font-size:11px;display:flex;align-items:center;justify-content:center}
 
-    /* ── Wardrobe grid ────────────────────────────────────────────────────────── */
-    .wardrobe-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
-    .item-card { background: var(--surface); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: var(--shadow); }
-    .item-card:active { transform: scale(0.98); }
-    .item-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-    .item-card-img { aspect-ratio: 3/4; background: var(--surface2); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
-    .item-card-img img { width: 100%; height: 100%; object-fit: cover; }
-    .item-card-img .cat-emoji { font-size: 52px; }
-    .worn-badge-sm { position: absolute; top: 9px; right: 9px; background: rgba(0,0,0,.55); backdrop-filter: blur(4px); color: white; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 99px; }
-    .item-card-body { padding: 11px 13px 13px; }
-    .item-card-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.1px; }
-    .item-card-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-    .item-card-colors { display: flex; gap: 5px; margin-top: 9px; }
-    .color-dot { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--border); }
+/* ───────────────────────── You ───────────────────────── */
+.section{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:12px;box-shadow:var(--shadow)}
+.section h3{font-size:17px;margin-bottom:4px}
+.section .sub{font-size:13px;color:var(--soft);margin-bottom:14px;line-height:1.5}
+.palette{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.sw{width:38px;height:38px;border-radius:11px;position:relative;box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.1)}
+.sw button{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:var(--ink);color:var(--bg);font-size:10px;display:none;align-items:center;justify-content:center}
+.sw:active button{display:flex}
+.stat{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.stat:last-child{border:none}
+.stat .k{color:var(--soft)}
+.stat .v{font-weight:600}
 
-    /* ── Empty state ──────────────────────────────────────────────────────────── */
-    .empty { text-align: center; padding: 64px 24px; color: var(--text-muted); grid-column: 1/-1; }
-    .empty-icon { font-size: 44px; margin-bottom: 14px; }
-    .empty-title { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 7px; letter-spacing: -0.2px; }
-    .empty-desc { font-size: 14px; margin-bottom: 22px; line-height: 1.6; }
+/* ───────────────────────── Bottom nav ───────────────────────── */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:760px;height:calc(var(--nav) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:var(--surface);border-top:1px solid var(--line);display:flex;z-index:40}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;font-weight:600;color:var(--faint);letter-spacing:.02em;transition:.15s}
+.nav button.on{color:var(--accent)}
+.nav button svg{width:23px;height:23px}
+.fab-add{position:relative;top:-2px}
+.fab-add .ring{width:42px;height:42px;border-radius:50%;background:var(--accent);color:var(--accent-on);display:flex;align-items:center;justify-content:center;margin-bottom:2px;box-shadow:var(--shadow)}
+.nav button.on .ring{background:var(--accent)}
 
-    /* ── Add item ─────────────────────────────────────────────────────────────── */
-    .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 10px; }
-    .add-section { margin-bottom: 26px; }
-    .upload-zone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--surface); position: relative; }
-    .upload-zone:hover, .upload-zone.drag-over { border-color: var(--accent); background: var(--accent-light); }
-    .upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-    .upload-zone-icon { font-size: 32px; margin-bottom: 10px; }
-    .upload-zone-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
-    .upload-zone-text strong { color: var(--text); }
-    .preview-wrap { position: relative; border-radius: var(--radius); overflow: hidden; aspect-ratio: 3/4; max-width: 180px; margin: 0 auto; box-shadow: var(--shadow-md); }
-    .preview-wrap img { width: 100%; height: 100%; object-fit: cover; }
-    .preview-remove { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 50%; background: rgba(0,0,0,.65); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; }
-    .input { width: 100%; padding: 12px 15px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: var(--font); background: var(--surface); color: var(--text); transition: border-color 0.18s; outline: none; }
-    .input:focus { border-color: var(--accent); }
-    .input::placeholder { color: var(--text-light); }
-    .input-row { display: flex; gap: 8px; }
-    .input-row .input { flex: 1; }
-    .focus-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-    .focus-chip { background: var(--surface); border: 1.5px solid var(--border); border-radius: 20px; padding: 8px 14px; font-size: 14px; cursor: pointer; transition: all 0.15s; color: var(--text); font-family: inherit; }
-    .focus-chip:active, .focus-chip:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
-    .divider { display: flex; align-items: center; gap: 14px; margin: 14px 0; }
-    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-    .divider span { font-size: 12px; color: var(--text-muted); font-weight: 500; }
-    .analysis-card { background: var(--surface); border-radius: var(--radius); padding: 18px; margin-top: 16px; box-shadow: var(--shadow); }
-    .analysis-loading { display: flex; align-items: center; gap: 12px; color: var(--text-muted); font-size: 14px; }
-    .analysis-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
-    .analysis-row:last-child { border-bottom: none; }
-    .analysis-key { font-size: 12px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
-    .analysis-val { font-size: 13px; font-weight: 600; }
+/* ───────────────────────── Modal / sheet ───────────────────────── */
+.sheet-bg{position:fixed;inset:0;background:rgba(20,18,14,.5);backdrop-filter:blur(5px);z-index:60;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.sheet-bg.on{opacity:1;pointer-events:auto}
+.sheet{background:var(--surface);width:100%;max-width:760px;max-height:92dvh;overflow-y:auto;border-radius:26px 26px 0 0;padding:10px 20px calc(26px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+.sheet-bg.on .sheet{transform:none}
+.handle{width:38px;height:4px;border-radius:99px;background:var(--line);margin:0 auto 18px}
+@media(min-width:560px){.sheet-bg{align-items:center}.sheet{border-radius:26px;max-width:480px;margin:20px}}
 
-    /* ── History ──────────────────────────────────────────────────────────────── */
-    .history-list { display: flex; flex-direction: column; gap: 12px; }
-    .history-card { background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
-    .history-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
-    .history-date { font-size: 14px; font-weight: 700; letter-spacing: -0.2px; }
-    .history-meta { font-size: 12px; color: var(--text-muted); }
-    .history-thumbs { display: flex; gap: 6px; padding: 4px 16px 14px; }
-    .history-thumb { width: 58px; height: 58px; border-radius: var(--radius-xs); overflow: hidden; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
-    .history-thumb img { width: 100%; height: 100%; object-fit: cover; }
+/* ───────────────────────── Toast ───────────────────────── */
+.toasts{position:fixed;bottom:calc(var(--nav) + env(safe-area-inset-bottom) + 14px);left:50%;transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:var(--ink);color:var(--bg);padding:11px 19px;border-radius:99px;font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);animation:pop .25s ease;white-space:nowrap}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
-    /* ── Profile ──────────────────────────────────────────────────────────────── */
-    .profile-section { background: var(--surface); border-radius: var(--radius); padding: 20px; margin-bottom: 12px; box-shadow: var(--shadow); }
-    .profile-section-title { font-size: 16px; font-weight: 700; margin-bottom: 14px; letter-spacing: -0.2px; }
-    .your-palette { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-    .palette-swatch { width: 40px; height: 40px; border-radius: var(--radius-xs); position: relative; box-shadow: 0 0 0 1.5px var(--border); }
-    .palette-remove { position: absolute; top: -6px; right: -6px; width: 17px; height: 17px; border-radius: 50%; background: var(--text); color: var(--bg); border: none; cursor: pointer; font-size: 9px; display: none; align-items: center; justify-content: center; }
-    .palette-swatch:hover .palette-remove { display: flex; }
-
-    /* ── Modal ────────────────────────────────────────────────────────────────── */
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); backdrop-filter: blur(4px); z-index: 100; display: flex; align-items: flex-end; }
-    .modal { background: var(--surface); border-radius: var(--radius) var(--radius) 0 0; width: 100%; max-height: 90dvh; overflow-y: auto; padding: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
-    .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 99px; margin: 0 auto 22px; }
-    .modal-title { font-size: 19px; font-weight: 700; margin-bottom: 18px; letter-spacing: -0.3px; }
-    .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-    .tag { padding: 5px 11px; background: var(--surface2); border-radius: 99px; font-size: 12px; font-weight: 500; color: var(--text-muted); }
-
-    /* ── Spinner & toast ──────────────────────────────────────────────────────── */
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0; }
-    .spinner-lg { width: 34px; height: 34px; border-width: 3px; margin: 0 auto; }
-    .toast-container { position: fixed; bottom: calc(var(--nav-h) + 14px); left: 50%; transform: translateX(-50%); z-index: 200; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
-    .toast { background: var(--text); color: var(--bg); padding: 11px 20px; border-radius: 99px; font-size: 13px; font-weight: 500; white-space: nowrap; animation: toast-in .22s ease; }
-    @keyframes toast-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .gen-card { background: var(--surface); border-radius: var(--radius); padding: 52px 24px; text-align: center; box-shadow: var(--shadow); }
-    .gen-title { font-weight: 600; margin: 18px 0 7px; font-size: 15px; letter-spacing: -0.2px; }
-    .gen-sub { font-size: 13px; color: var(--text-muted); }
-    .detail-img { width: 100%; aspect-ratio: 3/4; background: var(--surface2); border-radius: var(--radius); overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
-    .detail-img img { width: 100%; height: 100%; object-fit: cover; }
-    .detail-emoji { font-size: 80px; }
-
-    /* ── Chat ────────────────────────────────────────────────────────────────── */
-    .chat-wrap { display: flex; flex-direction: column; height: calc(100dvh - var(--nav-h) - 60px); }
-    .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 4px 0 16px; }
-    .chat-bubble { max-width: 82%; padding: 12px 15px; border-radius: 18px; font-size: 14px; line-height: 1.6; }
-    .chat-bubble.user { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; }
-    .chat-bubble.ai { background: var(--surface); border-bottom-left-radius: 4px; align-self: flex-start; box-shadow: var(--shadow); color: var(--text); }
-    .chat-bubble.ai p { margin: 0 0 8px; } .chat-bubble.ai p:last-child { margin: 0; }
-    .chat-bubble.ai ul { margin: 6px 0; padding-left: 18px; } .chat-bubble.ai li { margin-bottom: 4px; }
-    .chat-bubble.ai strong { color: var(--text); }
-    .chat-thinking { display: flex; gap: 4px; align-items: center; padding: 14px 16px; }
-    .chat-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); animation: chat-bounce 1.2s infinite; }
-    .chat-dot:nth-child(2) { animation-delay: .2s; } .chat-dot:nth-child(3) { animation-delay: .4s; }
-    @keyframes chat-bounce { 0%,80%,100% { transform: scale(0.7); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
-    .chat-input-row { display: flex; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border); }
-    .chat-input { flex: 1; background: var(--surface); border: 1.5px solid var(--border); border-radius: 22px; padding: 11px 16px; font-size: 14px; color: var(--text); font-family: var(--font); outline: none; resize: none; line-height: 1.4; max-height: 100px; }
-    .chat-input:focus { border-color: var(--accent); }
-    .chat-send { background: var(--accent); color: #fff; border: none; border-radius: 50%; width: 42px; height: 42px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: opacity 0.15s; align-self: flex-end; }
-    .chat-send:disabled { opacity: 0.4; cursor: default; }
-    .chat-img-btn { width: 38px; height: 38px; border-radius: 50%; background: var(--surface2); border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; color: var(--text-muted); transition: all 0.15s; align-self: flex-end; }
-    .chat-img-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .chat-img-btn.has-img { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
-    .chat-input-row.drag-over { border-color: var(--accent); background: var(--accent-light); border-radius: var(--radius-sm); }
-    .chat-bubble.ai img { max-width: 100%; border-radius: 10px; margin-bottom: 8px; display: block; }
-    .chat-suggestion-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
-    .chat-suggestion { background: var(--surface); border: 1.5px solid var(--border); border-radius: 16px; padding: 7px 13px; font-size: 13px; cursor: pointer; color: var(--text-muted); font-family: var(--font); transition: all 0.15s; }
-    .chat-suggestion:hover, .chat-suggestion:active { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
-
-    /* ── Build page ──────────────────────────────────────────────────────────── */
-    .build-layout { display: flex; flex-direction: column; gap: 16px; }
-    .build-anchors { display: flex; gap: 10px; flex-wrap: wrap; min-height: 48px; padding: 10px; background: var(--surface2); border-radius: var(--radius-sm); border: 2px dashed var(--border); }
-    .build-anchors.has-items { border-style: solid; border-color: var(--accent); background: var(--accent-light); }
-    .build-anchor-chip { display: flex; align-items: center; gap: 8px; background: var(--surface); border-radius: 99px; padding: 5px 10px 5px 6px; font-size: 13px; font-weight: 500; box-shadow: var(--shadow); }
-    .build-anchor-chip img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
-    .build-anchor-chip .emoji { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 16px; background: var(--surface2); border-radius: 50%; }
-    .build-anchor-chip button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 0; line-height: 1; }
-    .build-picker-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; max-height: 360px; overflow-y: auto; }
-    .build-picker-item { border-radius: var(--radius); overflow: hidden; position: relative; cursor: pointer; border: 2.5px solid transparent; transition: all 0.15s; background: var(--surface); box-shadow: var(--shadow); }
-    .build-picker-item.selected { border-color: var(--accent); }
-    .build-picker-item.disabled { opacity: 0.35; pointer-events: none; }
-    .build-picker-item .build-picker-img { aspect-ratio: 3/4; background: var(--surface2); overflow: hidden; display: flex; align-items: center; justify-content: center; }
-    .build-picker-item .build-picker-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .build-picker-item .build-picker-label { padding: 6px 8px 7px; font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .build-picker-item .build-check { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; display: none; align-items: center; justify-content: center; font-size: 13px; box-shadow: 0 1px 4px rgba(0,0,0,.2); }
-    .build-picker-item.selected .build-check { display: flex; }
-    .build-result { background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
-    .build-split { display: flex; flex-direction: column; gap: 16px; }
-    .build-chat { display: flex; flex-direction: column; background: var(--surface); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
-    .build-chat-header { padding: 14px 16px 10px; font-weight: 600; font-size: 14px; border-bottom: 1px solid var(--border); }
-    .build-chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 12px; max-height: 300px; min-height: 80px; }
-    .build-chat-input-row { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); }
-    .build-chat-input { flex: 1; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 18px; padding: 9px 14px; font-size: 14px; color: var(--text); font-family: var(--font); outline: none; resize: none; }
-    .build-chat-input:focus { border-color: var(--accent); }
-    .build-chip-row { display: flex; flex-wrap: wrap; gap: 7px; padding: 0 12px 10px; }
-    .build-chip { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 14px; padding: 6px 12px; font-size: 12px; cursor: pointer; color: var(--text-muted); font-family: var(--font); }
-    .build-chip:active { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
-    @media (min-width: 768px) {
-      .build-split { flex-direction: row; }
-      .build-split > * { flex: 1; }
-      .build-chat-messages { max-height: 500px; }
-      .build-picker-grid { grid-template-columns: repeat(4,1fr); max-height: 320px; }
-    }
-
-    /* ── Responsive ───────────────────────────────────────────────────────────── */
-    @media (min-width: 768px) {
-      .sidebar { display: flex; }
-      .bottom-nav { display: none; }
-      .main { padding-bottom: 0; }
-      .page { padding: 12px 24px 24px; }
-      .wardrobe-grid { grid-template-columns: repeat(3,1fr); }
-      .modal-backdrop { align-items: center; padding: 24px; }
-      .modal { border-radius: var(--radius); max-width: 520px; margin: auto; }
-    }
-    @media (min-width: 1024px) { .wardrobe-grid { grid-template-columns: repeat(4,1fr); } }
-  </style>
+/* ───────────────────────── Key setup ───────────────────────── */
+.gate{position:fixed;inset:0;background:var(--bg);z-index:100;display:none;align-items:center;justify-content:center;padding:24px}
+.gate.on{display:flex}
+.gate-card{max-width:380px;width:100%;text-align:center}
+.gate-card .ic{font-size:42px;margin-bottom:16px}
+.gate-card h2{font-size:25px;margin-bottom:8px}
+.gate-card p{font-size:14px;color:var(--soft);margin-bottom:22px;line-height:1.55}
+</style>
 </head>
 <body>
 <div class="app">
-
-  <nav class="sidebar">
-    <div class="sidebar-logo">✦ wardrobe</div>
-    <button class="nav-item active" onclick="navigate('today')">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Today's Look
-    </button>
-    <button class="nav-item" onclick="navigate('history')">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>History
-    </button>
-    <button class="nav-item" onclick="navigate('wardrobe')">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>Wardrobe
-    </button>
-    <button class="nav-item" onclick="navigate('add')">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add Item
-    </button>
-    <button class="nav-item" onclick="navigate('ask')">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ask
-    </button>
-    <button class="nav-item" onclick="navigate('build')">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><circle cx="17.5" cy="17.5" r="3.5"/></svg>Build
-    </button>
-    <div class="sidebar-bottom">
-      <button class="nav-item" onclick="navigate('profile')">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>My Profile
-      </button>
-      <button class="nav-item" onclick="toggleTheme()">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <span id="theme-label">Dark mode</span>
-      </button>
-    </div>
-  </nav>
-
   <main class="main" id="main">
 
-    <!-- TODAY -->
-    <div class="page active" id="page-today">
-      <div class="page-header">
-        <div class="page-title">Today's Look</div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-icon btn-secondary" onclick="toggleTheme()">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-          </button>
-          <button class="btn btn-secondary" onclick="openPackingModal()">🧳 Pack</button>
-        </div>
-      </div>
-      <div id="today-content" style="padding:20px"></div>
-    </div>
-
-    <!-- HISTORY -->
-    <div class="page" id="page-history">
-      <div class="page-header"><div class="page-title">History</div></div>
-      <div style="padding:20px"><div class="history-list" id="history-list"></div></div>
-    </div>
-
-    <!-- WARDROBE -->
-    <div class="page" id="page-wardrobe">
-      <div class="page-header">
-        <div class="page-title">Wardrobe</div>
-        <button class="btn btn-primary" onclick="navigate('add')">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add
+    <!-- ════════ TODAY ════════ -->
+    <section class="page on" id="p-today">
+      <div class="top">
+        <div><div class="eyebrow" id="today-date">Today</div><h1 class="title">Today</h1></div>
+        <button class="icon-btn" onclick="go('you')" title="You">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
         </button>
       </div>
-      <div style="padding:20px">
-        <div class="filter-bar" id="filter-bar"></div>
-        <div class="wardrobe-grid" id="wardrobe-grid"></div>
+      <div id="today-body"></div>
+    </section>
+
+    <!-- ════════ CLOSET ════════ -->
+    <section class="page" id="p-closet">
+      <div class="top">
+        <div><div class="eyebrow">Your collection</div><h1 class="title">Closet</h1></div>
       </div>
-    </div>
+      <input class="search" id="search" placeholder="Search your closet…" oninput="renderCloset()">
+      <div class="chips" id="closet-filters"></div>
+      <div style="height:14px"></div>
+      <div id="closet-body"></div>
+    </section>
 
-    <!-- ADD ITEM -->
-    <div class="page" id="page-add">
-      <div class="page-header"><div class="page-title">Add Item</div></div>
-      <div style="padding:20px">
-        <div id="upload-area">
-          <div class="upload-zone" id="upload-zone" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleItemDrop(event)">
-            <input type="file" accept="image/*" onchange="handleItemFile(event)">
-            <div class="upload-zone-icon">📷</div>
-            <div class="upload-zone-text"><strong>Upload a photo</strong><br><span style="color:var(--text-light)">or drag and drop</span></div>
-          </div>
-          <div class="divider"><span>OR</span></div>
-          <div class="input-row">
-            <input type="url" class="input" id="item-url" placeholder="Paste an image URL…" onkeydown="if(event.key==='Enter')analyseUrl()" onpaste="setTimeout(analyseUrl,100)">
-            <button class="btn btn-secondary" onclick="analyseUrl()">Go</button>
-          </div>
-        </div>
-
-        <div id="preview-area" style="display:none">
-          <div class="preview-wrap"><img id="preview-img" src="" alt=""><button class="preview-remove" onclick="clearAdd()">✕</button></div>
-        </div>
-
-        <!-- Optional focus picker — shown only after preview -->
-        <div id="focus-area" style="display:none">
-          <div class="section-label" style="margin-top:18px;margin-bottom:8px">Which item in the photo?</div>
-          <div class="focus-chips" id="focus-chips">
-            <button class="focus-chip" onclick="confirmFocus(null)">🖼️ Let Claude decide</button>
-            <button class="focus-chip" onclick="confirmFocus('top')">👕 Top</button>
-            <button class="focus-chip" onclick="confirmFocus('trousers')">👖 Trousers</button>
-            <button class="focus-chip" onclick="confirmFocus('shoes')">👟 Shoes</button>
-            <button class="focus-chip" onclick="confirmFocus('jacket or coat')">🧥 Jacket</button>
-            <button class="focus-chip" onclick="confirmFocus('dress or skirt')">👗 Dress/Skirt</button>
-            <button class="focus-chip" onclick="confirmFocus('bag')">👜 Bag</button>
-            <button class="focus-chip" onclick="confirmFocus('accessory')">💍 Accessory</button>
-          </div>
-        </div>
-
-        <div id="analysis-area" style="display:none">
-          <div class="analysis-card" id="analysis-card" style="margin-top:16px"><div class="analysis-loading"><div class="spinner"></div><span>Analysing with Claude…</span></div></div>
-          <div id="item-fields" style="display:none;margin-top:14px">
-            <div style="display:flex;flex-direction:column;gap:10px">
-              <input class="input" id="item-name" placeholder="Item name">
-              <select class="input" id="item-category">
-                <option value="tops">Tops</option><option value="bottoms">Bottoms</option>
-                <option value="dresses">Dresses</option><option value="outerwear">Outerwear</option>
-                <option value="shoes">Shoes</option><option value="bags">Bags</option>
-                <option value="accessories">Accessories</option>
-              </select>
-              <input class="input" id="item-brand" placeholder="Brand (optional)">
-            </div>
-          </div>
-          <button class="btn btn-primary btn-full" id="save-btn" style="display:none;margin-top:14px" onclick="saveItem()">Save to Wardrobe</button>
-        </div>
+    <!-- ════════ STYLIST ════════ -->
+    <section class="page" id="p-stylist">
+      <div class="top">
+        <div><div class="eyebrow">Your personal stylist</div><h1 class="title">Stylist</h1></div>
+        <button class="icon-btn" onclick="newChat()" title="New chat">
+          <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        </button>
       </div>
-    </div>
-
-    <!-- PROFILE -->
-    <div class="page" id="page-profile">
-      <div class="page-header"><div class="page-title">My Profile</div></div>
-      <div style="padding:20px">
-        <div class="profile-section">
-          <div class="profile-section-title">Discover Your Colours</div>
-          <p style="font-size:14px;color:var(--text-muted);margin-bottom:14px">Upload a selfie and Claude will analyse your skin tone and suggest colours that flatter you.</p>
-          <div id="selfie-upload-wrap">
-            <div class="upload-zone" style="padding:28px" ondragover="event.preventDefault()" ondrop="handleSelfieFileDrop(event)">
-              <input type="file" accept="image/*" onchange="handleSelfieFile(event)">
-              <div class="upload-zone-icon">🤳</div>
-              <div class="upload-zone-text"><strong>Upload a selfie</strong></div>
-            </div>
+      <div class="chat-wrap">
+        <div class="msgs" id="msgs"></div>
+        <div>
+          <div class="suggest" id="suggest">
+            <button onclick="quickAsk(this)">What should I wear today?</button>
+            <button onclick="quickAsk(this)">What's missing from my closet?</button>
+            <button onclick="quickAsk(this)">What colours suit me?</button>
           </div>
-          <div id="selfie-result" style="display:none"></div>
-        </div>
-        <div class="profile-section">
-          <div class="profile-section-title">Your Colour Palette</div>
-          <p style="font-size:14px;color:var(--text-muted);margin-bottom:12px">Colours that suit you — used when generating outfits.</p>
-          <div class="your-palette" id="your-palette"></div>
-          <div class="input-row">
-            <input type="color" id="color-picker" class="input" style="width:48px;height:40px;padding:4px;cursor:pointer;flex-shrink:0">
-            <button class="btn btn-secondary" style="flex:1" onclick="addPaletteColor()">Add Colour</button>
-          </div>
-        </div>
-        <div class="profile-section">
-          <div class="profile-section-title">Shopping Gaps</div>
-          <p style="font-size:14px;color:var(--text-muted);margin-bottom:12px">Claude analyses your wardrobe and tells you what's missing.</p>
-          <button class="btn btn-secondary btn-full" onclick="findShoppingGaps()">Analyse My Wardrobe</button>
-          <div id="gaps-result" style="margin-top:14px"></div>
-        </div>
-        <div class="profile-section">
-          <div class="profile-section-title">Sync</div>
-          <p style="font-size:14px;color:var(--text-muted);margin-bottom:12px">Sync your wardrobe across devices via Supabase.</p>
-          <button class="btn btn-secondary btn-full" onclick="manualSync()">↻ Sync Now</button>
-          <div id="sync-status" style="margin-top:10px;font-size:13px;color:var(--text-muted)"></div>
-        </div>
-        <div class="profile-section">
-          <div class="profile-section-title">Wardrobe Stats</div>
-          <div id="stats-content"></div>
-        </div>
-        <div class="profile-section">
-          <div class="profile-section-title">Claude API Key</div>
-          <p style="font-size:14px;color:var(--text-muted);margin-bottom:12px">Stored privately on this device only.</p>
-          <div class="input-row">
-            <input class="input" id="key-display" type="password" placeholder="sk-ant-api03-…">
-            <button class="btn btn-secondary" onclick="updateKey()">Save</button>
+          <div class="thumbs" id="chat-thumbs"></div>
+          <div class="composer" id="composer" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="onChatDrop(event)">
+            <label class="attach" id="attach">
+              <input type="file" accept="image/*" multiple onchange="onChatFiles(event)">
+              <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-5-5L5 21"/></svg>
+            </label>
+            <textarea id="chat-input" rows="1" placeholder="Ask your stylist…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"></textarea>
+            <button class="send" id="send" onclick="sendChat()">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4Z"/></svg>
+            </button>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Build page -->
-    <div class="page" id="page-build">
-      <div class="page-header"><div class="page-title">Build Outfit</div></div>
-      <div style="padding:0 16px 20px">
-        <div class="build-layout">
-          <div>
-            <div class="section-label" style="margin-bottom:8px">Pick 1–2 anchor pieces</div>
-            <div class="build-anchors" id="build-anchors">
-              <span style="font-size:13px;color:var(--text-muted);align-self:center">Tap items below to anchor your outfit</span>
-            </div>
-          </div>
-          <div>
-            <div class="section-label" style="margin-bottom:8px">Your wardrobe</div>
-            <div class="build-picker-grid" id="build-picker-grid"></div>
-          </div>
-          <button class="btn btn-primary" id="build-gen-btn" onclick="generateBuildOutfit()" style="display:none">✦ Generate outfit</button>
-          <div class="build-split" id="build-result-wrap" style="display:none">
-            <div id="build-outfit-result" class="build-result"></div>
-            <div class="build-chat" id="build-chat">
-              <div class="build-chat-header">💬 Adjust the outfit</div>
-              <div class="build-chat-messages" id="build-chat-messages"></div>
-              <div class="build-chip-row">
-                <button class="build-chip" onclick="buildChatSuggest(this)">Make it more casual</button>
-                <button class="build-chip" onclick="buildChatSuggest(this)">Swap the shoes</button>
-                <button class="build-chip" onclick="buildChatSuggest(this)">Add a jacket</button>
-                <button class="build-chip" onclick="buildChatSuggest(this)">Make it smarter</button>
-                <button class="build-chip" onclick="buildChatSuggest(this)">Try different colours</button>
-              </div>
-              <div class="build-chat-input-row">
-                <textarea class="build-chat-input" id="build-chat-input" rows="1" placeholder="Swap something, change the vibe…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendBuildChat()}"></textarea>
-                <button class="chat-send" id="build-send-btn" onclick="sendBuildChat()">
-                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+    <!-- ════════ YOU ════════ -->
+    <section class="page" id="p-you">
+      <div class="top">
+        <div><div class="eyebrow">Profile & settings</div><h1 class="title">You</h1></div>
+        <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="Theme">
+          <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
+        </button>
       </div>
-    </div>
 
-    <!-- Ask page -->
-    <div class="page" id="page-ask">
-      <div class="page-header"><div class="page-title">Ask</div></div>
-      <div style="padding:0 16px 20px">
-        <div class="chat-wrap">
-          <div class="chat-messages" id="chat-messages"></div>
-          <div>
-            <div class="chat-suggestion-row" id="chat-suggestions">
-              <button class="chat-suggestion" onclick="chatSuggest(this)">What should I buy next?</button>
-              <button class="chat-suggestion" onclick="chatSuggest(this)">What's missing from my wardrobe?</button>
-              <button class="chat-suggestion" onclick="chatSuggest(this)">What colours suit me best?</button>
-              <button class="chat-suggestion" onclick="chatSuggest(this)">How can I get more outfits from what I have?</button>
-            </div>
-            <div id="chat-img-preview" style="display:none;padding:8px 0 4px">
-              <div id="chat-img-thumbs" style="display:flex;flex-wrap:wrap;gap:8px"></div>
-            </div>
-            <div class="chat-input-row" id="chat-input-row" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleChatDrop(event)">
-              <label class="chat-img-btn" title="Add photos">
-                <input type="file" accept="image/*" multiple id="chat-img-input" style="display:none" onchange="handleChatImg(event)">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-              </label>
-              <textarea class="chat-input" id="chat-input" rows="1" placeholder="Ask anything or drop a photo…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"></textarea>
-              <button class="chat-send" id="chat-send-btn" onclick="sendChat()">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-              </button>
-            </div>
-          </div>
+      <div class="section">
+        <h3>Your colours</h3>
+        <div class="sub">Colours that flatter you — used when styling outfits. Add a selfie for AI analysis.</div>
+        <div class="palette" id="palette"></div>
+        <div style="display:flex;gap:8px">
+          <input type="color" id="picker" style="width:46px;height:42px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--surface);padding:3px">
+          <button class="btn soft" style="flex:1" onclick="addColour()">Add colour</button>
         </div>
+        <label class="btn dark full" style="margin-top:9px;position:relative;overflow:hidden">
+          <input type="file" accept="image/*" onchange="onSelfie(event)" style="position:absolute;inset:0;opacity:0">
+          🤳 Analyse a selfie
+        </label>
+        <div id="selfie-result"></div>
       </div>
-    </div>
+
+      <div class="section">
+        <h3>Closet stats</h3>
+        <div class="sub">An overview of what you own.</div>
+        <div id="stats"></div>
+      </div>
+
+      <div class="section">
+        <h3>Sync</h3>
+        <div class="sub">Your closet backs up to the cloud automatically. Force a sync if something looks off.</div>
+        <button class="btn soft full" onclick="manualSync()">↻ Sync now</button>
+        <div id="sync-status" style="font-size:13px;color:var(--soft);margin-top:10px;text-align:center"></div>
+      </div>
+
+      <div class="section">
+        <h3>Claude API key</h3>
+        <div class="sub">Stored only on this device. Get one at console.anthropic.com.</div>
+        <input class="field" id="key-field" type="password" placeholder="sk-ant-api03-…" style="margin-bottom:9px">
+        <button class="btn dark full" onclick="saveKeyFromSettings()">Save key</button>
+      </div>
+
+      <div style="text-align:center;color:var(--faint);font-size:12px;padding:8px">Wardrobe · made with Claude</div>
+    </section>
 
   </main>
+
+  <!-- ════════ NAV ════════ -->
+  <nav class="nav">
+    <button class="on" id="n-today" onclick="go('today')">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 9.5 12 3l9 6.5"/><path d="M5 9v11h14V9"/></svg>Today
+    </button>
+    <button id="n-closet" onclick="go('closet')">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.4 3.5 16 2a4 4 0 0 1-8 0L3.6 3.5a2 2 0 0 0-1.3 2.2l.6 3.6a1 1 0 0 0 1 .8H6v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V10h2.1a1 1 0 0 0 1-.8l.6-3.6a2 2 0 0 0-1.3-2.2Z"/></svg>Closet
+    </button>
+    <button class="fab-add" onclick="openAdd()">
+      <span class="ring"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>Add
+    </button>
+    <button id="n-stylist" onclick="go('stylist')">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.3 8.4 8.4 0 0 1-3.8-.7L3 20l1-4.3A8.4 8.4 0 1 1 21 11.5Z"/></svg>Stylist
+    </button>
+    <button id="n-you" onclick="go('you')">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>You
+    </button>
+  </nav>
 </div>
 
-<!-- Bottom nav -->
-<nav class="bottom-nav">
-  <button class="bottom-nav-item active" id="bn-today" onclick="navigate('today')">
-    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Today
-  </button>
-  <button class="bottom-nav-item" id="bn-wardrobe" onclick="navigate('wardrobe')">
-    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>Wardrobe
-  </button>
-  <button class="bottom-nav-item" id="bn-add" onclick="navigate('add')">
-    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add
-  </button>
-  <button class="bottom-nav-item" id="bn-build" onclick="navigate('build')">
-    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><circle cx="17.5" cy="17.5" r="3.5"/></svg>Build
-  </button>
-  <button class="bottom-nav-item" id="bn-profile" onclick="navigate('profile')">
-    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile
-  </button>
-</nav>
-
-<!-- Item detail modal -->
-<div class="modal-backdrop" id="item-modal" style="display:none" onclick="if(event.target===this)closeModal()">
-  <div class="modal"><div class="modal-handle"></div><div id="modal-content"></div></div>
-</div>
-
-<!-- Packing list modal -->
-<div class="modal-backdrop" id="packing-modal" style="display:none" onclick="if(event.target===this)closePackingModal()">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">🧳 Packing List</div>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
-      <input class="input" id="pack-dest" placeholder="Destination (e.g. Paris, beach holiday…)">
-      <div class="input-row">
-        <input class="input" id="pack-days" type="number" min="1" max="30" placeholder="Days" style="max-width:100px">
-        <select class="input" id="pack-occasion">
-          <option value="casual">Casual</option><option value="work">Work / Business</option>
-          <option value="beach">Beach / Holiday</option><option value="smart">Smart / Evening</option>
-          <option value="mixed">Mixed</option>
-        </select>
-      </div>
-    </div>
-    <button class="btn btn-primary btn-full" onclick="generatePackingList()">Generate Packing List</button>
-    <div id="packing-result" style="margin-top:16px"></div>
+<!-- ════════ ADD SHEET ════════ -->
+<div class="sheet-bg" id="add-sheet" onclick="if(event.target===this)closeAdd()">
+  <div class="sheet">
+    <div class="handle"></div>
+    <h2 style="font-size:24px;margin-bottom:16px">Add an item</h2>
+    <div id="add-body"></div>
   </div>
 </div>
 
-<div class="toast-container" id="toasts"></div>
+<!-- ════════ ITEM SHEET ════════ -->
+<div class="sheet-bg" id="item-sheet" onclick="if(event.target===this)closeItem()">
+  <div class="sheet"><div class="handle"></div><div id="item-body"></div></div>
+</div>
 
-<!-- API key setup overlay -->
-<div id="key-setup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;align-items:center;justify-content:center;padding:24px">
-  <div style="background:var(--surface);border-radius:var(--radius);padding:28px;width:100%;max-width:420px">
-    <div style="font-size:28px;margin-bottom:12px">🔑</div>
-    <div style="font-size:18px;font-weight:700;margin-bottom:8px">Enter your Claude API key</div>
-    <div style="font-size:14px;color:var(--text-muted);margin-bottom:20px;line-height:1.6">Stored only on this device. Get one free at <strong>console.anthropic.com</strong>.</div>
-    <input class="input" id="key-input" type="password" placeholder="sk-ant-api03-…" style="margin-bottom:12px">
-    <button class="btn btn-primary btn-full" onclick="saveKey()">Save & Continue</button>
+<!-- ════════ KEY GATE ════════ -->
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="ic">🔑</div>
+    <h2>Welcome to your closet</h2>
+    <p>Enter your Claude API key to begin. It's stored only on this device, and powers item analysis and styling.</p>
+    <input class="field" id="gate-key" type="password" placeholder="sk-ant-api03-…">
+    <button class="btn dark full" style="margin-top:6px" onclick="saveGateKey()">Continue</button>
   </div>
 </div>
 
-<script>
-// ── SDK (loaded from CDN for browser CORS support) ────────────────────────────
-let _anthropic = null;
-let _AnthropicClass = null;
-async function getClient() {
-  if (!_AnthropicClass) {
-    const mod = await import('https://esm.sh/@anthropic-ai/sdk@0.39.0');
-    _AnthropicClass = mod.default;
-  }
-  if (!_anthropic || _anthropic.apiKey !== CLAUDE_KEY) {
-    _anthropic = new _AnthropicClass({ apiKey: CLAUDE_KEY, dangerouslyAllowBrowser: true });
-  }
-  return _anthropic;
+<div class="toasts" id="toasts"></div>
+
+<script type="module">
+/* ═══════════════════════════════════════════════════════════════
+   CONFIG & STATE
+   ═══════════════════════════════════════════════════════════════ */
+const SB_URL='https://epaiazxcdcseijkhrncm.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVwYWlhenhjZGNzZWlqa2hybmNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMjQ0MzQsImV4cCI6MjA5MjYwMDQzNH0.h2t_kFLZ_YPvuJlzPPiyXVbOnW4Ub_52hdaYosMoOus';
+const SB_HEAD={'Content-Type':'application/json','apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`};
+const MODEL='claude-sonnet-4-5';
+const OCCASIONS=['Any','Casual','Work','Smart','Going out','Active'];
+const CATS=['tops','bottoms','dresses','outerwear','shoes','bags','accessories'];
+const CAT_EMOJI={tops:'👕',bottoms:'👖',dresses:'👗',outerwear:'🧥',shoes:'👟',bags:'👜',accessories:'💍'};
+const WCODE={0:'☀️ Clear',1:'🌤 Mostly clear',2:'⛅ Partly cloudy',3:'☁️ Overcast',45:'🌫 Fog',48:'🌫 Fog',51:'🌦 Drizzle',53:'🌦 Drizzle',55:'🌦 Drizzle',61:'🌧 Rain',63:'🌧 Rain',65:'🌧 Heavy rain',71:'🌨 Snow',73:'🌨 Snow',75:'❄️ Heavy snow',80:'🌦 Showers',81:'🌦 Showers',82:'⛈ Heavy showers',95:'⛈ Storm'};
+
+let KEY=localStorage.getItem('wrd_claude_key')||'';
+let items=[];
+let profile={palette:[],paletteNames:[],flatteringColors:[],flatteringNames:[],selfie:null};
+let weather=null;
+let occasion='Any';
+let todayOutfit=null;
+let excluded=[];
+let recentCombos=[];
+let chat=[];
+let chatImgs=[];
+let seedItemId=null; // "style this item"
+let curPage='today';
+
+const $=id=>document.getElementById(id);
+const cap=s=>s?s[0].toUpperCase()+s.slice(1):'';
+const dkey=()=>new Date().toISOString().slice(0,10);
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function niceErr(e){
+  const m=e?.message||String(e);
+  if(/401|authentication|invalid x-api-key/i.test(m))return 'Your Claude API key is invalid or expired. Update it in the You tab.';
+  if(/429|rate.?limit/i.test(m))return 'Too many requests — wait a moment and try again.';
+  if(/quota|credit|billing/i.test(m))return 'Your Claude account is out of credit. Top up at console.anthropic.com.';
+  if(/network|fetch|Failed to fetch/i.test(m))return 'Network issue — check your connection and try again.';
+  if(/overloaded|529/i.test(m))return 'Claude is busy right now. Try again in a few seconds.';
+  return m.length>140?m.slice(0,140)+'…':m;
 }
 
-// ── Config ────────────────────────────────────────────────────────────────────
-const SB_URL = 'https://epaiazxcdcseijkhrncm.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVwYWlhenhjZGNzZWlqa2hybmNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMjQ0MzQsImV4cCI6MjA5MjYwMDQzNH0.h2t_kFLZ_YPvuJlzPPiyXVbOnW4Ub_52hdaYosMoOus';
-let CLAUDE_KEY = localStorage.getItem('wrd_claude_key') || '';
-const CLAUDE_MODEL = 'claude-sonnet-4-5';
-const OCCASIONS = ['Any','Casual','Work','Going out','Gym','Smart','Date night'];
-const WEATHER_CODES = {0:'☀️ Clear',1:'🌤️ Mostly clear',2:'⛅ Partly cloudy',3:'☁️ Overcast',45:'🌫️ Foggy',48:'🌫️ Foggy',51:'🌦️ Drizzle',53:'🌦️ Drizzle',55:'🌦️ Drizzle',61:'🌧️ Rain',63:'🌧️ Rain',65:'🌧️ Heavy rain',71:'❄️ Snow',73:'❄️ Snow',75:'❄️ Heavy snow',80:'🌦️ Showers',81:'🌦️ Showers',82:'⛈️ Heavy showers',95:'⛈️ Thunderstorm'};
+/* ═══════════════════════════════════════════════════════════════
+   INDEXEDDB  (large image storage, no quota issues)
+   ═══════════════════════════════════════════════════════════════ */
+function idb(){return new Promise((res,rej)=>{const r=indexedDB.open('wardrobe',1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('items'))r.result.createObjectStore('items',{keyPath:'id'})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function idbAll(){const db=await idb();return new Promise((res,rej)=>{const q=db.transaction('items','readonly').objectStore('items').getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>rej(q.error)})}
+async function idbPutAll(arr){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('items','readwrite');const s=t.objectStore('items');arr.forEach(i=>s.put(i));t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})}
+async function idbDel(id){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('items','readwrite');t.objectStore('items').delete(id);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})}
 
-// ── State ─────────────────────────────────────────────────────────────────────
-let items = [];
-let profile = { palette:[], paletteNames:[], flatteringColors:[], flatteringNames:[], selfie:null };
-let history = {};
-let todayOutfit = null;
-let pendingItem = null;
-let activeFilter = 'all';
-let activeOccasion = 'Any';
-let weather = null;
-let excludedIds = [];
-
-// ── Persistence ───────────────────────────────────────────────────────────────
-function persist() {
-  // Strip imageData from localStorage — previewSrc (same data as a data URL) is kept for display.
-  // This halves storage use: imageData + previewSrc together can easily exceed the 5 MB quota.
-  const slim = items.map(({ imageData, ...rest }) => rest);
-  try {
-    localStorage.setItem('wrd_items', JSON.stringify(slim));
-  } catch(e) {
-    // If still over quota, try removing oldest items' previewSrc too
-    try {
-      const slimmer = slim.map(({ previewSrc, ...rest }) => rest);
-      localStorage.setItem('wrd_items', JSON.stringify(slimmer));
-      console.warn('persist: stripped previewSrc to fit quota');
-    } catch(e2) { console.error('persist: localStorage quota exceeded even after stripping images', e2); }
-  }
-  try { localStorage.setItem('wrd_profile', JSON.stringify(profile)); } catch(e) {}
-  try { localStorage.setItem('wrd_history', JSON.stringify(history)); } catch(e) {}
-  if (todayOutfit) { try { localStorage.setItem('wrd_outfit_' + dateKey(), JSON.stringify(todayOutfit)); } catch(e) {} }
+/* ═══════════════════════════════════════════════════════════════
+   SETTINGS PERSISTENCE  (localStorage — small only)
+   ═══════════════════════════════════════════════════════════════ */
+function saveProfile(){try{localStorage.setItem('wrd_profile',JSON.stringify(profile))}catch(e){}}
+function loadSettings(){
+  try{profile={palette:[],paletteNames:[],flatteringColors:[],flatteringNames:[],selfie:null,...JSON.parse(localStorage.getItem('wrd_profile')||'{}')}}catch(e){}
+  try{recentCombos=JSON.parse(localStorage.getItem('wrd_recent')||'[]')}catch(e){}
+  try{const t=JSON.parse(localStorage.getItem('wrd_today')||'null');if(t&&t.date===dkey()){todayOutfit=t.outfit;occasion=t.occasion||'Any'}}catch(e){}
+  try{weather=JSON.parse(localStorage.getItem('wrd_weather')||'null')}catch(e){}
 }
+function saveRecent(c){recentCombos=c.slice(-8);localStorage.setItem('wrd_recent',JSON.stringify(recentCombos))}
+function saveToday(){if(todayOutfit)localStorage.setItem('wrd_today',JSON.stringify({date:dkey(),outfit:todayOutfit,occasion}))}
 
-function hydrate() {
-  try { items = JSON.parse(localStorage.getItem('wrd_items') || '[]'); } catch(e) { items = []; }
-  try { profile = { palette:[], paletteNames:[], flatteringColors:[], flatteringNames:[], selfie:null, colorSeason:null, skinTone:null, undertone:null, seasonDesc:null, styleNote:null, avoidColors:[], ...JSON.parse(localStorage.getItem('wrd_profile') || '{}') }; } catch(e) {}
-  try { history = JSON.parse(localStorage.getItem('wrd_history') || '{}'); } catch(e) {}
-  try { todayOutfit = JSON.parse(localStorage.getItem('wrd_outfit_' + dateKey()) || 'null'); } catch(e) {}
-}
+/* ═══════════════════════════════════════════════════════════════
+   IMAGE HELPERS
+   ═══════════════════════════════════════════════════════════════ */
+const previewOf=i=>i.previewSrc||(i.imageData?`data:${i.mime||'image/jpeg'};base64,${i.imageData}`:null);
 
-function dateKey() { return new Date().toISOString().slice(0,10); }
-
-// ── Navigation ────────────────────────────────────────────────────────────────
-function navigate(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item, .bottom-nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
-  document.querySelectorAll(`[onclick="navigate('${page}')"]`).forEach(n => n.classList.add('active'));
-  document.getElementById('main').scrollTo(0, 0);
-  if (page === 'today') renderToday();
-  if (page === 'history') renderHistory();
-  if (page === 'wardrobe') renderWardrobe();
-  if (page === 'profile') renderProfile();
-  if (page === 'ask') { renderChatMessages(); setTimeout(()=>document.getElementById('chat-input')?.focus(),300); }
-  if (page === 'build') renderBuildPage();
-}
-
-// ── Theme ─────────────────────────────────────────────────────────────────────
-function toggleTheme() {
-  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
-  localStorage.setItem('wrd_theme', dark ? 'light' : 'dark');
-  document.getElementById('theme-label').textContent = dark ? 'Dark mode' : 'Light mode';
-}
-
-// ── Toast ─────────────────────────────────────────────────────────────────────
-function toast(msg) {
-  const el = Object.assign(document.createElement('div'), { className:'toast', textContent:msg });
-  document.getElementById('toasts').appendChild(el);
-  setTimeout(() => el.remove(), 2800);
-}
-
-// ── Weather ───────────────────────────────────────────────────────────────────
-async function fetchWeather() {
-  // Use cached weather if less than 1 hour old — avoids repeated location prompts
-  const cached = JSON.parse(localStorage.getItem('wrd_weather') || 'null');
-  if (cached && (Date.now() - (cached.ts||0)) < 3600000) {
-    weather = cached; renderWeatherStrip(); return;
-  }
-  if (!navigator.geolocation) return;
-  navigator.geolocation.getCurrentPosition(async pos => {
-    try {
-      const { latitude: lat, longitude: lon } = pos.coords;
-      const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code&temperature_unit=celsius&wind_speed_unit=mph`);
-      const d = await r.json();
-      const code = d.current.weather_code;
-      const temp = Math.round(d.current.temperature_2m);
-      const feelsLike = Math.round(d.current.apparent_temperature);
-      const humidity = Math.round(d.current.relative_humidity_2m);
-      const wind = Math.round(d.current.wind_speed_10m);
-      weather = { temp, feelsLike, humidity, wind, desc: WEATHER_CODES[code] || '🌡️ Unknown', code, ts: Date.now() };
-      localStorage.setItem('wrd_weather', JSON.stringify(weather));
-      renderWeatherStrip();
-    } catch(e) { /* silent */ }
-  }, () => {});
-}
-
-function renderWeatherStrip() {
-  const el = document.getElementById('weather-strip');
-  if (!el || !weather) return;
-  el.innerHTML = `${weather.desc.split(' ')[0]} <span>${weather.desc.split(' ').slice(1).join(' ')} · feels ${weather.feelsLike??weather.temp}°C</span>`;
-  el.style.display = 'inline-flex';
-}
-
-// ── Claude API ────────────────────────────────────────────────────────────────
-async function claude(messages, system, maxTokens=1024) {
-  const client = await getClient();
-  const msg = await client.messages.create({
-    model: CLAUDE_MODEL,
-    max_tokens: maxTokens,
-    system,
-    messages,
-  });
-  return msg.content[0].text;
-}
-
-function parseJSON(text) {
-  return JSON.parse(text.trim().replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, ''));
-}
-
-function imgContent(data, isBase64, mime) {
-  return isBase64
-    ? { type:'image', source:{ type:'base64', media_type:mime||'image/jpeg', data } }
-    : { type:'image', source:{ type:'url', url:data } };
-}
-
-async function analyseItemImage(data, isBase64, mime, hint) {
-  const focusNote = hint ? ` Focus specifically on the ${hint} — ignore other items in the image.` : '';
-  const text = await claude([{ role:'user', content:[imgContent(data,isBase64,mime),{ type:'text', text:`Analyse this clothing/accessory/shoe.${focusNote} Return ONLY valid JSON:
-{"name":"concise name","category":"tops|bottoms|dresses|outerwear|shoes|bags|accessories","colors":["hex strings"],"colorNames":["precise color names e.g. beige, sand, ivory, sage, navy, burgundy, cream — never use fabric names like khaki or denim as color names"],"style":["2-4 tags"],"fabric":"fabric or null","season":["spring","summer","autumn","winter"]}` }]}], 'Fashion analyst. JSON only. Use precise descriptive color names, never fabric names as colors.');
-  return parseJSON(text);
-}
-
-async function analyseSelfieImage(data, isBase64, mime) {
-  const text = await claude([{ role:'user', content:[imgContent(data,isBase64,mime),{ type:'text', text:`Analyse this person's colouring. Return ONLY valid JSON:
-{"skinTone":"e.g. warm medium","undertone":"warm|cool|neutral","colorSeason":"spring|summer|autumn|winter","seasonDesc":"1-2 sentences","flatteringColors":["hex codes"],"flatteringNames":["names"],"avoidColors":["names"],"styleNote":"1 sentence"}` }]}], 'Colour analyst. JSON only.');
-  return parseJSON(text);
-}
-
-// Persist recent generated outfits across reloads so Claude never repeats them
-function loadRecentOutfits() {
-  try { return JSON.parse(localStorage.getItem('wrd_recent_outfits') || '[]'); } catch(e) { return []; }
-}
-function saveRecentOutfits(arr) {
-  localStorage.setItem('wrd_recent_outfits', JSON.stringify(arr.slice(-10)));
-}
-
-async function generateOutfitAI(exclude=[]) {
-  if (items.length < 2) return null;
-
-  const flatteringNames = profile.flatteringNames.length ? profile.flatteringNames : profile.paletteNames;
-  const paletteNote = flatteringNames.length ? `The wearer looks best in: ${flatteringNames.join(', ')}.` : '';
-  const weatherNote = weather
-    ? `Weather: ${weather.desc}, feels like ${weather.feelsLike ?? weather.temp}°C — dress appropriately.`
-    : '';
-  const occasionNote = activeOccasion !== 'Any' ? `Occasion: ${activeOccasion}.` : '';
-
-  const recentOutfits = loadRecentOutfits();
-  // Exclude items used in last 2 outfits (fall back if pool too small)
-  const recentIds = [...new Set(recentOutfits.slice(-2).flat())];
-  const hardExclude = [...new Set([...exclude, ...recentIds])];
-  const pool = (() => {
-    const avail = items.filter(i => !hardExclude.includes(i.id));
-    return avail.length >= 3 ? avail : items.filter(i => !exclude.includes(i.id));
-  })();
-
-  // Sort: least worn first, so Claude naturally rotates the wardrobe
-  const sorted = [...pool].sort((a,b) => (a.timesWorn||0) - (b.timesWorn||0));
-
-  const wardrobe = sorted.map(i =>
-    `ID:${i.id} | ${i.name} | ${i.category} | ${(i.colorNames||i.colors||[]).join(', ')}${i.style?.length ? ' | '+i.style.join(', ') : ''} | worn ${i.timesWorn||0}×`
-  ).join('\n');
-
-  const avoidNote = recentOutfits.length
-    ? `\nAvoid repeating these item combinations:\n${recentOutfits.slice(-5).map((ids,i)=>`${i+1}. ${ids.join(', ')}`).join('\n')}`
-    : '';
-
-  const today = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
-  const text = await claude([{ role:'user', content:
-    `Today is ${today}. ${paletteNote} ${weatherNote} ${occasionNote}
-
-WARDROBE (sorted least-worn first — prefer items near the top):
-${wardrobe}
-${avoidNote}
-
-Pick 3–5 pieces for a genuinely stylish, wearable outfit:
-• Colour: build around one neutral base (black, white, grey, beige, navy) with 1–2 complementary tones, or go tonal/monochrome
-• Proportion: balance fitted and relaxed (oversized top → slim trousers, etc.)
-• Always include a top or dress; add shoes if available; only add a bag/accessory if it clearly elevates the look
-• Prefer items worn fewer times, but ONLY when they fit naturally — never force an item that clashes
-• Must differ from the previous combinations listed above
-
-Return ONLY valid JSON:
-{"itemIds":["ids"],"outfitName":"short punchy name (3–5 words)","caption":"one sentence — the specific reason this combination works","occasion":"e.g. casual day, work, evening out"}`
-  }], 'Expert personal stylist with an eye for real, wearable style. Prioritise coherence and taste over novelty. JSON only.');
-
-  const result = parseJSON(text);
-  if (result?.itemIds) saveRecentOutfits([...recentOutfits, result.itemIds]);
-  return result;
-}
-
-async function generatePackingListAI(dest, days, occasion) {
-  const wardrobe = items.map(i => `ID:${i.id} | ${i.name} | ${i.category} | style:${(i.style||[]).join(',')}`).join('\n');
-  const text = await claude([{ role:'user', content:
-    `Pack for a ${days}-day ${occasion} trip to ${dest} from this wardrobe:\n${wardrobe}\n\nReturn ONLY valid JSON:
-{"packing":["item name - reason"],"tips":["2-3 packing tips"],"missing":"1 sentence on any gaps"}`
-  }], 'Travel stylist. JSON only.');
-  return parseJSON(text);
-}
-
-async function findShoppingGapsAI() {
-  const wardrobe = items.map(i =>
-    `${i.name} | ${i.category} | colors:${(i.colorNames||i.colors||[]).join(',')} | style:${(i.style||[]).join(',')}`
-  ).join('\n');
-  const palette = profile.flatteringNames.length ? `Flattering colours: ${profile.flatteringNames.join(', ')}.` : '';
-  const text = await claude([{ role:'user', content:
-    `You are a personal stylist analysing a wardrobe for gaps. ${palette}\n\nCurrent wardrobe:\n${wardrobe}\n\nGive highly specific, actionable recommendations. Not "a white shirt" — say "a white oversized cotton t-shirt" or "slim-fit dark navy chinos". Think about:\n- Specific basic essentials missing (e.g. plain white tee, grey marl crewneck, black slim trousers)\n- Versatile layering pieces\n- Items that would unlock many more outfit combinations with what they already own\n- Colour gaps — shades that would tie existing pieces together\n- Seasonal gaps\n- Shoes, bags, accessories they're lacking\n\nReturn ONLY valid JSON with AT LEAST 10 specific recommendations:\n{"gaps":[{"item":"very specific item name","reason":"why it's missing and what it unlocks","priority":"essential|recommended|nice-to-have","category":"tops|bottoms|shoes|outerwear|bags|accessories"}],"unlockNote":"1 sentence on the single purchase that would create the most new outfit combinations","mostVersatile":"most versatile existing piece they own"}`
-  }], 'Expert personal stylist. Give very specific, actionable shopping recommendations. JSON only. Keep reason fields under 15 words each.', 4096);
-  return parseJSON(text);
-}
-
-// ── File utils ────────────────────────────────────────────────────────────────
-function fileToB64(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = e => {
-      const img = new Image();
-      img.onload = () => {
-        const MAX = 1024;
-        let w = img.naturalWidth || 512, h = img.naturalHeight || 512;
-        if (w > MAX || h > MAX) {
-          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-          else { w = Math.round(w * MAX / h); h = MAX; }
-        }
-        // Ensure valid dimensions
-        w = Math.max(1, w); h = Math.max(1, h);
-        const canvas = document.createElement('canvas');
-        canvas.width = w; canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        // White background (prevents transparent→black in JPEG)
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, w, h);
-        ctx.drawImage(img, 0, 0, w, h);
-        // Compress until under 4MB (Claude limit is 5MB, leave headroom)
-        let quality = 0.82;
-        let dataUrl = canvas.toDataURL('image/jpeg', quality);
-        while (dataUrl.length * 0.75 > 4 * 1024 * 1024 && quality > 0.2) {
-          quality -= 0.1;
-          dataUrl = canvas.toDataURL('image/jpeg', quality);
-        }
-        const actualMime = 'image/jpeg';
-        const b64 = dataUrl.split(',')[1];
-        res({ b64, mime: actualMime, dataUrl });
+function fileToData(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        const MAX=1024;let w=img.naturalWidth||512,h=img.naturalHeight||512;
+        if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX}else{w=Math.round(w*MAX/h);h=MAX}}
+        const c=document.createElement('canvas');c.width=Math.max(1,w);c.height=Math.max(1,h);
+        const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(img,0,0,w,h);
+        let q=.82,url=c.toDataURL('image/jpeg',q);
+        while(url.length*.75>4e6&&q>.2){q-=.1;url=c.toDataURL('image/jpeg',q)}
+        res({b64:url.split(',')[1],mime:'image/jpeg',dataUrl:url});
       };
-      img.onerror = () => {
-        // Can't decode the file (e.g. unsupported format) — send as-is
-        const dataUrl = e.target.result;
-        const [header, b64] = dataUrl.split(',');
-        const mime = (header.match(/:(.*?);/) || [])[1] || 'image/jpeg';
-        // Force jpeg mime for unknown types so Claude doesn't reject it
-        const safeMime = ['image/jpeg','image/png','image/gif','image/webp'].includes(mime)
-          ? mime : 'image/jpeg';
-        res({ b64, mime: safeMime, dataUrl });
-      };
-      img.src = e.target.result;
+      img.onerror=()=>{const url=e.target.result;const[hdr,b64]=url.split(',');const m=(hdr.match(/:(.*?);/)||[])[1]||'image/jpeg';res({b64,mime:['image/jpeg','image/png','image/webp','image/gif'].includes(m)?m:'image/jpeg',dataUrl:url})};
+      img.src=e.target.result;
     };
-    r.onerror = rej; r.readAsDataURL(file);
+    r.onerror=rej;r.readAsDataURL(file);
   });
 }
 
-// ── Add item ──────────────────────────────────────────────────────────────────
-let _pendingAnalysis = null;
-async function handleItemFile(e) {
-  const file = e.target.files[0]; if (!file) return;
-  const { b64, mime, dataUrl } = await fileToB64(file);
-  showItemPreview(dataUrl);
-  showFocusPicker(b64, mime, dataUrl);
+/* ═══════════════════════════════════════════════════════════════
+   CLAUDE API
+   ═══════════════════════════════════════════════════════════════ */
+let _Anthropic=null,_client=null;
+async function client(){
+  if(!_Anthropic){const m=await import('https://esm.sh/@anthropic-ai/sdk@0.39.0');_Anthropic=m.default}
+  if(!_client||_client.apiKey!==KEY)_client=new _Anthropic({apiKey:KEY,dangerouslyAllowBrowser:true});
+  return _client;
 }
-function showFocusPicker(b64, mime, dataUrl) {
-  _pendingAnalysis = { b64, mime, dataUrl };
-  document.getElementById('focus-area').style.display = 'block';
-  document.getElementById('analysis-area').style.display = 'none';
+async function claude(messages,system,max=1024){
+  const c=await client();
+  const m=await c.messages.create({model:MODEL,max_tokens:max,system,messages});
+  return m.content[0].text;
 }
-function confirmFocus(hint) {
-  if (!_pendingAnalysis) return;
-  document.getElementById('focus-area').style.display = 'none';
-  const { b64, mime, dataUrl } = _pendingAnalysis;
-  _pendingAnalysis = null;
-  runItemAnalysis(b64, true, mime, dataUrl, hint || null);
-}
-function handleItemDrop(e) {
-  e.preventDefault(); document.getElementById('upload-zone').classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file?.type.startsWith('image/')) handleItemFile({ target:{ files:[file] } });
-}
-async function analyseUrl() {
-  const url = document.getElementById('item-url').value.trim(); if (!url) return;
-  // Show analysis area with loading state immediately
-  document.getElementById('upload-area').style.display = 'none';
-  document.getElementById('preview-area').style.display = 'none';
-  document.getElementById('analysis-area').style.display = 'block';
-  document.getElementById('analysis-card').innerHTML = `<div class="analysis-loading"><div class="spinner"></div><span>Fetching image…</span></div>`;
+function parseJSON(t){return JSON.parse(t.trim().replace(/^```(?:json)?\s*/,'').replace(/\s*```$/,''))}
+const imgPart=(b64,mime)=>({type:'image',source:{type:'base64',media_type:mime||'image/jpeg',data:b64}});
 
-  // Try to fetch the URL as an image blob (works if the server allows CORS)
-  try {
-    const resp = await fetch(url, { mode: 'cors' });
-    const blob = await resp.blob();
-    if (blob.type.startsWith('image/')) {
-      const file = new File([blob], 'item', { type: blob.type });
-      const { b64, mime, dataUrl } = await fileToB64(file);
-      document.getElementById('preview-area').style.display = 'block';
-      document.getElementById('preview-img').src = dataUrl;
-      document.getElementById('analysis-area').style.display = 'none';
-      showFocusPicker(b64, mime, dataUrl);
-      return;
+/* ═══════════════════════════════════════════════════════════════
+   SUPABASE SYNC
+   ═══════════════════════════════════════════════════════════════ */
+const sbStrip=i=>{const{previewSrc,...r}=i;if(!r.imageData&&previewSrc?.startsWith('data:')){const c=previewSrc.indexOf(',');r.imageData=previewSrc.slice(c+1);r.mime=r.mime||(previewSrc.match(/^data:([^;]+)/)||[])[1]||'image/jpeg';r.isBase64=true}return r};
+
+async function pushItem(i){try{await fetch(`${SB_URL}/rest/v1/wardrobe_items`,{method:'POST',headers:{...SB_HEAD,'Prefer':'resolution=merge-duplicates'},body:JSON.stringify(sbStrip(i))})}catch(e){console.warn('push',e)}}
+async function delItemRemote(id){try{await fetch(`${SB_URL}/rest/v1/wardrobe_items?id=eq.${id}`,{method:'DELETE',headers:SB_HEAD})}catch(e){}}
+async function pushProfile(){try{await fetch(`${SB_URL}/rest/v1/wardrobe_profile`,{method:'POST',headers:{...SB_HEAD,'Prefer':'resolution=merge-duplicates'},body:JSON.stringify({id:'main',palette:profile.palette,paletteNames:profile.paletteNames,flatteringColors:profile.flatteringColors,flatteringNames:profile.flatteringNames,selfie:profile.selfie})})}catch(e){}}
+
+async function pullRemote(){
+  try{
+    const[ir,pr]=await Promise.all([
+      fetch(`${SB_URL}/rest/v1/wardrobe_items?select=*`,{headers:SB_HEAD}),
+      fetch(`${SB_URL}/rest/v1/wardrobe_profile?id=eq.main&select=*`,{headers:SB_HEAD})
+    ]);
+    if(ir.ok){
+      const remote=await ir.json();
+      if(remote.length){
+        const localById=Object.fromEntries(items.map(i=>[i.id,i]));
+        items=remote.map(r=>({...r,previewSrc:localById[r.id]?.previewSrc||(r.imageData?`data:${r.mime||'image/jpeg'};base64,${r.imageData}`:null)}));
+        await idbPutAll(items);
+      }
     }
-  } catch(e) { /* CORS blocked or not an image */ }
-
-  // CORS blocked — can't fetch in browser, and Claude often can't download it either
-  document.getElementById('analysis-area').style.display = 'none';
-  document.getElementById('upload-area').style.display = 'block';
-  document.getElementById('item-url').value = '';
-  toast("Can't access that image directly. Save the photo to your device and upload it instead.");
-}
-function showItemPreview(src) {
-  document.getElementById('upload-area').style.display = 'none';
-  document.getElementById('preview-area').style.display = 'block';
-  document.getElementById('preview-img').src = src;
-  document.getElementById('analysis-area').style.display = 'block';
-}
-function clearAdd() {
-  document.getElementById('upload-area').style.display = 'block';
-  document.getElementById('preview-area').style.display = 'none';
-  document.getElementById('focus-area').style.display = 'none';
-  document.getElementById('analysis-area').style.display = 'none';
-  document.getElementById('item-fields').style.display = 'none';
-  document.getElementById('save-btn').style.display = 'none';
-  const urlEl = document.getElementById('item-url');
-  if (urlEl) urlEl.value = '';
-  _pendingAnalysis = null;
-  pendingItem = null;
-}
-async function runItemAnalysis(data, isBase64, mime, previewSrc, hint) {
-  document.getElementById('item-fields').style.display = 'none';
-  document.getElementById('save-btn').style.display = 'none';
-  document.getElementById('analysis-area').style.display = 'block';
-  document.getElementById('analysis-card').innerHTML = `<div class="analysis-loading"><div class="spinner"></div><span>Analysing with Claude…</span></div>`;
-  try {
-    const r = await analyseItemImage(data, isBase64, mime, hint);
-    pendingItem = { ...r, imageData:data, isBase64, mime, previewSrc };
-    const dots = (r.colors||[]).map((c,i) => `<span class="color-dot" style="background:${c}" title="${r.colorNames?.[i]||c}"></span>`).join('');
-    document.getElementById('analysis-card').innerHTML = `
-      <div class="analysis-row"><span class="analysis-key">Category</span><span class="analysis-val">${cap(r.category)}</span></div>
-      <div class="analysis-row"><span class="analysis-key">Colours</span><div style="display:flex;gap:4px">${dots}</div></div>
-      ${r.fabric?`<div class="analysis-row"><span class="analysis-key">Fabric</span><span class="analysis-val">${r.fabric}</span></div>`:''}
-      <div class="analysis-row"><span class="analysis-key">Style</span><span class="analysis-val">${(r.style||[]).join(', ')}</span></div>
-      <div class="analysis-row"><span class="analysis-key">Season</span><span class="analysis-val">${(r.season||[]).join(', ')}</span></div>`;
-    document.getElementById('item-name').value = r.name || '';
-    document.getElementById('item-category').value = r.category || 'tops';
-    document.getElementById('item-fields').style.display = 'block';
-    document.getElementById('save-btn').style.display = 'flex';
-  } catch(e) {
-    const hint = e.message.includes('401') ? ' — check your API key in Profile' :
-                 e.message.includes('400') ? ' — image may be invalid or too large' : '';
-    document.getElementById('analysis-card').innerHTML = `<div style="color:#ef4444;font-size:14px"><strong>Analysis failed:</strong> ${e.message}${hint}</div><button class="btn btn-secondary" style="margin-top:12px;width:100%" onclick="clearAdd()">Try again</button>`;
-  }
-}
-function saveItem() {
-  try {
-    if (!pendingItem) { toast('Nothing to save — please analyse an image first'); return; }
-    const nameEl = document.getElementById('item-name');
-    const catEl = document.getElementById('item-category');
-    const brandEl = document.getElementById('item-brand');
-    const item = {
-      ...pendingItem,
-      id: Date.now().toString(),
-      name: (nameEl ? nameEl.value : '') || pendingItem.name || 'Unnamed item',
-      category: catEl ? catEl.value : (pendingItem.category || 'tops'),
-      brand: brandEl ? brandEl.value : '',
-      addedAt: new Date().toISOString(),
-      timesWorn: 0
-    };
-    items.push(item);
-    try { persist(); } catch(e) { console.warn('persist failed:', e); }
-    syncItem(item);
-    const savedItem = item; // capture before clearAdd
-    clearAdd();
-    toast('Saved to wardrobe ✓');
-    navigate('wardrobe');
-  } catch(e) {
-    console.error('saveItem error:', e);
-    toast('Save failed: ' + e.message);
-  }
+    if(pr.ok){const p=await pr.json();if(p.length){const{id,...rest}=p[0];profile={...profile,...rest};saveProfile()}}
+  }catch(e){console.warn('pull',e)}
 }
 
-// ── Today ─────────────────────────────────────────────────────────────────────
-function todayHeader() {
-  const dateStr = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
-  const weatherHtml = weather
-    ? `<div class="weather-pill" id="weather-strip">${weather.desc.split(' ')[0]} <span>${weather.desc.split(' ').slice(1).join(' ')} · feels ${weather.feelsLike??weather.temp}°C</span></div>`
-    : `<div id="weather-strip" style="display:none"></div>`;
-  const occasionHtml = `<div class="occasion-bar">${OCCASIONS.map(o=>`<button class="occasion-chip${o===activeOccasion?' active':''}" onclick="setOccasion('${o}')">${o}</button>`).join('')}</div>`;
-  return `<div class="today-date">${dateStr}</div><div class="today-heading">Today's outfit</div>${weatherHtml}${occasionHtml}`;
+/* ═══════════════════════════════════════════════════════════════
+   NAVIGATION
+   ═══════════════════════════════════════════════════════════════ */
+function go(page){
+  curPage=page;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  $('p-'+page).classList.add('on');
+  document.querySelectorAll('.nav button[id^=n-]').forEach(b=>b.classList.remove('on'));
+  $('n-'+page)?.classList.add('on');
+  $('main').scrollTo(0,0);
+  if(page==='today')renderToday();
+  if(page==='closet')renderCloset();
+  if(page==='stylist'){renderChat();setTimeout(()=>$('chat-input')?.focus(),250)}
+  if(page==='you')renderYou();
 }
+window.go=go;
 
-function renderToday() {
-  const el = document.getElementById('today-content');
-  if (items.length === 0) {
-    el.innerHTML = todayHeader() + `<div class="empty"><div class="empty-icon">👗</div><div class="empty-title">Your wardrobe is empty</div><div class="empty-desc">Add some items to start getting outfit ideas</div><button class="btn btn-primary" onclick="navigate('add')">Add first item</button></div>`;
+/* ═══════════════════════════════════════════════════════════════
+   TOAST
+   ═══════════════════════════════════════════════════════════════ */
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;$('toasts').appendChild(t);setTimeout(()=>t.remove(),2600)}
+
+/* ═══════════════════════════════════════════════════════════════
+   WEATHER
+   ═══════════════════════════════════════════════════════════════ */
+async function fetchWeather(){
+  if(weather&&Date.now()-(weather.ts||0)<36e5)return;
+  if(!navigator.geolocation)return;
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    try{
+      const{latitude:la,longitude:lo}=pos.coords;
+      const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,apparent_temperature,weather_code&temperature_unit=celsius`);
+      const d=await r.json();
+      weather={temp:Math.round(d.current.temperature_2m),feelsLike:Math.round(d.current.apparent_temperature),desc:WCODE[d.current.weather_code]||'🌡 —',ts:Date.now()};
+      localStorage.setItem('wrd_weather',JSON.stringify(weather));
+      if(curPage==='today'&&!todayOutfit)renderToday();else if(curPage==='today')paintWeather();
+    }catch(e){}
+  },()=>{});
+}
+function paintWeather(){const el=$('today-w');if(el&&weather)el.style.display='inline-flex'}
+
+/* ═══════════════════════════════════════════════════════════════
+   TODAY  +  OUTFIT ENGINE
+   ═══════════════════════════════════════════════════════════════ */
+function renderToday(){
+  $('today-date').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  const body=$('today-body');
+  const head=`
+    ${weather?`<div class="weather" id="today-w">${weather.desc} · feels ${weather.feelsLike}°C</div>`:''}
+    <div class="chips" style="margin-bottom:16px">${OCCASIONS.map(o=>`<button class="chip${o===occasion?' on':''}" onclick="setOccasion('${o}')">${o}</button>`).join('')}</div>`;
+
+  if(items.length<2){
+    body.innerHTML=head+`<div class="empty"><div class="ic">👗</div><h3>${items.length?'Almost there':'Your closet is empty'}</h3><p>${items.length?'Add one more item to start getting outfit ideas.':'Add a few pieces and I\'ll style you every morning.'}</p><button class="btn dark" onclick="openAdd()">Add an item</button></div>`;
     return;
   }
-  if (items.length < 2) {
-    el.innerHTML = todayHeader() + `<div class="empty"><div class="empty-icon">➕</div><div class="empty-title">Add one more item</div><div class="empty-desc">You need at least 2 items for outfit suggestions</div><button class="btn btn-primary" onclick="navigate('add')">Add item</button></div>`;
-    return;
-  }
-  if (todayOutfit) { el.innerHTML = todayHeader(); renderOutfitCard(el, todayOutfit); return; }
+  if(todayOutfit){body.innerHTML=head;paintOutfit(body,todayOutfit);return}
+  body.innerHTML=head+skeleton();
   generateOutfit();
 }
+function skeleton(){return `<div class="skel"><div class="bar" style="width:55%;height:22px;margin-top:20px"></div><div class="bar" style="width:80%"></div><div class="grid g3" style="margin-top:6px">${'<div class="cell"></div>'.repeat(3)}</div></div>`}
 
-function setOccasion(o) {
-  activeOccasion = o;
-  todayOutfit = null; excludedIds = [];
-  renderToday();
-}
+window.setOccasion=o=>{occasion=o;todayOutfit=null;excluded=[];localStorage.removeItem('wrd_today');renderToday()};
 
-async function generateOutfit() {
-  const el = document.getElementById('today-content');
-  if (items.length === 0) { renderToday(); return; }
-  el.innerHTML = todayHeader() + `<div class="gen-card"><div class="spinner spinner-lg"></div><div class="gen-title">Putting together your look…</div><div class="gen-sub">Claude is going through your wardrobe</div></div>`;
-  try {
-    const outfit = await generateOutfitAI(excludedIds);
-    if (!outfit) { renderToday(); return; }
-    todayOutfit = outfit;
-    persist(); syncTodayOutfit();
-    el.innerHTML = todayHeader();
-    renderOutfitCard(el, outfit);
-  } catch(e) {
-    el.innerHTML += `<div class="outfit-card" style="padding:20px"><div style="color:#ef4444;font-size:14px;margin-bottom:12px"><strong>Error:</strong> ${e.message}</div><button class="btn btn-secondary" onclick="generateOutfit()">Retry</button></div>`;
+async function generateOutfit(){
+  const body=$('today-body');
+  try{
+    const o=await styleOutfit(excluded,seedItemId);
+    seedItemId=null;
+    if(!o){renderToday();return}
+    todayOutfit=o;saveToday();pushToday();
+    renderToday();
+  }catch(e){
+    body.querySelector('.skel')?.remove();
+    const auth=/401|authentication|invalid x-api-key/i.test(e.message);
+    body.insertAdjacentHTML('beforeend',`<div class="outfit" style="padding:22px"><div style="font-size:15px;margin-bottom:14px;line-height:1.5"><strong>Couldn't style an outfit.</strong><br><span style="color:var(--soft)">${esc(niceErr(e))}</span></div><button class="btn ${auth?'dark':'soft'} full" onclick="${auth?"go('you')":"todayOutfit=null;renderToday()"}">${auth?'Open settings':'Try again'}</button></div>`);
   }
 }
 
-function regenerateOutfit() { todayOutfit = null; excludedIds = []; saveRecentOutfits([]); generateOutfit(); }
+async function styleOutfit(exclude=[],seedId=null){
+  if(items.length<2)return null;
+  // soft weather filter
+  const t=weather?.feelsLike;
+  let pool=items.filter(i=>!exclude.includes(i.id));
+  if(typeof t==='number'){
+    if(t>=22)pool=pool.filter(i=>!(i.category==='outerwear'&&/coat|wool|puffer|parka|heavy/i.test((i.name+' '+(i.fabric||'')))));
+  }
+  if(pool.length<3)pool=items.slice();
 
-function notFeelingIt() {
-  if (todayOutfit) excludedIds = [...new Set([...excludedIds, ...(todayOutfit.itemIds||[])])];
-  todayOutfit = null; generateOutfit();
+  const seed=seedId?items.find(i=>i.id===seedId):null;
+  const sorted=[...pool].sort((a,b)=>(a.timesWorn||0)-(b.timesWorn||0));
+  const list=sorted.map(i=>`${i.id} · ${i.name} · ${i.category} · ${(i.colorNames||i.colors||[]).join('/')}${i.style?.length?' · '+i.style.slice(0,3).join('/'):''}`).join('\n');
+  const fav=profile.flatteringNames?.length?profile.flatteringNames.join(', '):(profile.paletteNames?.join(', ')||'');
+  const ctx=[
+    weather?`It's ${weather.desc.replace(/^\S+\s/,'')}, feels like ${weather.feelsLike}°C.`:'',
+    occasion!=='Any'?`Occasion: ${occasion}.`:'',
+    fav?`Colours that flatter the wearer: ${fav}.`:'',
+    seed?`The outfit MUST be built around this piece: ${seed.name} (${seed.id}).`:''
+  ].filter(Boolean).join(' ');
+  const avoid=recentCombos.length?`\n\nAlready suggested recently — make this clearly different:\n${recentCombos.slice(-5).map((c,i)=>`${i+1}. ${c.join(', ')}`).join('\n')}`:'';
+
+  const text=await claude([{role:'user',content:
+`${ctx}
+
+THE WARDROBE (id · name · category · colours · style):
+${list}${avoid}
+
+Style ONE outfit that looks genuinely good and that a stylish person would actually wear.
+
+Principles:
+• Cohesion first — every piece must work together. Never force an item in.
+• Colour: build a clear story — tonal, a neutral base with one or two accents, or a confident monochrome. Lean into the wearer's flattering colours when it helps.
+• Proportion & balance: pair fitted with relaxed, mind silhouette.
+• Right for the weather and occasion above.
+• Always include a top or a dress. Add bottoms if using separates, and shoes if available. Only add outerwear, a bag or an accessory if it genuinely elevates the look.
+• 3–5 pieces. Quality over quantity.
+
+Return ONLY JSON:
+{"itemIds":["id","id"],"name":"evocative 2–4 word outfit name","why":"one specific sentence on why this combination works","vibe":"three word mood"}`
+  }],
+  'You are an elite personal stylist with impeccable, modern taste. You compose cohesive, flattering, wearable outfits — never random, never forced. You think in colour stories and proportion. Reply with JSON only.',1100);
+
+  const r=parseJSON(text);
+  // validate ids
+  r.itemIds=(r.itemIds||[]).filter(id=>items.some(i=>i.id===id));
+  if(seed&&!r.itemIds.includes(seed.id))r.itemIds.unshift(seed.id);
+  if(r.itemIds.length<2)throw new Error('Not enough matching pieces — try a different occasion.');
+  saveRecent([...recentCombos,r.itemIds]);
+  return r;
 }
 
-function markAsWorn() {
-  if (!todayOutfit) return;
-  const key = dateKey();
-  // Record in history
-  history[key] = { ...todayOutfit, date:key, occasion:activeOccasion, weather:weather?`${weather.desc}, ${weather.temp}°C`:null, worn:true };
-  // Increment times worn on each item
-  (todayOutfit.itemIds||[]).forEach(id => {
-    const item = items.find(i=>i.id===id);
-    if (item) { item.timesWorn = (item.timesWorn||0) + 1; syncItem(item); }
-  });
-  persist();
-  // Re-render to show worn badge
-  const caption = document.querySelector('.outfit-caption');
-  if (caption) {
-    const existing = caption.querySelector('.worn-badge');
-    if (!existing) caption.insertAdjacentHTML('beforeend', `<div class="worn-badge">✓ Worn today</div>`);
-    const actions = caption.querySelector('.outfit-actions');
-    if (actions) { const markBtn = actions.querySelector('[data-mark]'); if (markBtn) { markBtn.textContent = '✓ Worn'; markBtn.disabled = true; } }
-  }
-  toast('Outfit marked as worn ✓');
-}
-
-function renderOutfitCard(container, outfit) {
-  const picked = (outfit.itemIds||[]).map(id => items.find(i=>i.id===id)).filter(Boolean);
-  const show = picked.slice(0, 5); // cap at 5 items displayed
-  const n = show.length;
-  const alreadyWorn = history[dateKey()]?.worn;
-
-  // Layout: 1 item = full width; 2 = side by side; 3+ = one big + rest stacked
-  let itemsHtml;
-  if (n === 1) {
-    const src = show[0].previewSrc || show[0].imageData;
-    itemsHtml = `<div class="outfit-hero">${src?`<img src="${src}" alt="${show[0].name}" loading="lazy">`:`<div class="outfit-item-emoji">${catEmoji(show[0].category)}</div>`}<div class="outfit-item-label">${show[0].name}</div></div>`;
-  } else if (n === 2) {
-    itemsHtml = show.map(item => {
-      const src = item.previewSrc || item.imageData;
-      return `<div class="outfit-item">${src?`<img src="${src}" alt="${item.name}" loading="lazy">`:`<div class="outfit-item-emoji">${catEmoji(item.category)}</div>`}<div class="outfit-item-label">${item.name}</div></div>`;
-    }).join('');
-    itemsHtml = `<div class="outfit-grid-2">${itemsHtml}</div>`;
-  } else {
-    // First item big on left, rest stacked on right
-    const [main, ...rest] = show;
-    const mainSrc = main.previewSrc || main.imageData;
-    const mainHtml = `<div class="outfit-main-item">${mainSrc?`<img src="${mainSrc}" alt="${main.name}" loading="lazy">`:`<div class="outfit-item-emoji">${catEmoji(main.category)}</div>`}<div class="outfit-item-label">${main.name}</div></div>`;
-    const sideHtml = rest.map(item => {
-      const src = item.previewSrc || item.imageData;
-      return `<div class="outfit-side-item">${src?`<img src="${src}" alt="${item.name}" loading="lazy">`:`<div class="outfit-item-emoji" style="font-size:28px">${catEmoji(item.category)}</div>`}<div class="outfit-item-label">${item.name}</div></div>`;
-    }).join('');
-    itemsHtml = `<div class="outfit-grid-split">${mainHtml}<div class="outfit-side-stack">${sideHtml}</div></div>`;
-  }
-
-  const card = document.createElement('div');
-  card.className = 'outfit-card';
-  card.innerHTML = `
-    <div class="outfit-imgs">${itemsHtml}</div>
-    <div class="outfit-caption">
-      <div class="outfit-name">${outfit.outfitName||"Today's Look"}</div>
-      ${outfit.caption?`<div class="outfit-caption-text">${outfit.caption}</div>`:''}
-      ${outfit.occasion?`<div class="outfit-for">For ${outfit.occasion}</div>`:''}
-      ${alreadyWorn?`<div class="worn-pill">✓ Worn today</div>`:''}
-      <div class="outfit-actions">
-        <button class="btn btn-success btn-act" data-mark onclick="markAsWorn()" ${alreadyWorn?'disabled':''}>
-          ${alreadyWorn?'✓ Worn':'✓ Wore this'}
-        </button>
-        <button class="btn btn-secondary btn-act" onclick="notFeelingIt()">↻ New outfit</button>
+function paintOutfit(container,o){
+  const picked=(o.itemIds||[]).map(id=>items.find(i=>i.id===id)).filter(Boolean).slice(0,5);
+  const n=picked.length;
+  const cells=picked.map(it=>{const s=previewOf(it);return `<div class="cell">${s?`<img src="${s}" alt="${esc(it.name)}" loading="lazy">`:`<span class="emoji">${CAT_EMOJI[it.category]||'👗'}</span>`}<span class="lbl">${esc(it.name)}</span></div>`}).join('');
+  const worn=window.__history?.[dkey()];
+  const card=document.createElement('div');
+  card.className='outfit';
+  card.innerHTML=`
+    <div class="outfit-head">
+      <div class="outfit-name">${esc(o.name||'Today\'s look')}</div>
+      ${o.why?`<div class="outfit-why">${esc(o.why)}</div>`:''}
+      <div class="outfit-tags">${o.vibe?`<span class="tag gold">${esc(o.vibe)}</span>`:''}${occasion!=='Any'?`<span class="tag">${occasion}</span>`:''}</div>
+    </div>
+    <div class="grid g${n}">${cells}</div>
+    <div class="outfit-foot">
+      ${worn?`<div class="worn-pill">✓ Worn today</div>`:''}
+      <div class="row">
+        <button class="btn good" id="wear-btn" onclick="wearIt()" ${worn?'disabled':''}>${worn?'✓ Worn':'Wore this'}</button>
+        <button class="btn soft" onclick="anotherOutfit()">↻ Try another</button>
       </div>
-      <button class="btn-ghost" onclick="askAboutOutfit()">💬 Ask about this look</button>
+      <button class="ghost" onclick="askAboutOutfit()">💬 Ask the stylist about this look</button>
     </div>`;
   container.appendChild(card);
 }
 
-function askAboutOutfit() {
-  if (!todayOutfit) return;
-  const picked = (todayOutfit.itemIds||[]).map(id => items.find(i=>i.id===id)).filter(Boolean);
-  const itemList = picked.map(i => `${i.name} (${i.category}, ${(i.colorNames||[]).join('/')})`).join(', ');
-  const context = `Today's outfit: ${todayOutfit.outfitName||'Today\'s Look'} — ${itemList}.`;
-  navigate('ask');
-  setTimeout(() => {
-    const input = document.getElementById('chat-input');
-    if (input) { input.value = context + ' '; input.focus(); input.style.height = 'auto'; input.style.height = input.scrollHeight + 'px'; }
-  }, 100);
-}
+window.anotherOutfit=()=>{if(todayOutfit)excluded=[...new Set([...excluded,...(todayOutfit.itemIds||[])])];todayOutfit=null;localStorage.removeItem('wrd_today');renderToday()};
 
-// ── History ───────────────────────────────────────────────────────────────────
-function renderHistory() {
-  const list = document.getElementById('history-list');
-  const entries = Object.entries(history).sort((a,b)=>b[0].localeCompare(a[0]));
-  if (entries.length === 0) {
-    list.innerHTML = `<div class="empty"><div class="empty-icon">📅</div><div class="empty-title">No history yet</div><div class="empty-desc">Mark outfits as worn to build your history</div></div>`;
-    return;
-  }
-  list.innerHTML = entries.map(([key, entry]) => {
-    const date = new Date(key + 'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
-    const thumbs = (entry.itemIds||[]).map(id => {
-      const item = items.find(i=>i.id===id);
-      if (!item) return '';
-      const src = item.previewSrc || item.imageData;
-      return `<div class="history-thumb">${src?`<img src="${src}" alt="${item.name}" loading="lazy">`:catEmoji(item.category)}</div>`;
-    }).join('');
-    return `<div class="history-card">
-      <div class="history-header">
-        <div class="history-date">${date}</div>
-        <div class="history-meta">${entry.occasion||''}${entry.weather?' · '+entry.weather:''}</div>
-      </div>
-      <div>
-        <div class="history-thumbs">${thumbs}</div>
-        ${entry.outfitName?`<div style="padding:0 16px 12px;font-size:13px;color:var(--text-muted)">${entry.outfitName}</div>`:''}
-      </div>
+window.wearIt=()=>{
+  if(!todayOutfit)return;
+  window.__history=window.__history||{};
+  window.__history[dkey()]={itemIds:todayOutfit.itemIds};
+  (todayOutfit.itemIds||[]).forEach(id=>{const it=items.find(i=>i.id===id);if(it){it.timesWorn=(it.timesWorn||0)+1;pushItem(it)}});
+  idbPutAll(items);
+  renderToday();
+  toast('Logged — nice choice ✓');
+};
+
+window.askAboutOutfit=()=>{
+  if(!todayOutfit)return;
+  const names=(todayOutfit.itemIds||[]).map(id=>items.find(i=>i.id===id)?.name).filter(Boolean).join(', ');
+  go('stylist');
+  setTimeout(()=>{const inp=$('chat-input');if(inp){inp.value=`About my "${todayOutfit.name}" outfit (${names}): `;inp.focus();autoGrow(inp)}},250);
+};
+
+async function pushToday(){try{await fetch(`${SB_URL}/rest/v1/wardrobe_today`,{method:'POST',headers:{...SB_HEAD,'Prefer':'resolution=merge-duplicates'},body:JSON.stringify({id:'main',date:dkey(),outfitName:todayOutfit.name,itemIds:todayOutfit.itemIds,caption:todayOutfit.why,occasion})})}catch(e){}}
+
+/* ═══════════════════════════════════════════════════════════════
+   CLOSET
+   ═══════════════════════════════════════════════════════════════ */
+let closetFilter='all';
+function renderCloset(){
+  const fb=$('closet-filters');
+  fb.innerHTML=['all',...CATS].map(c=>`<button class="chip${c===closetFilter?' on':''}" onclick="setCloset('${c}')">${c==='all'?'All':cap(c)}</button>`).join('');
+  const q=($('search').value||'').toLowerCase().trim();
+  let list=items.slice();
+  if(closetFilter!=='all')list=list.filter(i=>i.category===closetFilter);
+  if(q)list=list.filter(i=>(i.name||'').toLowerCase().includes(q)||(i.brand||'').toLowerCase().includes(q)||(i.colorNames||[]).join(' ').toLowerCase().includes(q));
+  const body=$('closet-body');
+  if(!items.length){body.innerHTML=`<div class="empty"><div class="ic">🧺</div><h3>Nothing here yet</h3><p>Add your clothes and they'll appear here.</p><button class="btn dark" onclick="openAdd()">Add an item</button></div>`;return}
+  if(!list.length){body.innerHTML=`<div class="empty"><div class="ic">🔍</div><h3>No matches</h3><p>Nothing in this filter${q?' for "'+esc(q)+'"':''}.</p></div>`;return}
+  list.sort((a,b)=>(a.timesWorn||0)-(b.timesWorn||0));
+  body.innerHTML=`<div class="closet-grid">${list.map(it=>{
+    const s=previewOf(it);const dots=(it.colors||[]).slice(0,4).map(c=>`<span class="dot" style="background:${c}"></span>`).join('');
+    return `<div class="card" onclick="openItem('${it.id}')">
+      <div class="card-img">${s?`<img src="${s}" alt="${esc(it.name)}" loading="lazy">`:`<span class="emoji">${CAT_EMOJI[it.category]||'👗'}</span>`}${it.timesWorn?`<span class="worn-badge">${it.timesWorn}×</span>`:''}</div>
+      <div class="card-body"><div class="card-name">${esc(it.name)}</div><div class="card-meta">${cap(it.category)}${it.brand?' · '+esc(it.brand):''}</div><div class="dots">${dots}</div></div>
     </div>`;
-  }).join('');
+  }).join('')}</div>`;
 }
+window.renderCloset=renderCloset;
+window.setCloset=c=>{closetFilter=c;renderCloset()};
 
-// ── Wardrobe ──────────────────────────────────────────────────────────────────
-const CATEGORIES = ['all','tops','bottoms','dresses','outerwear','shoes','bags','accessories'];
-const SEASONS = ['all seasons','spring','summer','autumn','winter'];
+/* ───────── Item detail ───────── */
+window.openItem=id=>{
+  const it=items.find(i=>i.id===id);if(!it)return;
+  const s=previewOf(it);
+  const sw=(it.colors||[]).map((c,i)=>`<span class="sw" style="background:${c}" title="${esc(it.colorNames?.[i]||c)}"></span>`).join('');
+  const tags=[...(it.style||[]),...(it.season||[])];
+  $('item-body').innerHTML=`
+    <div class="preview" style="max-width:220px">${s?`<img src="${s}">`:`<div style="font-size:70px;display:flex;align-items:center;justify-content:center;height:100%">${CAT_EMOJI[it.category]||'👗'}</div>`}</div>
+    <h2 style="font-size:23px;text-align:center;margin-bottom:5px">${esc(it.name)}</h2>
+    <div style="text-align:center;color:var(--soft);font-size:13px;margin-bottom:18px">${cap(it.category)}${it.brand?' · '+esc(it.brand):''} · worn ${it.timesWorn||0}×</div>
+    ${sw?`<div class="palette" style="justify-content:center;margin-bottom:14px">${sw}</div>`:''}
+    ${tags.length?`<div style="display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:20px">${tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>`:''}
+    <button class="btn dark full" style="margin-bottom:9px" onclick="styleThis('${it.id}')">✦ Style an outfit with this</button>
+    <button class="ghost" style="color:var(--danger)" onclick="removeItem('${it.id}')">Remove from closet</button>`;
+  openSheet('item-sheet');
+};
+window.closeItem=()=>closeSheet('item-sheet');
+window.styleThis=id=>{seedItemId=id;todayOutfit=null;excluded=[];localStorage.removeItem('wrd_today');closeSheet('item-sheet');go('today')};
+window.removeItem=async id=>{
+  items=items.filter(i=>i.id!==id);
+  await idbDel(id);delItemRemote(id);
+  closeSheet('item-sheet');renderCloset();
+  toast('Removed');
+};
 
-function renderWardrobe() {
-  document.getElementById('filter-bar').innerHTML =
-    CATEGORIES.map(c=>`<button class="filter-chip${c===activeFilter?' active':''}" onclick="setFilter('${c}')">${c==='all'?'All':cap(c)}</button>`).join('') +
-    '<div style="width:1px;background:var(--border);margin:0 4px;flex-shrink:0"></div>' +
-    SEASONS.slice(1).map(s=>`<button class="filter-chip${activeFilter===s?' active':''}" onclick="setFilter('${s}')">${cap(s)}</button>`).join('');
-
-  const grid = document.getElementById('wardrobe-grid');
-  let list = items;
-  if (activeFilter !== 'all') {
-    if (SEASONS.includes(activeFilter)) list = items.filter(i=>(i.season||[]).includes(activeFilter));
-    else list = items.filter(i=>i.category===activeFilter);
-  }
-  if (list.length === 0) {
-    grid.innerHTML = `<div class="empty"><div class="empty-icon">${catEmoji(activeFilter)}</div><div class="empty-title">No items here</div><div class="empty-desc">Add items to build your wardrobe</div></div>`;
-    return;
-  }
-  // Sort by least worn first (surface underused items)
-  list = [...list].sort((a,b)=>(a.timesWorn||0)-(b.timesWorn||0));
-  grid.innerHTML = list.map(item => {
-    const src = item.previewSrc || item.imageData;
-    const dots = (item.colors||[]).map(c=>`<span class="color-dot" style="background:${c}"></span>`).join('');
-    const worn = item.timesWorn||0;
-    return `<div class="item-card" onclick="openItem('${item.id}')">
-      <div class="item-card-img">
-        ${src?`<img src="${src}" alt="${item.name}" loading="lazy">`:`<div class="cat-emoji">${catEmoji(item.category)}</div>`}
-        ${worn>0?`<div class="worn-badge-sm">×${worn}</div>`:''}
-      </div>
-      <div class="item-card-body">
-        <div class="item-card-name">${item.name}</div>
-        <div class="item-card-meta">${cap(item.category)}${item.brand?' · '+item.brand:''}</div>
-        <div class="item-card-colors">${dots}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function setFilter(cat) { activeFilter = cat; renderWardrobe(); }
-
-// ── Item modal ────────────────────────────────────────────────────────────────
-function openItem(id) {
-  const item = items.find(i=>i.id===id); if (!item) return;
-  const src = item.previewSrc || item.imageData;
-  const swatches = (item.colors||[]).map((c,i)=>`<span class="color-swatch" style="background:${c};width:32px;height:32px;border-radius:8px" title="${item.colorNames?.[i]||c}"></span>`).join('');
-  const tags = [...(item.style||[]),...(item.season||[])];
-  document.getElementById('modal-content').innerHTML = `
-    <div class="modal-title">${item.name}</div>
-    <div class="detail-img">${src?`<img src="${src}" alt="${item.name}">`:`<div class="detail-emoji">${catEmoji(item.category)}</div>`}</div>
-    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px">
-      <div><div class="section-label" style="margin-bottom:6px">Category</div><span class="tag">${cap(item.category)}</span>${item.brand?` <span class="tag">${item.brand}</span>`:''}</div>
-      ${swatches?`<div><div class="section-label" style="margin-bottom:8px">Colours</div><div style="display:flex;gap:8px;flex-wrap:wrap">${swatches}</div></div>`:''}
-      ${tags.length?`<div><div class="section-label" style="margin-bottom:6px">Style & Season</div><div class="tag-list">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>`:''}
-      ${item.fabric?`<div><div class="section-label" style="margin-bottom:6px">Fabric</div><span class="tag">${item.fabric}</span></div>`:''}
-      <div><div class="section-label" style="margin-bottom:4px">Times Worn</div><div style="font-size:14px;font-weight:600">${item.timesWorn||0} times</div></div>
+/* ═══════════════════════════════════════════════════════════════
+   ADD FLOW
+   ═══════════════════════════════════════════════════════════════ */
+let pending=null,pendingPhoto=null;
+window.openAdd=()=>{pending=null;pendingPhoto=null;resetAddBody();openSheet('add-sheet')};
+window.closeAdd=()=>closeSheet('add-sheet');
+function resetAddBody(){
+  $('add-body').innerHTML=`
+    <div class="drop" id="drop" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="onAddDrop(event)">
+      <input type="file" accept="image/*" onchange="onAddFile(event)">
+      <div class="ic">📷</div><strong>Upload a photo</strong><span>or drag &amp; drop</span>
     </div>
-    <button class="btn btn-secondary btn-full btn-danger" onclick="deleteItem('${id}')">Remove from Wardrobe</button>`;
-  document.getElementById('item-modal').style.display = 'flex';
-}
-
-function deleteItem(id) {
-  items = items.filter(i=>i.id!==id);
-  persist(); closeModal(); renderWardrobe(); deleteItemRemote(id);
-  toast('Item removed');
-}
-
-function closeModal() { document.getElementById('item-modal').style.display = 'none'; }
-
-// ── Packing list ──────────────────────────────────────────────────────────────
-function openPackingModal() { document.getElementById('packing-modal').style.display = 'flex'; }
-function closePackingModal() { document.getElementById('packing-modal').style.display = 'none'; }
-
-async function generatePackingList() {
-  const dest = document.getElementById('pack-dest').value.trim() || 'unknown destination';
-  const days = document.getElementById('pack-days').value || 5;
-  const occasion = document.getElementById('pack-occasion').value;
-  const el = document.getElementById('packing-result');
-  el.innerHTML = `<div class="analysis-loading"><div class="spinner"></div><span>Packing with Claude…</span></div>`;
-  try {
-    const r = await generatePackingListAI(dest, days, occasion);
-    el.innerHTML = `
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <div><div class="section-label" style="margin-bottom:8px">Pack These</div>${(r.packing||[]).map(p=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:14px">• ${p}</div>`).join('')}</div>
-        ${r.missing?`<div style="font-size:13px;color:var(--text-muted);padding:10px;background:var(--surface2);border-radius:var(--radius-sm)">${r.missing}</div>`:''}
-        ${(r.tips||[]).length?`<div><div class="section-label" style="margin-bottom:8px">Tips</div>${r.tips.map(t=>`<div style="padding:4px 0;font-size:13px;color:var(--text-muted)">• ${t}</div>`).join('')}</div>`:''}
-      </div>`;
-  } catch(e) {
-    el.innerHTML = `<div style="color:#ef4444;font-size:14px">Failed: ${e.message}</div>`;
-  }
-}
-
-// ── Shopping gaps ─────────────────────────────────────────────────────────────
-async function findShoppingGaps() {
-  if (items.length < 3) { toast('Add more items first'); return; }
-  const el = document.getElementById('gaps-result');
-  el.innerHTML = `<div class="analysis-loading"><div class="spinner"></div><span>Analysing your wardrobe…</span></div>`;
-  try {
-    const r = await findShoppingGapsAI();
-    const priorityOrder = ['essential','recommended','nice-to-have'];
-    const sorted = (r.gaps||[]).sort((a,b) => priorityOrder.indexOf(a.priority) - priorityOrder.indexOf(b.priority));
-    const priorityBadge = p => p === 'essential'
-      ? `<span style="font-size:10px;font-weight:700;color:#b45309;background:#fef3c7;padding:2px 7px;border-radius:99px;text-transform:uppercase">Essential</span>`
-      : p === 'recommended'
-      ? `<span style="font-size:10px;font-weight:700;color:var(--accent);background:var(--accent-light);padding:2px 7px;border-radius:99px;text-transform:uppercase">Recommended</span>`
-      : `<span style="font-size:10px;font-weight:600;color:var(--text-muted);background:var(--surface2);padding:2px 7px;border-radius:99px;text-transform:uppercase">Nice to have</span>`;
-    el.innerHTML = `
-      <div style="display:flex;flex-direction:column;gap:10px">
-        ${r.unlockNote ? `<div style="padding:12px 14px;background:var(--accent-light);border-radius:var(--radius-sm);font-size:13px;color:var(--accent);font-weight:500">💡 ${r.unlockNote}</div>` : ''}
-        ${sorted.map(g => `
-          <div style="padding:12px 14px;background:var(--surface);border-radius:var(--radius-sm);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
-              <span style="font-size:14px;font-weight:600">${g.item||g}</span>
-              ${g.priority ? priorityBadge(g.priority) : ''}
-            </div>
-            ${g.reason ? `<div style="font-size:13px;color:var(--text-muted);line-height:1.5">${g.reason}</div>` : ''}
-          </div>`).join('')}
-        ${r.mostVersatile ? `<div style="font-size:13px;color:var(--text-muted);padding:8px 0">⭐ Most versatile piece you own: <strong>${r.mostVersatile}</strong></div>` : ''}
-      </div>`;
-  } catch(e) {
-    el.innerHTML = `<div style="color:#ef4444;font-size:14px">Failed: ${e.message}</div>`;
-  }
-}
-
-// ── Build Outfit ──────────────────────────────────────────────────────────────
-let buildAnchors = [];   // selected anchor item IDs
-let buildOutfit = null;  // current generated outfit {itemIds, outfitName, caption, ...}
-let buildChatHistory = [];
-
-function renderBuildPage() {
-  renderBuildPicker();
-  renderBuildAnchors();
-  if (buildOutfit) {
-    renderBuildOutfit();
-    document.getElementById('build-result-wrap').style.display = 'flex';
-    document.getElementById('build-result-wrap').style.flexDirection = 'column';
-  } else {
-    document.getElementById('build-result-wrap').style.display = 'none';
-  }
-  document.getElementById('build-gen-btn').style.display = buildAnchors.length ? 'block' : 'none';
-}
-
-function renderBuildPicker() {
-  const grid = document.getElementById('build-picker-grid');
-  if (!grid) return;
-  if (items.length === 0) {
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px 16px;color:var(--text-muted);font-size:14px">No items in your wardrobe yet.<br><button class="btn btn-primary" style="margin-top:12px" onclick="navigate('add')">Add your first item</button></div>`;
-    return;
-  }
-  grid.innerHTML = items.map(item => {
-    const sel = buildAnchors.includes(item.id);
-    const dis = !sel && buildAnchors.length >= 2;
-    const src = item.previewSrc || item.imageData;
-    return `<div class="build-picker-item${sel?' selected':''}${dis?' disabled':''}" onclick="toggleBuildAnchor('${item.id}')">
-      <div class="build-picker-img">${src ? `<img src="${src}" alt="${item.name}">` : `<span style="font-size:36px">${catEmoji(item.category)}</span>`}</div>
-      <div class="build-picker-label">${item.name}</div>
-      <div class="build-check">✓</div>
-    </div>`;
-  }).join('');
-}
-
-function renderBuildAnchors() {
-  const el = document.getElementById('build-anchors');
-  if (!el) return;
-  if (!buildAnchors.length) {
-    el.className = 'build-anchors';
-    el.innerHTML = `<span style="font-size:13px;color:var(--text-muted);align-self:center">Tap items below to anchor your outfit</span>`;
-    return;
-  }
-  el.className = 'build-anchors has-items';
-  el.innerHTML = buildAnchors.map(id => {
-    const item = items.find(i => i.id === id);
-    if (!item) return '';
-    const src = item.previewSrc || item.imageData;
-    return `<div class="build-anchor-chip">
-      ${src ? `<img src="${src}" alt="">` : `<div class="emoji">${catEmoji(item.category)}</div>`}
-      <span>${item.name}</span>
-      <button onclick="toggleBuildAnchor('${id}')">✕</button>
-    </div>`;
-  }).join('');
-}
-
-function toggleBuildAnchor(id) {
-  if (buildAnchors.includes(id)) {
-    buildAnchors = buildAnchors.filter(i => i !== id);
-  } else if (buildAnchors.length < 2) {
-    buildAnchors = [...buildAnchors, id];
-  }
-  renderBuildPicker();
-  renderBuildAnchors();
-  document.getElementById('build-gen-btn').style.display = buildAnchors.length ? 'block' : 'none';
-}
-
-async function generateBuildOutfit() {
-  const btn = document.getElementById('build-gen-btn');
-  btn.disabled = true; btn.textContent = 'Styling…';
-  buildChatHistory = [];
-  document.getElementById('build-chat-messages').innerHTML = '';
-  document.getElementById('build-result-wrap').style.display = 'none';
-
-  try {
-    const anchor = buildAnchors.map(id => items.find(i => i.id === id)).filter(Boolean);
-    buildOutfit = await buildOutfitAI(anchor, null);
-    renderBuildOutfit();
-    document.getElementById('build-result-wrap').style.display = 'flex';
-    document.getElementById('build-result-wrap').style.flexDirection = 'column';
-  } catch(e) { toast('Failed: ' + e.message); }
-  btn.disabled = false; btn.textContent = '✦ Generate outfit';
-}
-
-async function buildOutfitAI(anchors, adjustment) {
-  const anchorIds = anchors.map(i => i.id);
-  const anchorDesc = anchors.map(i => `${i.name} (${i.category}, ${(i.colorNames||i.colors||[]).join('/')})`).join(', ');
-  const wardrobe = items.map(i =>
-    `ID:${i.id} | ${i.name} | ${i.category} | colors:${(i.colorNames||i.colors||[]).join(',')} | style:${(i.style||[]).join(',')}`
-  ).join('\n');
-  const palette = profile.flatteringNames.length ? `Wearer's best colours: ${profile.flatteringNames.join(', ')}.` : '';
-  const weatherNote = weather ? `Weather: feels like ${weather.feelsLike??weather.temp}°C, ${weather.desc}.` : '';
-
-  const currentOutfitNote = buildOutfit
-    ? `\nCurrent outfit: ${(buildOutfit.itemIds||[]).map(id=>items.find(i=>i.id===id)?.name).filter(Boolean).join(', ')}`
-    : '';
-
-  const messages = [
-    ...buildChatHistory,
-    { role: 'user', content: adjustment
-        ? `${adjustment}${currentOutfitNote}\n\nAnchor pieces (MUST keep): ${anchorDesc}\n\nWARDROBE:\n${wardrobe}\n\nReturn ONLY valid JSON:\n{"itemIds":["ids"],"outfitName":"name","caption":"2 sentences on colour harmony","colorStory":"mood in 5 words"}`
-        : `Build an outfit around: ${anchorDesc}. ${palette} ${weatherNote}\n\nWARDROBE:\n${wardrobe}\n\nRules: anchor pieces MUST be included. Build a complete head-to-toe look using Seigensha colour principles. Pick 3-8 items.\n\nReturn ONLY valid JSON:\n{"itemIds":["ids"],"outfitName":"name","caption":"2 sentences on colour harmony","colorStory":"mood in 5 words"}`
-    }
-  ];
-
-  const result = parseJSON(await claude(messages, `Expert stylist. Build outfits around anchor pieces. Apply Seigensha colour harmony. Anchor items must always be included. JSON only.`, 1500));
-  // Ensure anchors are always in
-  anchorIds.forEach(id => { if (!result.itemIds.includes(id)) result.itemIds.unshift(id); });
-  return result;
-}
-
-function renderBuildOutfit() {
-  const el = document.getElementById('build-outfit-result');
-  if (!buildOutfit || !el) return;
-  const picked = (buildOutfit.itemIds||[]).map(id => items.find(i=>i.id===id)).filter(Boolean);
-  const n = Math.min(picked.length, 8);
-  const itemsHtml = picked.slice(0,n).map(item => {
-    const src = item.previewSrc || item.imageData;
-    const isAnchor = buildAnchors.includes(item.id);
-    return `<div class="outfit-item"${isAnchor?' style="outline:2.5px solid var(--accent);outline-offset:-2px"':''}>
-      ${src?`<img src="${src}" alt="${item.name}" loading="lazy">`:`<div class="outfit-item-emoji">${catEmoji(item.category)}</div>`}
-      <div class="outfit-item-label">${item.name}${isAnchor?' ✦':''}</div>
-    </div>`;
-  }).join('');
-  el.innerHTML = `
-    <div class="outfit-items n${n}">${itemsHtml}</div>
-    <div class="outfit-caption">
-      <div class="outfit-name">${buildOutfit.outfitName||'Your Look'}</div>
-      <div class="outfit-caption-text">${buildOutfit.caption||''}</div>
-      ${buildOutfit.colorStory?`<div class="outfit-meta" style="margin-top:6px;font-style:italic">${buildOutfit.colorStory}</div>`:''}
+    <div class="or">OR</div>
+    <div style="display:flex;gap:8px">
+      <input class="field" id="add-url" placeholder="Paste an image URL…" style="margin:0" onkeydown="if(event.key==='Enter')onAddUrl()">
+      <button class="btn soft" onclick="onAddUrl()">Go</button>
     </div>`;
 }
+window.onAddFile=async e=>{const f=e.target.files[0];if(!f)return;const d=await fileToData(f);pendingPhoto=d;showAnalysing(d.dataUrl);analyse(d.b64,true,d.mime,d.dataUrl)};
+window.onAddDrop=e=>{e.preventDefault();$('drop')?.classList.remove('over');const f=e.dataTransfer.files[0];if(f?.type.startsWith('image/'))onAddFile({target:{files:[f]}})};
+window.onAddUrl=async()=>{
+  const url=($('add-url').value||'').trim();if(!url)return;
+  showAnalysing(url);
+  try{
+    // fetch & convert to base64 to avoid CORS issues on the API side
+    const blob=await fetch(url).then(r=>r.blob());
+    const d=await fileToData(new File([blob],'img',{type:blob.type}));
+    pendingPhoto=d;analyse(d.b64,true,d.mime,d.dataUrl);
+  }catch(e){analyse(url,false,'image/jpeg',url)} // fall back to URL source
+};
 
-function buildChatSuggest(btn) {
-  document.getElementById('build-chat-input').value = btn.textContent;
-  sendBuildChat();
+function showAnalysing(src){
+  $('add-body').innerHTML=`
+    <div class="preview">${src?`<img src="${src}">`:''}<button class="x" onclick="resetAddBody()">✕</button></div>
+    <div class="analysis"><div class="loading"><div class="spin"></div>Analysing with Claude…</div></div>`;
 }
 
-async function sendBuildChat() {
-  const input = document.getElementById('build-chat-input');
-  const btn = document.getElementById('build-send-btn');
-  const text = input.value.trim();
-  if (!text || btn.disabled) return;
-  input.value = ''; input.style.height = 'auto';
-  btn.disabled = true;
-
-  const msgs = document.getElementById('build-chat-messages');
-  msgs.innerHTML += `<div class="chat-bubble user" style="align-self:flex-end">${text.replace(/</g,'&lt;')}</div>`;
-  const thinking = document.createElement('div');
-  thinking.className = 'chat-bubble ai';
-  thinking.innerHTML = '<div class="chat-thinking"><div class="chat-dot"></div><div class="chat-dot"></div><div class="chat-dot"></div></div>';
-  msgs.appendChild(thinking);
-  msgs.scrollTop = msgs.scrollHeight;
-
-  try {
-    buildChatHistory.push({ role: 'user', content: text });
-    const anchors = buildAnchors.map(id => items.find(i => i.id === id)).filter(Boolean);
-    buildOutfit = await buildOutfitAI(anchors, text);
-    buildChatHistory.push({ role: 'assistant', content: `Updated: ${buildOutfit.outfitName} — ${buildOutfit.caption}` });
-    thinking.remove();
-    msgs.innerHTML += chatBubbleHTML('ai', buildOutfit.caption || 'Done!', []);
-    msgs.scrollTop = msgs.scrollHeight;
-    renderBuildOutfit();
-  } catch(e) {
-    thinking.remove();
-    msgs.innerHTML += `<div class="chat-bubble ai">Sorry: ${e.message}</div>`;
-  }
-  btn.disabled = false;
-}
-
-// ── Ask / Chat ────────────────────────────────────────────────────────────────
-const CHAT_TTL = 24 * 60 * 60 * 1000; // 1 day
-
-function loadChatHistory() {
-  try {
-    const saved = JSON.parse(localStorage.getItem('wrd_chat') || 'null');
-    if (!saved || Date.now() - saved.ts > CHAT_TTL) return [];
-    return saved.messages || [];
-  } catch(e) { return []; }
-}
-function saveChatHistory() {
-  // Strip image data before saving to keep localStorage small
-  const slim = chatHistory.map(m => ({
-    role: m.role,
-    content: typeof m.content === 'string' ? m.content : m.content.find(c=>c.type==='text')?.text || '',
-    imgDataUrls: [] // don't persist images
-  }));
-  localStorage.setItem('wrd_chat', JSON.stringify({ ts: Date.now(), messages: slim }));
-}
-
-let chatHistory = loadChatHistory();
-let chatPendingImgs = []; // array of { b64, mime, dataUrl }
-
-function renderChatImgPreviews() {
-  const wrap = document.getElementById('chat-img-thumbs');
-  const preview = document.getElementById('chat-img-preview');
-  if (!chatPendingImgs.length) { preview.style.display = 'none'; wrap.innerHTML = ''; document.querySelector('.chat-img-btn').classList.remove('has-img'); return; }
-  preview.style.display = 'block';
-  document.querySelector('.chat-img-btn').classList.add('has-img');
-  wrap.innerHTML = chatPendingImgs.map((img, i) => `
-    <div style="position:relative;display:inline-block">
-      <img src="${img.dataUrl}" style="height:72px;width:72px;border-radius:10px;object-fit:cover;display:block">
-      <button onclick="removeChatImg(${i})" style="position:absolute;top:-6px;right:-6px;background:var(--text);color:var(--bg);border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>
-    </div>`).join('');
-}
-function removeChatImg(i) {
-  chatPendingImgs.splice(i, 1);
-  renderChatImgPreviews();
-}
-function clearChatImgs() {
-  chatPendingImgs = [];
-  renderChatImgPreviews();
-}
-async function addChatImgFiles(files) {
-  const imageFiles = [...files].filter(f => f.type.startsWith('image/'));
-  await Promise.all(imageFiles.map(f => fileToB64(f).then(r => chatPendingImgs.push(r))));
-  renderChatImgPreviews();
-}
-function handleChatImg(e) {
-  addChatImgFiles(e.target.files);
-  e.target.value = '';
-}
-function handleChatDrop(e) {
-  e.preventDefault();
-  document.getElementById('chat-input-row').classList.remove('drag-over');
-  addChatImgFiles(e.dataTransfer.files);
-}
-// Global paste listener — catches image paste anywhere on the ask page
-document.addEventListener('paste', e => {
-  if (!document.getElementById('page-ask')?.classList.contains('active')) return;
-  const files = [...(e.clipboardData?.items||[])].map(i => i.getAsFile()).filter(f => f?.type.startsWith('image/'));
-  if (files.length) { e.preventDefault(); addChatImgFiles(files); document.getElementById('chat-input')?.focus(); }
-});
-
-function wardrobeContext() {
-  const wardrobeSummary = items.map(i =>
-    `- ${i.name} (${i.category}, ${(i.colorNames||i.colors||[]).join('/')}${i.brand ? ', '+i.brand : ''}, worn ${i.timesWorn||0}x)`
-  ).join('\n');
-  const palette = profile.flatteringNames.length ? profile.flatteringNames.join(', ') : null;
-  const season = (profile.colorSeason || profile.selfie?.colorSeason) ? `${profile.colorSeason||profile.selfie?.colorSeason} season` : null;
-  const avoidNote = (profile.avoidColors||profile.selfie?.avoidColors||[]).length ? `Colours to avoid: ${(profile.avoidColors||profile.selfie?.avoidColors).join(', ')}.` : null;
-  const profileNote = [palette && `Flattering colours: ${palette}`, season, avoidNote].filter(Boolean).join('. ');
-  const weatherNote = weather ? `Current weather: ${weather.desc}, feels like ${weather.feelsLike??weather.temp}°C.` : '';
-  return `The user's wardrobe:\n${wardrobeSummary||'(no items yet)'}\n\n${profileNote}${profileNote?'\n':''}${weatherNote}`.trim();
-}
-
-function chatBubbleHTML(role, text, imgDataUrls) {
-  if (role === 'user') {
-    const imgs = (imgDataUrls||[]);
-    const imgHtml = imgs.length ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px">${imgs.map(src=>`<img src="${src}" style="height:80px;width:80px;border-radius:10px;object-fit:cover">`).join('')}</div>` : '';
-    return `<div class="chat-bubble user">${imgHtml}${text.replace(/</g,'&lt;')}</div>`;
-  }
-  // Simple markdown-ish rendering for AI
-  const html = text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/^[-•]\s+(.+)$/gm,'<li>$1</li>')
-    .replace(/(<li>[^]*?<\/li>(\n|$))+/g, match => `<ul>${match}</ul>`)
-    .replace(/\n{2,}/g,'</p><p>')
-    .replace(/\n/g,'<br>');
-  return `<div class="chat-bubble ai"><p>${html}</p></div>`;
-}
-
-function renderChatMessages() {
-  const el = document.getElementById('chat-messages');
-  if (!el) return;
-  el.innerHTML = chatHistory.map(m => chatBubbleHTML(m.role, typeof m.content === 'string' ? m.content : m.content.find(c=>c.type==='text')?.text || '', m.imgDataUrls)).join('');
-  el.scrollTop = el.scrollHeight;
-}
-
-function chatSuggest(btn) {
-  const text = btn.textContent.trim();
-  document.getElementById('chat-suggestions').style.display = 'none';
-  document.getElementById('chat-input').value = text;
-  sendChat();
-}
-
-async function sendChat() {
-  const input = document.getElementById('chat-input');
-  const btn = document.getElementById('chat-send-btn');
-  const text = input.value.trim();
-  if (!text || btn.disabled) return;
-
-  document.getElementById('chat-suggestions').style.display = 'none';
-  input.value = ''; input.style.height = 'auto';
-  btn.disabled = true;
-
-  const imgs = [...chatPendingImgs];
-  clearChatImgs();
-
-  // Build message content — text only, or images + text
-  const msgContent = imgs.length
-    ? [...imgs.map(img => imgContent(img.b64, true, img.mime)), { type: 'text', text }]
-    : text;
-  chatHistory.push({ role: 'user', content: msgContent, imgDataUrls: imgs.map(i => i.dataUrl) });
-  renderChatMessages();
-
-  // Thinking bubble
-  const el = document.getElementById('chat-messages');
-  const thinking = document.createElement('div');
-  thinking.className = 'chat-bubble ai';
-  thinking.innerHTML = '<div class="chat-thinking"><div class="chat-dot"></div><div class="chat-dot"></div><div class="chat-dot"></div></div>';
-  el.appendChild(thinking);
-  el.scrollTop = el.scrollHeight;
-
-  try {
-    const messages = chatHistory.map(({ role, content }) => ({ role, content }));
-    const reply = await claude(messages, `You are a personal stylist assistant with deep knowledge of "A Dictionary of Colour Combinations" by Seigensha (ISBN 9784861522475) — the Japanese colour reference containing 348 curated combinations. Apply its principles: tonal harmonies, nature-inspired pairings, muted and desaturated combinations, seasonal colour stories, and traditional Japanese colour relationships. When giving colour advice, think in terms of the named colour moods from that book (e.g. ash and stone, moss and cream, indigo and sand). Be concise, specific, and practical. Always reference actual items from the user's wardrobe by name.\n\n${wardrobeContext()}`);
-    thinking.remove();
-    chatHistory.push({ role: 'assistant', content: reply });
-    renderChatMessages(); saveChatHistory();
-  } catch(e) {
-    thinking.remove();
-    chatHistory.push({ role: 'assistant', content: `Sorry, something went wrong: ${e.message}` });
-    renderChatMessages(); saveChatHistory();
-  }
-  btn.disabled = false;
-  input.focus();
-}
-
-// ── Profile ───────────────────────────────────────────────────────────────────
-function renderProfile() {
-  renderPalette(); renderStats();
-  if (profile.selfie) renderSelfieResult(profile.selfie);
-  const kd = document.getElementById('key-display');
-  if (kd) kd.value = CLAUDE_KEY;
-}
-
-function renderPalette() {
-  const el = document.getElementById('your-palette');
-  if (!profile.palette.length) { el.innerHTML = `<span style="font-size:13px;color:var(--text-muted)">No colours yet</span>`; return; }
-  el.innerHTML = profile.palette.map((c,i)=>`<div class="palette-swatch" style="background:${c}" title="${profile.paletteNames[i]||c}"><button class="palette-remove" onclick="removePaletteColor(${i})">✕</button></div>`).join('');
-}
-
-function addPaletteColor() {
-  const c = document.getElementById('color-picker').value;
-  profile.palette.push(c); profile.paletteNames.push(c);
-  persist(); syncProfile(); renderPalette();
-}
-
-function removePaletteColor(i) {
-  profile.palette.splice(i,1); profile.paletteNames.splice(i,1);
-  persist(); syncProfile(); renderPalette();
-}
-
-function renderStats() {
-  const counts = items.reduce((a,i)=>{ a[i.category]=(a[i.category]||0)+1; return a; },{});
-  const total = items.length;
-  const mostWorn = [...items].sort((a,b)=>(b.timesWorn||0)-(a.timesWorn||0))[0];
-  const neverWorn = items.filter(i=>!i.timesWorn).length;
-  document.getElementById('stats-content').innerHTML = total === 0
-    ? `<div style="font-size:14px;color:var(--text-muted)">No items yet</div>`
-    : [
-        `<div style="display:flex;justify-content:space-between;font-size:14px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">Total items</span><strong>${total}</strong></div>`,
-        neverWorn>0?`<div style="display:flex;justify-content:space-between;font-size:14px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">Never worn</span><strong style="color:#ef4444">${neverWorn}</strong></div>`:'',
-        mostWorn?.timesWorn>0?`<div style="display:flex;justify-content:space-between;font-size:14px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">Most worn</span><strong>${mostWorn.name}</strong></div>`:'',
-        Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([cat,n])=>`<div style="display:flex;justify-content:space-between;font-size:14px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted)">${cap(cat)}</span><strong>${n}</strong></div>`).join(''),
-      ].join('');
-}
-
-async function handleSelfieFile(e) {
-  const file = e.target.files[0]; if (!file) return;
-  const { b64, mime } = await fileToB64(file);
-  document.getElementById('selfie-upload-wrap').innerHTML = `<div class="analysis-loading" style="justify-content:center;padding:20px"><div class="spinner"></div><span>Analysing your colours…</span></div>`;
-  try {
-    const r = await analyseSelfieImage(b64, true, mime);
-    // Store all selfie fields directly on profile
-    profile.selfie = r;
-    profile.flatteringColors = r.flatteringColors||[];
-    profile.flatteringNames = r.flatteringNames||[];
-    profile.colorSeason = r.colorSeason||null;
-    profile.skinTone = r.skinTone||null;
-    profile.undertone = r.undertone||null;
-    profile.seasonDesc = r.seasonDesc||null;
-    profile.styleNote = r.styleNote||null;
-    profile.avoidColors = r.avoidColors||[];
-    // Add new flattering colours to palette, preserving name/colour pairing
-    const existingSet = new Set(profile.palette);
-    const newColors = (r.flatteringColors||[]).filter(c => !existingSet.has(c));
-    const newNames = newColors.map((_,i) => r.flatteringNames?.[i + (r.flatteringColors?.length - newColors.length)] || r.flatteringNames?.[i] || '');
-    profile.palette = [...profile.palette, ...newColors];
-    profile.paletteNames = [...profile.paletteNames, ...newNames];
-    persist(); syncProfile(); renderSelfieResult(r); renderPalette();
-    toast('Colour analysis complete ✓');
-  } catch(e) {
-    document.getElementById('selfie-upload-wrap').innerHTML = `<div style="color:#ef4444;font-size:14px;padding:12px">Analysis failed: ${e.message}</div><button class="btn btn-secondary" onclick="resetSelfie()">Try again</button>`;
+async function analyse(data,isB64,mime,previewSrc){
+  try{
+    const text=await claude([{role:'user',content:[isB64?imgPart(data,mime):{type:'image',source:{type:'url',url:data}},{type:'text',text:
+`Analyse this single clothing item / accessory / shoe. Return ONLY JSON:
+{"name":"concise specific name (e.g. 'Cream Cable Knit Jumper')","category":"tops|bottoms|dresses|outerwear|shoes|bags|accessories","colors":["hex"],"colorNames":["precise colour names like sage, camel, charcoal — never fabric names"],"style":["2-4 tags"],"fabric":"fabric or null","season":["spring","summer","autumn","winter"]}`}]}],
+    'Expert fashion cataloguer. Precise, concise. JSON only.',700);
+    pending={...parseJSON(text),imageData:isB64?data:null,isBase64:isB64,mime,previewSrc};
+    showReview(pending,previewSrc);
+  }catch(e){
+    $('add-body').innerHTML=`<div class="preview" style="max-width:170px">${previewSrc?`<img src="${previewSrc}">`:''}<button class="x" onclick="resetAddBody()">✕</button></div><div class="analysis" style="font-size:14px"><strong style="color:var(--danger)">Analysis failed</strong><br><span style="color:var(--soft)">${esc(niceErr(e))}</span></div><button class="btn soft full" onclick="resetAddBody()">Try again</button>`;
   }
 }
 
-function handleSelfieFileDrop(e) {
-  e.preventDefault();
-  const file = e.dataTransfer.files[0];
-  if (file?.type.startsWith('image/')) handleSelfieFile({ target:{ files:[file] } });
+function showReview(p,src){
+  const dots=(p.colors||[]).map((c,i)=>`<span class="sw" style="background:${c}" title="${esc(p.colorNames?.[i]||'')}"></span>`).join('');
+  $('add-body').innerHTML=`
+    <div class="preview" style="max-width:170px">${src?`<img src="${src}">`:''}<button class="x" onclick="resetAddBody()">✕</button></div>
+    <div class="analysis">
+      <div class="arow"><span class="k">Category</span><span class="v">${cap(p.category)}</span></div>
+      ${dots?`<div class="arow"><span class="k">Colours</span><span style="display:flex;gap:5px">${dots}</span></div>`:''}
+      ${p.fabric?`<div class="arow"><span class="k">Fabric</span><span class="v">${esc(p.fabric)}</span></div>`:''}
+      ${p.style?.length?`<div class="arow"><span class="k">Style</span><span class="v">${esc(p.style.join(', '))}</span></div>`:''}
+    </div>
+    <input class="field" id="r-name" value="${esc(p.name||'')}" placeholder="Name">
+    <select class="field" id="r-cat">${CATS.map(c=>`<option value="${c}"${c===p.category?' selected':''}>${cap(c)}</option>`).join('')}</select>
+    <input class="field" id="r-brand" placeholder="Brand (optional)" value="${esc(p.brand||'')}">
+    <button class="btn dark full" style="margin-top:6px" onclick="saveItem()">Save to closet</button>`;
 }
 
-function renderSelfieResult(r) {
-  const dots = (r.flatteringColors||[]).map((c,i)=>`<span class="color-swatch" style="background:${c};width:28px;height:28px" title="${r.flatteringNames?.[i]||c}"></span>`).join('');
-  document.getElementById('selfie-upload-wrap').style.display = 'none';
-  document.getElementById('selfie-result').style.display = 'block';
-  document.getElementById('selfie-result').innerHTML = `
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div style="display:flex;gap:16px;flex-wrap:wrap">
-        <div style="flex:1;min-width:100px"><div class="section-label" style="margin-bottom:4px">Skin Tone</div><div style="font-size:14px;font-weight:500">${r.skinTone}</div></div>
-        <div style="flex:1;min-width:100px"><div class="section-label" style="margin-bottom:4px">Undertone</div><div style="font-size:14px;font-weight:500">${cap(r.undertone)}</div></div>
-        <div style="flex:1;min-width:100px"><div class="section-label" style="margin-bottom:4px">Season</div><div style="font-size:14px;font-weight:500">${cap(r.colorSeason)}</div></div>
+window.saveItem=async()=>{
+  if(!pending){toast('Analyse a photo first');return}
+  const it={
+    ...pending,
+    id:Date.now().toString(),
+    name:($('r-name')?.value||'').trim()||pending.name||'Unnamed item',
+    category:$('r-cat')?.value||pending.category||'tops',
+    brand:($('r-brand')?.value||'').trim(),
+    addedAt:new Date().toISOString(),
+    timesWorn:0
+  };
+  items.push(it);
+  try{await idbPutAll([it])}catch(e){}
+  pushItem(it);
+  closeAdd();
+  toast('Added to closet ✓');
+  if(curPage==='closet')renderCloset();
+  if(curPage==='today'&&items.length>=2&&!todayOutfit)renderToday();
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   STYLIST CHAT
+   ═══════════════════════════════════════════════════════════════ */
+function wardrobeText(){
+  const w=items.map(i=>`- ${i.name} (${i.category}, ${(i.colorNames||i.colors||[]).join('/')}${i.brand?', '+i.brand:''})`).join('\n');
+  const fav=profile.flatteringNames?.length?`Flattering colours: ${profile.flatteringNames.join(', ')}.`:'';
+  const season=profile.selfie?.colorSeason?`Colour season: ${profile.selfie.colorSeason}.`:'';
+  const w2=weather?`Weather: ${weather.desc.replace(/^\S+\s/,'')}, feels like ${weather.feelsLike}°C.`:'';
+  return `The wearer's closet:\n${w||'(empty)'}\n\n${[fav,season,w2].filter(Boolean).join(' ')}`.trim();
+}
+function renderChat(){
+  const el=$('msgs');
+  el.innerHTML=chat.map(m=>bubble(m.role,typeof m.content==='string'?m.content:(m.content.find(c=>c.type==='text')?.text||''),m.imgs)).join('');
+  $('suggest').style.display=chat.length?'none':'flex';
+  el.scrollTop=el.scrollHeight;
+}
+function bubble(role,text,imgs){
+  if(role==='user'){
+    const im=(imgs||[]).map(s=>`<img src="${s}" style="width:78px;height:78px;border-radius:10px;object-fit:cover;margin-bottom:5px">`).join('');
+    return `<div class="bubble me">${im}${esc(text)}</div>`;
+  }
+  const html=esc(text).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/^[-•]\s+(.+)$/gm,'<li>$1</li>').replace(/(<li>[^]*?<\/li>\n?)+/g,m=>`<ul>${m}</ul>`).replace(/\n{2,}/g,'</p><p>').replace(/\n/g,'<br>');
+  return `<div class="bubble ai"><p>${html}</p></div>`;
+}
+window.quickAsk=b=>{$('chat-input').value=b.textContent;sendChat()};
+window.newChat=()=>{chat=[];chatImgs=[];renderChat();renderThumbs();$('chat-input').focus()};
+
+window.sendChat=async()=>{
+  const inp=$('chat-input'),btn=$('send');
+  const text=inp.value.trim();
+  if((!text&&!chatImgs.length)||btn.disabled)return;
+  inp.value='';autoGrow(inp);btn.disabled=true;
+  const imgs=[...chatImgs];chatImgs=[];renderThumbs();
+  const content=imgs.length?[...imgs.map(i=>imgPart(i.b64,i.mime)),{type:'text',text:text||'What do you think?'}]:text;
+  chat.push({role:'user',content,imgs:imgs.map(i=>i.dataUrl)});
+  renderChat();
+  const el=$('msgs');
+  const think=document.createElement('div');think.className='bubble ai';think.innerHTML='<div class="think"><i></i><i></i><i></i></div>';el.appendChild(think);el.scrollTop=el.scrollHeight;
+  try{
+    const msgs=chat.map(({role,content})=>({role,content}));
+    const reply=await claude(msgs,`You are a warm, sharp personal stylist. You know the wearer's whole closet (below) and reference real items by name. You give specific, confident, practical advice — outfit ideas, what suits them, what to buy. Keep replies concise and friendly, use short paragraphs or bullet points.\n\n${wardrobeText()}`,1024);
+    think.remove();chat.push({role:'assistant',content:reply});renderChat();
+  }catch(e){think.remove();chat.push({role:'assistant',content:`Sorry — ${niceErr(e)}`});renderChat()}
+  btn.disabled=false;inp.focus();
+};
+window.onChatFiles=async e=>{await addChatImgs(e.target.files);e.target.value=''};
+window.onChatDrop=e=>{e.preventDefault();$('composer').classList.remove('over');addChatImgs(e.dataTransfer.files)};
+async function addChatImgs(files){const arr=[...files].filter(f=>f.type.startsWith('image/'));await Promise.all(arr.map(f=>fileToData(f).then(d=>chatImgs.push(d))));renderThumbs()}
+function renderThumbs(){
+  const w=$('chat-thumbs');w.innerHTML=chatImgs.map((im,i)=>`<div class="t"><img src="${im.dataUrl}"><button onclick="rmThumb(${i})">✕</button></div>`).join('');
+  $('attach').classList.toggle('has',chatImgs.length>0);
+}
+window.rmThumb=i=>{chatImgs.splice(i,1);renderThumbs()};
+document.addEventListener('paste',e=>{if(curPage!=='stylist')return;const f=[...(e.clipboardData?.items||[])].map(i=>i.getAsFile()).filter(f=>f?.type.startsWith('image/'));if(f.length){e.preventDefault();addChatImgs(f)}});
+function autoGrow(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,110)+'px'}
+
+/* ═══════════════════════════════════════════════════════════════
+   YOU
+   ═══════════════════════════════════════════════════════════════ */
+function renderYou(){renderPalette();renderStats();$('key-field').value=KEY;if(profile.selfie)renderSelfie(profile.selfie)}
+function renderPalette(){
+  const el=$('palette');
+  if(!profile.palette?.length){el.innerHTML=`<span style="font-size:13px;color:var(--faint)">No colours yet</span>`;return}
+  el.innerHTML=profile.palette.map((c,i)=>`<span class="sw" style="background:${c}" title="${esc(profile.paletteNames?.[i]||c)}"><button onclick="rmColour(${i})">✕</button></span>`).join('');
+}
+window.addColour=()=>{const c=$('picker').value;profile.palette.push(c);profile.paletteNames.push(c);saveProfile();pushProfile();renderPalette()};
+window.rmColour=i=>{profile.palette.splice(i,1);profile.paletteNames.splice(i,1);saveProfile();pushProfile();renderPalette()};
+function renderStats(){
+  const el=$('stats');
+  if(!items.length){el.innerHTML=`<div style="font-size:14px;color:var(--soft)">No items yet</div>`;return}
+  const by={};items.forEach(i=>by[i.category]=(by[i.category]||0)+1);
+  const never=items.filter(i=>!i.timesWorn).length;
+  const most=[...items].sort((a,b)=>(b.timesWorn||0)-(a.timesWorn||0))[0];
+  el.innerHTML=
+    `<div class="stat"><span class="k">Total pieces</span><span class="v">${items.length}</span></div>`+
+    (never?`<div class="stat"><span class="k">Never worn</span><span class="v">${never}</span></div>`:'')+
+    (most?.timesWorn?`<div class="stat"><span class="k">Most worn</span><span class="v">${esc(most.name)}</span></div>`:'')+
+    Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`<div class="stat"><span class="k">${cap(c)}</span><span class="v">${n}</span></div>`).join('');
+}
+window.onSelfie=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  const d=await fileToData(f);
+  $('selfie-result').innerHTML=`<div class="loading" style="justify-content:center;padding:14px"><div class="spin"></div>Analysing your colours…</div>`;
+  try{
+    const text=await claude([{role:'user',content:[imgPart(d.b64,d.mime),{type:'text',text:`Analyse this person's natural colouring. Return ONLY JSON:\n{"skinTone":"e.g. warm medium","undertone":"warm|cool|neutral","colorSeason":"spring|summer|autumn|winter","flatteringColors":["hex"],"flatteringNames":["names"],"avoidColors":["names"],"note":"1 sentence of advice"}`}]}],'Expert colour analyst. JSON only.',900);
+    const r=parseJSON(text);
+    profile.selfie=r;profile.flatteringColors=r.flatteringColors||[];profile.flatteringNames=r.flatteringNames||[];
+    const have=new Set(profile.palette);
+    (r.flatteringColors||[]).forEach((c,i)=>{if(!have.has(c)){profile.palette.push(c);profile.paletteNames.push(r.flatteringNames?.[i]||c)}});
+    saveProfile();pushProfile();renderPalette();renderSelfie(r);
+    toast('Colour analysis done ✓');
+  }catch(e){$('selfie-result').innerHTML=`<div style="color:var(--danger);font-size:13px;padding:8px">${esc(niceErr(e))}</div>`}
+};
+function renderSelfie(r){
+  const dots=(r.flatteringColors||[]).map((c,i)=>`<span class="sw" style="background:${c}" title="${esc(r.flatteringNames?.[i]||'')}"></span>`).join('');
+  $('selfie-result').innerHTML=`
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line)">
+      <div style="display:flex;gap:14px;font-size:13px;margin-bottom:10px">
+        <div><div class="arow" style="border:none;padding:0"><span class="k">Season</span></div><strong>${cap(r.colorSeason||'')}</strong></div>
+        <div><div class="arow" style="border:none;padding:0"><span class="k">Undertone</span></div><strong>${cap(r.undertone||'')}</strong></div>
       </div>
-      <div><div class="section-label" style="margin-bottom:8px">Your Flattering Colours</div><div style="display:flex;gap:6px;flex-wrap:wrap">${dots}</div></div>
-      <div style="font-size:14px;color:var(--text-muted);line-height:1.6">${r.styleNote}</div>
-      ${r.avoidColors?.length?`<div style="font-size:13px;color:var(--text-muted)">Colours to avoid: ${r.avoidColors.join(', ')}</div>`:''}
-      <div style="font-size:13px;color:var(--text-muted);font-style:italic">${r.seasonDesc||''}</div>
-      <button class="btn btn-secondary" onclick="resetSelfie()">Re-analyse</button>
+      ${dots?`<div class="palette">${dots}</div>`:''}
+      ${r.note?`<div style="font-size:13px;color:var(--soft);line-height:1.5">${esc(r.note)}</div>`:''}
     </div>`;
 }
 
-function resetSelfie() {
-  profile.selfie = null; persist();
-  document.getElementById('selfie-upload-wrap').style.display = 'block';
-  document.getElementById('selfie-upload-wrap').innerHTML = `<div class="upload-zone" style="padding:28px" ondragover="event.preventDefault()" ondrop="handleSelfieFileDrop(event)"><input type="file" accept="image/*" onchange="handleSelfieFile(event)"><div class="upload-zone-icon">🤳</div><div class="upload-zone-text"><strong>Upload a selfie</strong></div></div>`;
-  document.getElementById('selfie-result').style.display = 'none';
-}
+/* ═══════════════════════════════════════════════════════════════
+   SYNC (manual)
+   ═══════════════════════════════════════════════════════════════ */
+window.manualSync=async()=>{
+  const el=$('sync-status');el.textContent='⏳ Backing up…';
+  let ok=0,fail=0;
+  for(const it of items){try{const r=await fetch(`${SB_URL}/rest/v1/wardrobe_items`,{method:'POST',headers:{...SB_HEAD,'Prefer':'resolution=merge-duplicates'},body:JSON.stringify(sbStrip(it))});r.ok?ok++:fail++}catch(e){fail++}}
+  await pushProfile();
+  el.textContent='⏳ Pulling latest…';
+  await pullRemote();
+  renderStats();
+  el.textContent=fail?`⚠️ ${ok} synced, ${fail} failed`:`✓ ${items.length} items synced · ${new Date().toLocaleTimeString()}`;
+  toast(fail?`${fail} failed to sync`:'Sync complete ✓');
+};
 
-function updateKey() {
-  const k = document.getElementById('key-display').value.trim();
-  if (!k.startsWith('sk-ant-')) { toast('Invalid key format'); return; }
-  CLAUDE_KEY = k; _anthropic = null; localStorage.setItem('wrd_claude_key', k);
-  toast('API key updated ✓');
-}
+/* ═══════════════════════════════════════════════════════════════
+   SHEETS / THEME / KEY
+   ═══════════════════════════════════════════════════════════════ */
+function openSheet(id){$(id).classList.add('on')}
+function closeSheet(id){$(id).classList.remove('on')}
+window.closeSheet=closeSheet;
 
-// ── Supabase sync ─────────────────────────────────────────────────────────────
-const SB_HEADERS = { 'Content-Type':'application/json','apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}` };
+window.toggleTheme=()=>{const d=document.documentElement.getAttribute('data-theme')==='dark';document.documentElement.setAttribute('data-theme',d?'light':'dark');localStorage.setItem('wrd_theme',d?'light':'dark')};
+window.saveKeyFromSettings=()=>{const k=($('key-field').value||'').trim();if(!k.startsWith('sk-ant-')){toast('Invalid key format');return}KEY=k;_client=null;localStorage.setItem('wrd_claude_key',k);toast('Key saved ✓')};
+window.saveGateKey=()=>{const k=($('gate-key').value||'').trim();if(!k.startsWith('sk-ant-')){toast("Doesn't look like a valid key");return}KEY=k;_client=null;localStorage.setItem('wrd_claude_key',k);$('gate').classList.remove('on');boot()};
 
-// Prepare item for Supabase: strip previewSrc (display-only), reconstruct imageData if missing.
-function sbItem(item) {
-  const { previewSrc, ...rest } = item;
-  // After a page reload, imageData is stripped from localStorage to save quota.
-  // Reconstruct it from previewSrc so Supabase always gets the image.
-  if (!rest.imageData && previewSrc?.startsWith('data:')) {
-    const commaIdx = previewSrc.indexOf(',');
-    if (commaIdx !== -1) {
-      rest.imageData = previewSrc.slice(commaIdx + 1);
-      if (!rest.mime) {
-        const mimeMatch = previewSrc.match(/^data:([^;]+);/);
-        rest.mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-      }
-    }
-  }
-  return rest;
-}
+$('chat-input').addEventListener('input',function(){autoGrow(this)});
 
-async function syncItem(item) {
-  if (!SB_URL||!SB_KEY) return;
-  try {
-    const r = await fetch(`${SB_URL}/rest/v1/wardrobe_items`, {
-      method:'POST', headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates'},
-      body: JSON.stringify(sbItem(item))
-    });
-    if (!r.ok) console.warn('syncItem failed', r.status, await r.text().catch(()=>''));
-  } catch(e) { console.warn('syncItem error', e); }
-}
-async function deleteItemRemote(id) {
-  if (!SB_URL||!SB_KEY) return;
-  try { await fetch(`${SB_URL}/rest/v1/wardrobe_items?id=eq.${id}`,{ method:'DELETE', headers:SB_HEADERS }); } catch(e) {}
-}
-async function syncProfile() {
-  if (!SB_URL||!SB_KEY) return;
-  try {
-    const r = await fetch(`${SB_URL}/rest/v1/wardrobe_profile`, {
-      method:'POST', headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates'},
-      body: JSON.stringify({id:'main',...profile})
-    });
-    if (!r.ok) console.warn('syncProfile failed', r.status, await r.text().catch(()=>''));
-  } catch(e) { console.warn('syncProfile error', e); }
-}
-async function loadFromSupabase() {
-  if (!SB_URL||!SB_KEY) return;
-  try {
-    const [ir, pr] = await Promise.all([
-      fetch(`${SB_URL}/rest/v1/wardrobe_items?select=*`,{headers:SB_HEADERS}),
-      fetch(`${SB_URL}/rest/v1/wardrobe_profile?id=eq.main&select=*`,{headers:SB_HEADERS}),
-    ]);
-    if (ir.ok) {
-      const remote = await ir.json();
-      if (remote.length > 0) {
-        const remoteIds = new Set(remote.map(i=>i.id));
-        // Merge: remote wins for existing items, keep local-only items
-        const localOnly = items.filter(i => !remoteIds.has(i.id));
-        // Restore previewSrc from local copy (not stored in Supabase)
-        const merged = remote.map(ri => {
-          const local = items.find(i => i.id === ri.id);
-          const preview = local?.previewSrc
-            || (ri.imageData ? `data:${ri.mime||'image/jpeg'};base64,${ri.imageData}` : null);
-          return { ...ri, previewSrc: preview };
-        });
-        items = [...merged, ...localOnly];
-        persist();
-      }
-    }
-    if (pr.ok) {
-      const pArr = await pr.json();
-      if (pArr.length > 0) { const {id,...rp} = pArr[0]; profile = {...profile,...rp}; persist(); }
-    }
-  } catch(e) { console.warn('loadFromSupabase error', e); }
-}
-
-async function syncTodayOutfit() {
-  if (!todayOutfit || !SB_URL || !SB_KEY) return;
-  try {
-    await fetch(`${SB_URL}/rest/v1/wardrobe_today`, {
-      method: 'POST',
-      headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates' },
-      body: JSON.stringify({
-        id: 'main', date: dateKey(),
-        outfitName: todayOutfit.outfitName,
-        itemIds: todayOutfit.itemIds,
-        caption: todayOutfit.caption,
-        occasion: activeOccasion,
-        weather: weather ? `${weather.desc}, ${weather.temp}°C` : null
-      })
-    });
-  } catch(e) {}
-}
-
-async function manualSync() {
-  const el = document.getElementById('sync-status');
-  el.textContent = '⏳ Pushing local items…';
-  let pushed = 0, failed = 0;
-  let lastError = '';
-  for (const item of items) {
-    try {
-      const r = await fetch(`${SB_URL}/rest/v1/wardrobe_items`, {
-        method:'POST', headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates'},
-        body: JSON.stringify(sbItem(item))
-      });
-      if (r.ok) pushed++; else { failed++; lastError = `${r.status}: ${await r.text().catch(()=>'')}`; }
-    } catch(e) { failed++; lastError = e.message; }
-  }
-  await syncProfile();
-  el.textContent = '⏳ Pulling from cloud…';
-  await loadFromSupabase();
-  renderWardrobe(); renderProfile();
-  const msg = failed > 0
-    ? `⚠️ ${pushed} synced, ${failed} failed: ${lastError}`
-    : `✓ ${items.length} items synced · ${new Date().toLocaleTimeString()}`;
-  el.textContent = msg;
-  toast(failed > 0 ? `${failed} items failed to sync` : 'Sync complete ✓');
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function cap(s) { return s ? s[0].toUpperCase()+s.slice(1) : ''; }
-function catEmoji(c) { return {tops:'👕',bottoms:'👖',dresses:'👗',outerwear:'🧥',shoes:'👟',bags:'👜',accessories:'💍',all:'👗'}[c]||'👗'; }
-
-// ── API key setup ─────────────────────────────────────────────────────────────
-function showKeySetup() { document.getElementById('key-setup').style.display = 'flex'; }
-function saveKey() {
-  const k = document.getElementById('key-input').value.trim();
-  if (!k.startsWith('sk-ant-')) { toast("Doesn't look like a valid key"); return; }
-  CLAUDE_KEY = k; _anthropic = null; localStorage.setItem('wrd_claude_key', k);
-  document.getElementById('key-setup').style.display = 'none';
-  toast('API key saved ✓');
-}
-
-// ── Init ──────────────────────────────────────────────────────────────────────
-(async function init() {
-  const theme = localStorage.getItem('wrd_theme') || (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
-  document.documentElement.setAttribute('data-theme', theme);
-  document.getElementById('theme-label').textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
-  if (!CLAUDE_KEY) showKeySetup();
-  hydrate();
+/* ═══════════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════════ */
+async function boot(){
+  loadSettings();
+  // instant render from local cache
+  try{items=await idbAll()}catch(e){items=[]}
+  renderToday();
   fetchWeather();
-  renderToday();
-  await loadFromSupabase();
-  renderToday();
-  // Auto-resize chat textarea
-  document.getElementById('chat-input')?.addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 100) + 'px';
-  });
-  // Auto-resize build chat textarea
-  document.getElementById('build-chat-input')?.addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-  });
+  // pull cloud (source of truth), then refresh
+  await pullRemote();
+  if(curPage==='today'&&!todayOutfit)renderToday();
+  if(curPage==='closet')renderCloset();
+  if(curPage==='you')renderYou();
+}
+
+(function init(){
+  const theme=localStorage.getItem('wrd_theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
+  document.documentElement.setAttribute('data-theme',theme);
+  if(!KEY){$('gate').classList.add('on');return}
+  boot();
 })();
 </script>
 </body>
